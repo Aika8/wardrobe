@@ -1,6 +1,6 @@
 # 0003. Draw clothes and the doll with react-native-svg
 
-- Status: Proposed
+- Status: Accepted (Aika, 25 November 2026; implemented by WR-033)
 - Date: 2026-11-25
 - Pattern(s): none
 

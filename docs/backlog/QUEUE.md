@@ -421,15 +421,14 @@ must ignore its own file. Put a planted temporary file in `os.tmpdir()` to show 
 (test the matcher function, not the real tree, for the positive cases).
 
 ### WR-027 — The avatar screen: the dressed doll (вид проверяет Aika)
-- status: waiting
-- waits: Aika's decision on the avatar (the drawn doll, or a photo try-on later)
+- status: todo
 - depends: WR-021, WR-024, WR-028, WR-033, WR-035
 - size: S
 - paths: `client/src/avatar/**`, `client/src/screens/**`, `client/App.tsx`, `client/test/avatar.test.mjs`, `docs/backlog/reports/screens/WR-027.png`
 - verify: `cd client && npm test`
 - expect: green; the scaling logic is tested; the PR says «draft — вид проверяет Aika»
 
-The doll must look real, not boxy (`docs/design/DESIGN.md`, «Clothes and the doll»). Its template comes from
+The avatar is the drawn doll (Aika, 25 November 2026; a photo try-on is for after the holiday). The doll must look real, not boxy (`docs/design/DESIGN.md`, «Clothes and the doll»). Its template comes from
 `python3 docs/design/mockups/garments.py --json`: `doll_bare` (the body), `doll_landmarks` (y of head, shoulders,
 chest, waist, hips, crotch, knee, ankle, floor and the centre x) — already in `client/src/ui/garments.data.ts` after
 WR-033; never type the landmarks a second time. `client/src/avatar/fit.ts`: `bands(answer, heightPx)` maps the
@@ -468,15 +467,14 @@ system font and write in `DECISIONS.md` that the font waits for an ADR. Pure log
 Screenshot (after WR-035): `cd client && npm run screenshot -- WR-028` writes `docs/backlog/reports/screens/WR-028.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
 
 ### WR-033 — Real-looking clothes on the phone: ClothingDrawing (вид проверяет Aika)
-- status: waiting
-- waits: Aika's «да» to ADR-0003 (`react-native-svg`; its status stays Proposed on main — this task's PR sets it Accepted)
+- status: todo
 - depends: WR-028, WR-035
 - size: S
-- paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/src/ui/ItemThumb.tsx`, `client/test/garments.test.mjs`, `docs/adr/0003-draw-clothes-with-svg.md`, `docs/backlog/reports/screens/WR-033.png`
+- paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/src/ui/ItemThumb.tsx`, `client/test/garments.test.mjs`, `docs/backlog/reports/screens/WR-033.png`
 - verify: `cd client && npm test`
 - expect: green; the test fails when `garments.data.ts` differs from what `docs/design/mockups/garments.py` draws
 
-Implement ADR-0003 and set its status to Accepted in the same PR. `cd client && npx expo install react-native-svg`.
+Implement ADR-0003 (Accepted). `cd client && npx expo install react-native-svg`.
 Generate `client/src/ui/garments.data.ts` from `python3 docs/design/mockups/garments.py --json` (SVG markup per
 garment kind with a `{colour}` placeholder, and the doll with `{shirt}` / `{trousers}`; do not change the script —
 it is Aika's). `ClothingDrawing({kind, colour, size})` fills the placeholder and renders the markup with

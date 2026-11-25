@@ -200,8 +200,9 @@ class PathsTest(unittest.TestCase):
         tasks = b.parse_tasks(QUEUE.replace("`clients/mobile/src/**`", "`docs/design/**`"))
         p = b.check_paths("claude/wr-002", [b.Change("modified", "docs/design/approved/avatar.md")], tasks, self.root)
         self.assertTrue(any("look" in x for x in p))
-        self.assertEqual(b.check_paths("claude/wr-002", [b.Change("added", "docs/design/drafts/avatar.md")],
-                                       tasks, self.root), [])
+        for path in ["docs/design/DESIGN.md", "docs/design/mockups/mockups.html", "docs/design/drafts/avatar.md"]:
+            p = b.check_paths("claude/wr-002", [b.Change("added", path)], tasks, self.root)
+            self.assertTrue(any("look" in x for x in p), path)
 
     def test_proposals_and_summary_branches(self):
         self.assertEqual(self.check("claude/proposals-analyst-2026-12-03",

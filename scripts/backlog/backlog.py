@@ -79,11 +79,11 @@ PROTECTED = [
     "**/META-INF/**",
     "**/.npmrc",
 ]
-# Approved designs are Aika's: once she has looked at a screen or the avatar and approved it, the reference goes
-# here and no cloud agent changes it. Drafts of screens and the avatar (client/, avatar logic) are not visual in
-# this sense: agents build them, Aika checks their look after the week (tasks marked «вид проверяет Aika»).
+# The design is Aika's: the theme, tokens, component set and mockups (docs/design/DESIGN.md, mockups/) and the
+# designs she approved. No cloud agent changes them; a missing component is a proposal for Aika. Screens built in
+# client/ from those components are agent work (tasks marked «вид проверяет Aika»).
 VISUAL = [
-    "docs/design/approved/**",
+    "docs/design/**",
 ]
 NOT_VISUAL: list[str] = []
 # Proposals from the analyst/user runs may not reach build or test configuration (code would merge a test exclusion).

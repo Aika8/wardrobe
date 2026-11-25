@@ -18,6 +18,8 @@ Commands
   plan                         the executor's move for this run: PAUSED | PARK | FIX | REBASE | CI-RED |
                                WIP-LIMIT | NOTHING | NEW <task>
   review-queue                 the reviewer's move: PAUSED | REVIEW #n … | NOTHING
+  prod-changes [--base REF]    `added <path>` / `changed <path>` for non-test, non-doc files (the reviewer's
+                               "tests in a vacuum" check)
 """
 from __future__ import annotations
 
@@ -56,6 +58,8 @@ PROTECTED = [
     "docs/backlog/prompts/**",
     "docs/backlog/PAUSE",
     "docs/backlog/intake-log.md",
+    "docs/backlog/TECH-DEBT.md",
+    "docs/backlog/experience/README.md",
     "gradle/wrapper/**",
     "docs/adr/0000-template.md",
     "gradlew",
@@ -103,8 +107,13 @@ APPEND_ONLY = [
     "client/**/*.test.mjs",
     "**/quality-gates/**",
     "**/test_*.py",
+    "docs/backlog/tech-debt/**",
+    "docs/backlog/experience/**",
 ]
-ALWAYS_ALLOWED_FOR_TASKS = ["DECISIONS.md"]
+# Notes, not tests: append-only, but a note may quote `@Disabled` or `test.skip(` when it reports one.
+NOTES = ["docs/backlog/tech-debt/**", "docs/backlog/experience/**"]
+# Every task PR may add these (new files only — APPEND_ONLY covers the two folders).
+ALWAYS_ALLOWED_FOR_TASKS = ["DECISIONS.md", "docs/backlog/tech-debt/*.md", "docs/backlog/experience/*.md"]
 SKIP_MARKERS = re.compile(r"@Disabled|@Ignore|\btest\.skip\(|\bit\.skip\(|\bdescribe\.skip\(|\btest\.todo\(|"
                           r"\bpending\(|assumeTrue\(false|\bskip\s*:\s*true|func\s+skip_", re.I)
 ADR_FILE = re.compile(r"^docs/adr/\d{4}-.*\.md$")
@@ -137,6 +146,11 @@ def narrow(path: str) -> bool:
     (here modules sit at the top level, so two folders would still reach test resources and configuration)."""
     head = re.split(r"[*?]", path, 1)[0]
     return head == path or head.count("/") >= 3
+
+
+def is_production(path: str) -> bool:
+    """Code whose behaviour tests pin: not a test, not docs, not the backlog's own files."""
+    return not (matches(path, APPEND_ONLY) or path.endswith(".md") or path.startswith("docs/"))
 
 
 def visual(path: str) -> bool:
@@ -418,7 +432,8 @@ def check_paths(branch: str, changes: list[Change], tasks: list[Task], root: Pat
                 problems.append(f"{p}: an existing test or quality gate is {c.status}; add a new file instead")
             if c.status != "added" and ADR_FILE.match(p) and not adr_is_open(p, root):
                 problems.append(f"{p}: an accepted ADR is never edited; supersede it with a new ADR")
-        if c.status == "added" and matches(c.path, APPEND_ONLY) and SKIP_MARKERS.search(c.added_text):
+        if c.status == "added" and matches(c.path, APPEND_ONLY) and not matches(c.path, NOTES) \
+                and SKIP_MARKERS.search(c.added_text):
             problems.append(f"{c.path}: a new test file skips or disables tests")
         if kind == "task":
             if not matches(c.path, task.paths + ALWAYS_ALLOWED_FOR_TASKS):
@@ -785,6 +800,8 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("intake"); s.add_argument("--date", default=dt.date.today().isoformat())
     s = sub.add_parser("automerge"); s.add_argument("--dry-run", action="store_true")
     sub.add_parser("plan", help="executor: what to do in this run (one line: MOVE detail)")
+    s = sub.add_parser("prod-changes", help="reviewer: changed files that are not tests or docs (for the vacuum check)")
+    s.add_argument("--base", default="origin/main")
     sub.add_parser("review-queue", help="reviewer: which PR to review in this run")
     a = ap.parse_args(argv)
 
@@ -800,6 +817,11 @@ def main(argv: list[str] | None = None) -> int:
         print("\n".join([f"accepted: {x}" for x in acc] + [f"left for Aika: {x}" for x in rej]) or "nothing")
         return 0
 
+    if a.cmd == "prod-changes":
+        for c in changes_from_git(a.base):
+            if c.status != "removed" and is_production(c.path):
+                print(("added " if c.status in ("added", "renamed") else "changed ") + c.path)  # a renamed path is new on main
+        return 0
     tasks = load_tasks()
     if a.cmd in ("plan", "review-queue"):
         if (ROOT / PAUSE).exists():

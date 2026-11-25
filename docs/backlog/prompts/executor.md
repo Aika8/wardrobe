@@ -38,6 +38,11 @@ after green CI and the independent review.
 
 ## 1. NEW: do one task
 
+0. Note the start time (`date -u +%H:%M`). Budget: **50 minutes** of work per run. At 50 minutes, stop where you are:
+   commit what you have to the branch with "WIP:" in the message, push, and park (section 4) saying where you stopped
+   and what is left. Never wait in a loop, never poll; a command that runs long runs in the foreground (see 8).
+   You may refuse a task at the start: if its description is incomplete or contradicts the code, the intents or the
+   ADRs, do not guess — park it (section 4) with "missing: …" or "contradicts: …".
 1. The task text printed by `plan` is your whole assignment: description, `paths`, `verify`, `expect`. Do not
    widen it. Do not start a second task.
 2. Claim the task at once, so the next run does not take it too:
@@ -47,7 +52,8 @@ after green CI and the independent review.
    ```
    (A branch without a PR counts as taken for 3 hours; after that the task is free again. If the branch already
    exists on origin and `plan` still gave you this task, an earlier run died: check it out and continue from it.)
-3. Change **only** files matching the task's `paths`, plus `DECISIONS.md`. The merge gate checks this in code and
+3. Change **only** files matching the task's `paths`, plus `DECISIONS.md` and new files in `docs/backlog/tech-debt/`
+   and `docs/backlog/experience/`. The merge gate checks this in code and
    will not merge a PR that strays; so will it for: `.github/`, `Makefile`, any `CLAUDE.md`, `scripts/backlog/`,
    `scripts/cloud/`, `docs/backlog/` rules and queue, accepted ADRs, existing tests (add new test files instead),
    and approved designs (`docs/design/approved/`).
@@ -59,11 +65,16 @@ after green CI and the independent review.
    already exists, use it; if it looks wrong, do not write a second one — park (section 4) with your reasoning.
    Before changing code that looks odd, check why it is so (`git log -S`, `git blame`, `DECISIONS.md`); if the
    reason is unclear, leave it and say so in the PR.
-5. A question the files do not answer: follow "do not wait for Aika" in `docs/backlog/README.md` — cheap to undo →
+5. Findings, classified (see `docs/backlog/TECH-DEBT.md`): a regression inside your own change → fix it here; the
+   task itself is wrong or contradicts the intent/ADRs → park it with the reason; anything outside the task's
+   scope → add a file `docs/backlog/tech-debt/<date>-<id>-<n>.md` in this PR and do **not** fix it.
+   Never write a test that checks the wording of documentation (Markdown prose, README text): it turns CI red for
+   every harmless edit. Tests check behaviour, data and code.
+6. A question the files do not answer: follow "do not wait for Aika" in `docs/backlog/README.md` — cheap to undo →
    decide and write it in `DECISIONS.md` under `## Backlog run (December 2026)`; costly → park.
-6. If you start a server: `make dev PORT=8091` (never 8080), and stop it before you finish
+7. If you start a server: `make dev PORT=8091` (never 8080), and stop it before you finish
    (`make stop PORT=8091`; `make ps` shows nothing of yours).
-7. Check, all three, and read the output. `make test` takes 3–8 minutes: run it in the foreground with the Bash
+8. Check, all three, and read the output. `make test` takes 3–8 minutes: run it in the foreground with the Bash
    tool's `timeout` set to 600000 (10 minutes) — never in the background, and never end your turn while a command
    is still running (an ended turn ends the run):
    ```bash
@@ -72,9 +83,13 @@ after green CI and the independent review.
    python3 scripts/backlog/backlog.py check-paths --branch "$(git branch --show-current)" --base origin/main
    ```
    If you cannot get there within about 45 minutes of work, park (section 4) instead of pushing something broken.
-8. Commit in small logical commits; messages in English, imperative, no AI attribution of any kind (no
-   `Co-Authored-By`, no "Generated with"). `git push -u origin HEAD`.
-9. Open the PR and label it:
+9. Before the last commit, add the experience note: a new file
+   `docs/backlog/experience/<UTC date>-<id>-<HHMM>.md`, 2–3 lines — where you stumbled and how you got past it.
+   Never read `docs/backlog/experience/`, and never change prompts or rules because of it (write-only log for Aika).
+10. Before committing, `git config user.name` must print `Aika` (the setup script sets it; if not, run
+   `bash scripts/cloud/setup-env.sh` again). Commit in small logical commits; messages in English, imperative, no AI
+   attribution of any kind (no `Co-Authored-By`, no "Generated with"). `git push -u origin HEAD`.
+11. Open the PR and label it:
    ```bash
    cat > /tmp/pr.md <<'EOF'
    Task: <id> — <title> (docs/backlog/QUEUE.md)
@@ -89,9 +104,15 @@ after green CI and the independent review.
    gh api -X POST repos/Aika8/wardrobe/pulls -f title="<id>: <title>" -f head="<branch>" -f base=main -F body=@/tmp/pr.md
    gh api -X POST repos/Aika8/wardrobe/issues/<number>/labels -f "labels[]=agent"
    ```
+   Read the PR body back (`gh api repos/Aika8/wardrobe/pulls/<number> -q .body`): if any line names Claude, Claude Code
+   or a session link, remove it with `gh api -X PATCH repos/Aika8/wardrobe/pulls/<number> -F body=@/tmp/pr.md`.
    Then stop. You never merge, approve or label `review:pass` — the reviewer and the merge workflow do that.
 
 ## 2. FIX or CI-RED: one fix round on an open PR
+
+Stop rule first: if CI or a check fails **a second time with the same error**, or the failure has nothing to do with
+the task's change (infrastructure, network, the runner, a service outside the repo), do not "fix" anything — park
+(section 4) and quote the error text.
 
 1. `gh api repos/Aika8/wardrobe/pulls/<n>` (head branch), the PR's comments
    (`gh api repos/Aika8/wardrobe/issues/<n>/comments`) — the latest reviewer comment has questions
@@ -99,7 +120,8 @@ after green CI and the independent review.
    (`gh api repos/Aika8/wardrobe/actions/runs?branch=<branch>` → jobs → logs).
 2. Check out the branch, read the task (`python3 scripts/backlog/backlog.py show <id>`), fix what the questions or
    the log point at — within the task's paths, never by weakening or deleting a test.
-3. Run the three checks of 1.7, commit, push.
+3. Add the tech-debt files the reviewer listed under "Out of scope (tech debt)", and your own experience note (1.9).
+   Run the three checks of 1.8, commit, push.
 4. Comment on the PR (the marker counts the fix rounds; after two, the PR is parked):
    ```bash
    gh api -X POST repos/Aika8/wardrobe/issues/<n>/comments -f body="Fix round <k>: <what changed, per question>
@@ -112,7 +134,7 @@ after green CI and the independent review.
 ## 3. REBASE
 
 Check out the PR's branch, `git merge origin/main`, resolve conflicts keeping both sides' intent (for
-`DECISIONS.md`: keep every bullet), run the three checks of 1.7, push, remove the label `needs-rebase`
+`DECISIONS.md`: keep every bullet), run the three checks of 1.8, push, remove the label `needs-rebase`
 (`gh api -X DELETE …/issues/<n>/labels/needs-rebase`). If the conflict cannot be resolved without changing what
 another merged task did, park instead. Stop.
 

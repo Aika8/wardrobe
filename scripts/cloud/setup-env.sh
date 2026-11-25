@@ -31,10 +31,19 @@ summary() {
        "node $(/opt/node24/bin/node --version 2>/dev/null || echo MISSING) (log $LOG)"
 }
 
+# Commits made in the cloud carry Aika's name and her GitHub no-reply address, not an AI identity
+# (CLAUDE.md: no AI attribution). The attribution trailers themselves are off in .claude/settings.json.
+GIT_NAME="Aika"
+GIT_EMAIL="52049894+Aika8@users.noreply.github.com"
+
 export_env() {
   # Later Bash commands of the session: CLAUDE_ENV_FILE (SessionStart hooks), profile.d, top of ~/.bashrc.
+  git config --global user.name "$GIT_NAME" 2>/dev/null || true
+  git config --global user.email "$GIT_EMAIL" 2>/dev/null || true
   if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    { echo 'export JAVA_HOME=/opt/jdk-25'; echo 'export PATH=/opt/node24/bin:/opt/jdk-25/bin:$PATH'; } >> "$CLAUDE_ENV_FILE"
+    { echo 'export JAVA_HOME=/opt/jdk-25'; echo 'export PATH=/opt/node24/bin:/opt/jdk-25/bin:$PATH'
+      echo "export GIT_AUTHOR_NAME='$GIT_NAME' GIT_AUTHOR_EMAIL='$GIT_EMAIL'"
+      echo "export GIT_COMMITTER_NAME='$GIT_NAME' GIT_COMMITTER_EMAIL='$GIT_EMAIL'"; } >> "$CLAUDE_ENV_FILE"
   fi
 }
 
@@ -93,6 +102,8 @@ wait $N || true
 $SUDO tee /etc/profile.d/wr-toolchain.sh >/dev/null <<'EOF'
 export JAVA_HOME=/opt/jdk-25
 export PATH=/opt/node24/bin:/opt/jdk-25/bin:$PATH
+export GIT_AUTHOR_NAME="Aika" GIT_AUTHOR_EMAIL="52049894+Aika8@users.noreply.github.com"
+export GIT_COMMITTER_NAME="Aika" GIT_COMMITTER_EMAIL="52049894+Aika8@users.noreply.github.com"
 EOF
 # At the TOP of ~/.bashrc: Ubuntu's .bashrc returns early for non-interactive shells.
 if ! grep -q wr-toolchain "$HOME/.bashrc" 2>/dev/null; then

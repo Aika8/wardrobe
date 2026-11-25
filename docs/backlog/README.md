@@ -23,6 +23,8 @@ free minutes.
 | Proposals of the day | `docs/backlog/proposals/<date>-<role>.md` | the analyst and user runs (one new file each) |
 | Daily summary | `docs/backlog/summaries/<date>.md` | the summary run |
 | Reports of tasks | `docs/backlog/reports/*.md` | tasks that say so |
+| Tech debt found outside a task | `docs/backlog/TECH-DEBT.md` (format), `docs/backlog/tech-debt/*.md` (one file each) | runs add, never change |
+| Experience log, write-only | `docs/backlog/experience/*.md` — agents never read it | runs add; Aika reads |
 
 The merge gate refuses any agent PR that changes a file in the "Aika" rows, `Makefile`, `CLAUDE.md`, an existing
 test, an accepted ADR, or an approved design (`docs/design/approved/`) — see `PROTECTED`, `VISUAL`, `APPEND_ONLY` in `backlog.py`.

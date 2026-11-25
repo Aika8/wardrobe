@@ -15,8 +15,8 @@ Format of a task (the script parses it; `backlog.py lint` checks it):
 - A title ending in «вид проверяет Aika» builds a draft of something people look at: its logic is tested, its look
   is Aika's to check after the week. The PR says «draft — вид проверяет Aika» and describes the look in words.
   Screens are built only from the components and tokens of `docs/design/DESIGN.md` (theme «уютный блокнот»,
-  mockups in `docs/design/mockups/`). Screen tasks stay `waiting` until Aika says «да» to the mockups; she changes
-  their status by hand. Logic tasks never wait for the look.
+  mockups in `docs/design/mockups/`). Aika approved the look on 25 November 2026; the screen
+  tasks follow the mockups. Logic tasks never wait for the look.
 
 Rules for every task (the executor prompt repeats them): existing tests are never changed or deleted, new tests are
 new files; `domain/` stays plain Java (no Spring, Jackson, I/O, clock); sizes are integer millimetres; a field a
@@ -364,8 +364,7 @@ four-space indentation or the end of `components.schemas`; later tasks add other
 label. A test fixture with a second schema after `Item` shows those enums are ignored.
 
 ### WR-023 — The list screen: filter by status (вид проверяет Aika)
-- status: waiting
-- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- status: todo
 - depends: WR-022, WR-028, WR-035
 - size: S
 - paths: `client/App.tsx`, `client/src/filter.ts`, `client/test/filter.test.mjs`, `docs/backlog/reports/screens/WR-023.png`
@@ -380,8 +379,7 @@ draft: describe it in words in the PR.
 Screenshot (after WR-035): `cd client && npm run screenshot -- WR-023` writes `docs/backlog/reports/screens/WR-023.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
 
 ### WR-024 — Item details screen (вид проверяет Aika)
-- status: waiting
-- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- status: todo
 - depends: WR-022, WR-028, WR-035
 - size: S
 - paths: `client/App.tsx`, `client/src/details.ts`, `client/src/screens/**`, `client/test/details.test.mjs`, `docs/backlog/reports/screens/WR-024.png`
@@ -395,8 +393,7 @@ simple state in `App.tsx`, no navigation library — no new dependency). Shows t
 Screenshot (after WR-035): `cd client && npm run screenshot -- WR-024` writes `docs/backlog/reports/screens/WR-024.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
 
 ### WR-025 — Change the status from the details screen (вид проверяет Aika)
-- status: waiting
-- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- status: todo
 - depends: WR-008, WR-024, WR-028, WR-035
 - size: S
 - paths: `client/src/api.ts`, `client/src/items.ts`, `client/src/screens/**`, `client/App.tsx`, `client/test/api.test.mjs`, `docs/backlog/reports/screens/WR-025.png`
@@ -425,7 +422,7 @@ must ignore its own file. Put a planted temporary file in `os.tmpdir()` to show 
 
 ### WR-027 — The avatar screen: the dressed doll (вид проверяет Aika)
 - status: waiting
-- waits: Aika's decision on the avatar (the drawn doll, or a photo try-on later) and her «да» on the look
+- waits: Aika's decision on the avatar (the drawn doll, or a photo try-on later)
 - depends: WR-021, WR-024, WR-028, WR-033, WR-035
 - size: S
 - paths: `client/src/avatar/**`, `client/src/screens/**`, `client/App.tsx`, `client/test/avatar.test.mjs`, `docs/backlog/reports/screens/WR-027.png`
@@ -448,11 +445,10 @@ look in words in the PR.
 
 Screenshot (after WR-035): `cd client && npm run screenshot -- WR-027` writes `docs/backlog/reports/screens/WR-027.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
 
-## UI kit (after Aika's «да» on the look)
+## UI kit
 
 ### WR-028 — Tokens and components of «уютный блокнот» as code (вид проверяет Aika)
-- status: waiting
-- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- status: todo
 - depends: WR-035
 - size: S
 - paths: `client/src/ui/**`, `client/test/ui-tokens.test.mjs`, `docs/backlog/reports/screens/WR-028.png`
@@ -473,7 +469,7 @@ Screenshot (after WR-035): `cd client && npm run screenshot -- WR-028` writes `d
 
 ### WR-033 — Real-looking clothes on the phone: ClothingDrawing (вид проверяет Aika)
 - status: waiting
-- waits: Aika's «да» to ADR-0003 (`react-native-svg`; its status stays Proposed on main — this task's PR sets it Accepted) and her «да» on the look
+- waits: Aika's «да» to ADR-0003 (`react-native-svg`; its status stays Proposed on main — this task's PR sets it Accepted)
 - depends: WR-028, WR-035
 - size: S
 - paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/src/ui/ItemThumb.tsx`, `client/test/garments.test.mjs`, `docs/adr/0003-draw-clothes-with-svg.md`, `docs/backlog/reports/screens/WR-033.png`

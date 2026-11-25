@@ -1,7 +1,8 @@
 # Design: «уютный блокнот» (cozy notebook)
 
-Status: **draft — waits for Aika's «да»** (mockups: `docs/design/mockups/mockups.html`). Until then every task that
-changes how a screen looks is `waiting` in `docs/backlog/QUEUE.md`; logic tasks go on.
+Status: **approved by Aika on 25 November 2026** (mockups: `docs/design/mockups/mockups.html`, the «cut-out photo»
+look of items and the drawn doll included). Screen tasks follow it; the avatar itself waits for her decision (doll or
+photo try-on), and ADR-0003 (`react-native-svg`) for her «да».
 
 ## Where it comes from
 
@@ -17,7 +18,7 @@ changes how a screen looks is `waiting` in `docs/backlog/QUEUE.md`; logic tasks 
 ## Tokens
 
 The single source of the theme. Mockups use them as CSS variables (`--paper` …); the Expo client will get the same
-names in `client/src/ui/tokens.ts` (a task after Aika's «да»). A value changes here first.
+names in `client/src/ui/tokens.ts` (WR-028). A value changes here first.
 
 ```json
 {

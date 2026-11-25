@@ -36,7 +36,8 @@ names in `client/src/ui/tokens.ts` (a task after Aika's «да»). A value chang
     "plum": "#9A7B8C",
     "tape": "#E7C98E",
     "on-accent": "#FFF8EE",
-    "doll-skin": "#EBD9C4"
+    "doll-skin": "#EBD9C4",
+    "doll-hair": "#6E5A4C"
   },
   "item": {
     "BLACK": "#433A34",
@@ -81,7 +82,7 @@ Rules of use:
 - Every size, gap, radius and colour in a screen is a token. Positions and sizes of drawings on a canvas are not.
 - The mockup page's own frame (phone bezel, page background, captions, the component sheet's grid) is not part of the
   app and uses no tokens.
-- Clothes are flat drawings in item colours with an `ink` outline until photos exist; photos never leave the phone.
+- Clothes and the doll look real, not like icons: see «Clothes and the doll» below. Photos never leave the phone.
 
 ## Components
 
@@ -113,9 +114,31 @@ and Aika decides. Each component in the mockups has a `data-component="…"` att
 | `StatTile` | number + label on a `PaperCard` | calendar, wardrobe |
 | `Button` | primary (`terracotta` fill) and quiet (ink outline) | all |
 | `BottomNav` | five places; the middle one is a raised round «+» | all main screens |
-| `PaperDoll` | flat faceless figure from measurements; clothes as layers with paper-doll tabs | avatar |
+| `PaperDoll` | faceless figure with natural proportions from measurements; clothes drawn over it in layers, following the body | avatar |
 | `FitNote` | one line about fit: «рукав короче на 2 см» with a small marker on the doll | avatar |
 | `MeasureRow` | a measurement name and value in centimetres for the person (mm inside) | avatar |
+
+## Clothes and the doll
+
+Aika's decision (25 November 2026): clothes and the avatar must look real, not boxy.
+
+- **Items look like cut-out photos** (Aika, 25 November, after the reference app): the item without its
+  background on a light backing, in a flat lay; an outfit is a collage of such cut-outs. The theme stays for the
+  background, cards and text. Real photos come once background removal is decided (queue WR-034; Aika decides).
+  Until then the mockups imitate cut-out photos with drawings (`render_photo`: no outline, light from the top left,
+  fabric grain, a soft contact shadow) — never pictures of the reference app or of real items.
+- **The drawn garments** (the shapes behind both looks) are fashion flats — the real cut of each garment: collar and placket with buttons, cuffs, yokes,
+  waistband with belt loops and fly, pockets and flaps, darts, ribbing, soles and laces, and soft folds. Fill: the
+  item's colour from `item`; outline `ink` 1.5; shadow `ink` at 10–30 %; light `card` at 20–40 %; seams and folds
+  `ink` lines at 20–60 %; top-stitching dashed. One drawing per garment kind, in a 100 × 100 box.
+- **The doll** (a placeholder until Aika decides on the avatar; logic of fit and layers is what it is for) is a faceless figure with natural proportions (head, neck, rounded shoulders, arms with elbows and
+  hands, waist and hips, knees, feet) in `doll-skin` with `doll-hair`. Clothes are drawn over it in layer order and
+  follow the body (sleeves along the arms, trousers along the legs), with the same shading as the flats. Fit notes
+  are numbered markers on the doll.
+- The drawings are made by `docs/design/mockups/garments.py` (the source of the shapes); it rewrites the drawings in
+  `mockups.html`; `--json` exports the flat drawings, the bare doll and its landmarks for the app. In the app an
+  item without a photo shows the flat drawing (`render`); on the phone it needs SVG — ADR-0003 (Proposed).
+- Never a photo of a real item or person as a placeholder; never a garment that looks like a box.
 
 ## Screens (mockups)
 
@@ -125,4 +148,5 @@ statuses), avatar doll (draft), and the component sheet. Open the file in a brow
 ## Open points for Aika
 
 - Fonts on the phone need `expo-font` with the two Google fonts — a new dependency (ADR before the screen tasks).
+- Real-looking clothes and the doll on the phone need `react-native-svg` — ADR-0003, Proposed, waits for Aika.
 - Currency on the calendar's «цена за носку» is shown in ₸; prices are not in the item model yet.

@@ -445,7 +445,7 @@ look in words in the PR.
 
 Screenshot (after WR-035): `cd client && npm run screenshot -- WR-027` writes `docs/backlog/reports/screens/WR-027.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
 
-## UI kit (after Aika's «да» on the look)
+## UI kit
 
 ### WR-028 — Tokens and components of «уютный блокнот» as code (вид проверяет Aika)
 - status: todo

@@ -18,7 +18,7 @@ photo try-on), and ADR-0003 (`react-native-svg`) for her «да».
 ## Tokens
 
 The single source of the theme. Mockups use them as CSS variables (`--paper` …); the Expo client will get the same
-names in `client/src/ui/tokens.ts` (a task after Aika's «да»). A value changes here first.
+names in `client/src/ui/tokens.ts` (WR-028). A value changes here first.
 
 ```json
 {

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static wardrobe.domain.match.ColourItems.item;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import wardrobe.domain.Colour;
 import wardrobe.domain.Item;
@@ -37,11 +38,40 @@ class ColourRuleTest {
         }
     }
 
+    /** The starting table from the task, written out here on purpose: a dropped or mistyped row in FRIENDS fails. */
+    static final List<List<Colour>> EXPECTED_FRIENDS = List.of(
+            List.of(Colour.BLUE, Colour.YELLOW),
+            List.of(Colour.BLUE, Colour.ORANGE),
+            List.of(Colour.BLUE, Colour.PINK),
+            List.of(Colour.GREEN, Colour.PINK),
+            List.of(Colour.PURPLE, Colour.YELLOW),
+            List.of(Colour.RED, Colour.PINK));
+
     @Test
-    void friendsGoTogetherAndOtherPairsDoNot() {
-        assertTrue(rule.judge(item("a", Colour.BLUE), item("b", Colour.YELLOW)).goes());
-        assertTrue(rule.judge(item("a", Colour.PINK), item("b", Colour.RED)).goes());
-        assertTrue(rule.judge(item("a", Colour.YELLOW), item("b", Colour.PURPLE)).goes());
+    void everyFriendPairGoesTogetherInBothOrders() {
+        for (List<Colour> pair : EXPECTED_FRIENDS) {
+            Colour x = pair.get(0);
+            Colour y = pair.get(1);
+            assertTrue(rule.judge(item("a", x), item("b", y)).goes(), x + " / " + y);
+            assertTrue(rule.judge(item("a", y), item("b", x)).goes(), y + " / " + x);
+        }
+    }
+
+    @Test
+    void twoDifferentNonNeutralColoursGoOnlyWhenTheyAreFriends() {
+        for (Colour x : Colour.values()) {
+            for (Colour y : Colour.values()) {
+                if (x == y || x == Colour.UNKNOWN || y == Colour.UNKNOWN || x.neutral() || y.neutral()) {
+                    continue;
+                }
+                boolean friends = EXPECTED_FRIENDS.contains(List.of(x, y)) || EXPECTED_FRIENDS.contains(List.of(y, x));
+                Verdict v = rule.judge(item("a", x), item("b", y));
+                assertEquals(friends, v.goes(), x + " / " + y);
+                if (!friends) {
+                    assertTrue(v.reason().contains(x.name()) && v.reason().contains(y.name()), v.reason());
+                }
+            }
+        }
         Verdict v = rule.judge(item("a", Colour.RED), item("b", Colour.GREEN));
         assertFalse(v.goes());
         assertTrue(v.reason().contains("RED") && v.reason().contains("GREEN"), v.reason());

@@ -18,7 +18,7 @@ on:
   # pull_request_target runs this file as it is on main (an agent branch cannot rewrite the job that holds a write
   # token); the job never checks out the PR's code.
   pull_request_target:
-    types: [synchronize]
+    types: [synchronize, labeled]   # labeled: a review:pass merges at once, not at the next sweep
   schedule:
     - cron: '43 */3 * * *'   # safety net every 3 hours (UTC); CI completion is the main trigger
   workflow_dispatch:
@@ -33,7 +33,7 @@ permissions:
 jobs:
   # A new commit pushed by an agent invalidates the review: the reviewer looks again.
   reset-review:
-    if: github.event_name == 'pull_request_target' && startsWith(github.head_ref, 'claude/')
+    if: github.event_name == 'pull_request_target' && github.event.action == 'synchronize' && startsWith(github.head_ref, 'claude/')
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -47,7 +47,9 @@ jobs:
           done
 
   merge:
-    if: github.event_name != 'pull_request_target'
+    if: >-
+      github.event_name != 'pull_request_target' ||
+      (github.event.action == 'labeled' && github.event.label.name == 'review:pass')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:   # one sweep at a time; a sweep looks at every open PR, so a dropped pending run loses nothing

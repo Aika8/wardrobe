@@ -27,3 +27,8 @@ Small behaviour choices, one bullet each, newest section last. Costly-to-reverse
 ## Backlog run (December 2026)
 
 <!-- Agents: one bullet per decision taken without Aika — task id, question, choice, options not taken and why. -->
+
+- **WR-002, colour friends** (`ColourRule.FRIENDS`): which two non-neutral colours go together? Starting table
+  from the task: BLUE–YELLOW, BLUE–ORANGE, BLUE–PINK, GREEN–PINK, PURPLE–YELLOW, RED–PINK; any other pair of
+  different non-neutral colours does not go. Not taken: a colour-wheel formula (harder for Aika to read and edit).
+  Undo: edit the set; the tests check only the listed pairs and RED–GREEN.

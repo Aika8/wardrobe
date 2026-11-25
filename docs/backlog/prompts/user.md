@@ -18,6 +18,8 @@ DAY=$(date -u +%F)
 If `docs/backlog/proposals/$DAY-user.md` already exists on `main` or on an open branch `claude/proposals-user-$DAY`,
 stop. Read `CLAUDE.md`, `docs/backlog/README.md`, `docs/backlog/PROPOSALS.md` (the format).
 
+Never read `docs/backlog/experience/` (a write-only log for Aika).
+
 ## 1. Walk the product (budget: about 40 minutes)
 
 Long commands (Gradle, `make`): run them in the foreground with the Bash `timeout` set to 600000; never end your

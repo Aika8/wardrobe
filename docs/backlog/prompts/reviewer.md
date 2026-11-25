@@ -36,7 +36,13 @@ gh api repos/Aika8/wardrobe/issues/<n>/comments      # earlier rounds, if k > 1
 git fetch origin <branch> && git diff origin/main...origin/<branch>
 ```
 
-Check out the branch and run the task's `verify` command yourself; compare with `expect`. Do not trust the PR
+Check out the branch and run the task's `verify` command yourself; compare with `expect`.
+
+Tests in a vacuum: if the PR changes production code (`python3 scripts/backlog/backlog.py prod-changes --base
+origin/main` lists those files; empty = a test-only task, skip this), put those files back to main
+(`git checkout origin/main -- <files>`), run the new tests, then restore the branch (`git checkout <head sha> -- .`).
+The new tests must **fail** without the change and **pass** with it. A new test green both ways pins nothing:
+answer "no" to question 3. Do not trust the PR
 description's claims; the diff and your own run are the evidence. (CI already ran `make test`; you need not repeat it.)
 
 ## 2. Judge with yes/no questions
@@ -72,6 +78,11 @@ Review round <k> of <task id>: **<pass|fail>**
 
 <for fail: what must change, per "no" answer, in one line each>
 
+Out of scope (tech debt): <problems outside this task: `where` — what — why it matters; or "none". Do not fail the
+review for them.>
+
+Experience: <2–3 lines: where this review stumbled and how it got past it>
+
 <!-- backlog-review round=<k> verdict=<pass|fail> sha=<head sha> -->
 EOF
 gh api -X POST repos/Aika8/wardrobe/issues/<n>/comments -F body=@/tmp/review.md
@@ -80,6 +91,10 @@ gh api -X POST repos/Aika8/wardrobe/issues/<n>/comments -F body=@/tmp/review.md
 - pass → `gh api -X POST repos/Aika8/wardrobe/issues/<n>/labels -f "labels[]=review:pass"`
 - fail → label `needs-fix` instead. If `fixes` is 2 or more (two fix rounds already used), label `parked`
   instead and write in the comment what Aika must decide.
+
+Classify findings like the executor (`docs/backlog/TECH-DEBT.md`): a regression inside the change → a "no" answer;
+the task itself wrong → fail and say "park: <reason>"; outside the task → "Out of scope", not a failure. A new test
+that checks the wording of documentation is a "no" on question 3. Never read `docs/backlog/experience/`.
 
 Do not push commits, do not merge, do not edit the PR. Stop.
 

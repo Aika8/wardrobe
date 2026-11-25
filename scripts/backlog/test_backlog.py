@@ -273,6 +273,30 @@ class GlobTest(unittest.TestCase):
         self.assertTrue(b.matches("clients/web/src/x.test.ts", ["clients/**/*.test.ts"]))
 
 
+class ProductionFilesTest(unittest.TestCase):
+    def test_tests_and_docs_are_not_production(self):
+        for p in ["domain/src/test/java/wardrobe/domain/X.java", "client/test/a.test.mjs", "DECISIONS.md",
+                  "docs/backlog/tech-debt/x.md", "scripts/backlog/test_backlog.py",
+                  "domain/src/test/resources/cards/01-shirt.txt"]:
+            self.assertFalse(b.is_production(p), p)
+        for p in ["domain/src/main/java/wardrobe/domain/Item.java", "client/src/items.ts", "client/App.tsx",
+                  "api/openapi.yaml"]:
+            self.assertTrue(b.is_production(p), p)
+
+
+class DebtAndExperienceTest(unittest.TestCase):
+    def test_task_may_add_but_not_change_debt_and_experience_files(self):
+        tasks = b.parse_tasks(QUEUE)
+        ok = b.check_paths("claude/wr-001", [b.Change("added", "docs/backlog/tech-debt/2026-12-03-WR-001-1.md"),
+                                             b.Change("added", "docs/backlog/experience/2026-12-03-WR-001-0912.md")],
+                           tasks)
+        self.assertEqual(ok, [])
+        bad = b.check_paths("claude/wr-001", [b.Change("modified", "docs/backlog/experience/2026-12-02-WR-000-0800.md")],
+                            tasks)
+        self.assertTrue(any("existing" in x for x in bad))
+        self.assertTrue(b.check_paths("claude/wr-001", [b.Change("modified", "docs/backlog/TECH-DEBT.md")], tasks))
+
+
 class WardrobeGateTest(unittest.TestCase):
     """Holes found by the independent review of the wardrobe skeleton (2026-11-25)."""
 

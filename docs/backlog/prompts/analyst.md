@@ -25,6 +25,9 @@ If `docs/backlog/proposals/$DAY-analyst.md` already exists on `main` or on an op
 - `docs/backlog/QUEUE.md` and `docs/backlog/intake-log.md` (do not propose what is queued or was refused already).
 - `DECISIONS.md`, section `## Backlog run (December 2026)`: decisions agents took without Aika.
 
+Never read `docs/backlog/experience/` (a write-only log for Aika). You may read `docs/backlog/tech-debt/` and turn
+a small, checkable item into a proposal.
+
 ## 2. Look for
 
 1. **Contradictions between sentences that each read fine alone**: one rule turns X into Y, another forbids Y; a

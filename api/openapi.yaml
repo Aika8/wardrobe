@@ -1,0 +1,46 @@
+openapi: 3.1.0
+info:
+  title: Wardrobe API
+  version: 0.1.0
+  description: |
+    The wardrobe server (ADR-0002). Contract first: a change goes here before the code; ContractTest checks every
+    response against this file.
+paths:
+  /items:
+    get:
+      operationId: listItems
+      summary: All items with their card and status
+      responses:
+        '200':
+          description: The items, in the catalogue's order
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+components:
+  schemas:
+    Item:
+      type: object
+      additionalProperties: false
+      required: [id, name, type, colour, pattern, fabric, seasons, formality, status]
+      properties:
+        id: { type: string, minLength: 1 }
+        name: { type: string, minLength: 1 }
+        type: { type: string, enum: [TOP, BOTTOM, DRESS, OUTERWEAR, SHOES, ACCESSORY] }
+        colour:
+          type: string
+          enum: [BLACK, WHITE, GREY, NAVY, BEIGE, BROWN, RED, PINK, ORANGE, YELLOW, GREEN, BLUE, PURPLE, UNKNOWN]
+        pattern: { type: string, enum: [PLAIN, STRIPED, CHECKED, FLORAL, DOTTED, PRINTED, UNKNOWN] }
+        fabric: { type: string, enum: [COTTON, LINEN, WOOL, SILK, DENIM, LEATHER, KNIT, SYNTHETIC, UNKNOWN] }
+        seasons:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { type: string, enum: [WINTER, SPRING, SUMMER, AUTUMN] }
+        formality: { type: string, enum: [SPORT, CASUAL, SMART_CASUAL, BUSINESS, FORMAL] }
+        status:
+          type: string
+          enum: [CLEAN, IN_WASH, IN_REPAIR, ON_TRIP]
+          description: Only CLEAN items take part in outfits.

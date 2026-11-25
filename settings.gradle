@@ -1,0 +1,9 @@
+plugins {
+    // Locally Gradle may download JDK 25; in the cloud scripts/cloud/setup-env.sh installs it and turns downloads off.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'wardrobe'
+
+include 'domain'
+include 'app'

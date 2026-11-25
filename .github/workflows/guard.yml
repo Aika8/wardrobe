@@ -1,0 +1,59 @@
+# Guard for the unattended week (docs/backlog/README.md, "Guard"). Branch protection is not available on this plan,
+# so a cloud agent could in principle push to main or merge a PR itself through the API. Merges and commits made by
+# the automerge and intake workflows use GITHUB_TOKEN and start no workflow — so while docs/backlog/UNATTENDED
+# exists, ANY push to main that reaches this workflow did not come through the gate. Then the guard switches the run
+# off (creates docs/backlog/PAUSE) and opens an issue. Let through: a push that only creates PAUSE (switching off is
+# always safe), only creates UNATTENDED, or only deletes PAUSE while no guard issue is open (resuming after a normal
+# pause). Deleting UNATTENDED is how Aika ends the mode when back — it pauses too, so an agent cannot switch the
+# guard off quietly; Aika then deletes PAUSE.
+name: guard
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 50
+      - name: Pause on a push that bypassed the gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          if [ ! -f docs/backlog/UNATTENDED ] && ! git show "$BEFORE:docs/backlog/UNATTENDED" >/dev/null 2>&1; then
+            echo "not in unattended mode"; exit 0
+          fi
+          changed=$(git diff --name-status "$BEFORE" "$AFTER" 2>/dev/null || echo "? unknown")
+          safe=$(echo "$changed" | grep -vE $'^A\tdocs/backlog/(PAUSE|UNATTENDED)$|^D\tdocs/backlog/PAUSE$' || true)
+          if [ -n "$changed" ] && [ -z "$safe" ]; then
+            if echo "$changed" | grep -qE $'^D\tdocs/backlog/PAUSE$'; then
+              open=$(gh api "repos/${GITHUB_REPOSITORY}/issues?state=open&labels=hold&per_page=100" \
+                     --jq '[.[] | select(.title | startswith("[guard]"))] | length')
+              if [ "$open" = "0" ]; then echo "PAUSE deleted, no guard issue open: resume"; exit 0; fi
+              echo "PAUSE deleted while a guard issue is open: pausing again"
+            else
+              echo "only switched on: $changed"; exit 0
+            fi
+          fi
+          echo "push to main by $ACTOR outside the gate: pausing"
+          echo "Paused by the guard: a push to main by ${ACTOR} (${AFTER}) did not come through automerge." > docs/backlog/PAUSE
+          git add docs/backlog/PAUSE
+          git -c user.name="backlog-guard" -c user.email="backlog-guard@users.noreply.github.com" \
+            commit -m "backlog: pause — push to main outside the gate (${AFTER:0:7})" || true
+          git push origin HEAD:main || true
+          printf 'A push to `main` did not come through the automerge workflow.\n\nActor: %s\nCommits: %s...%s\nChanged files:\n```\n%s\n```\n\nThe backlog run is paused (docs/backlog/PAUSE). Check the commits, then delete PAUSE to resume.\n' \
+            "$ACTOR" "$BEFORE" "$AFTER" "$changed" > /tmp/issue.md
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/issues" -f title="[guard] push to main outside the gate" \
+            -F body=@/tmp/issue.md -f "labels[]=hold" >/dev/null

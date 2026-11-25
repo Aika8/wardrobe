@@ -1,0 +1,26 @@
+subprojects {
+    apply plugin: 'java'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.13.4')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+        // No test run may hang and burn a core: the task is cut after 10 minutes, each test after 1 minute.
+        timeout = java.time.Duration.ofMinutes(10)
+        systemProperty 'junit.jupiter.execution.timeout.default', '1 m'
+    }
+}

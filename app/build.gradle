@@ -1,0 +1,18 @@
+// Spring Boot adapters around the domain (ADR-0002): REST, in-memory catalogue.
+plugins {
+    id 'org.springframework.boot' version '4.1.2'
+}
+
+dependencies {
+    implementation platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    implementation project(':domain')
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+    testImplementation platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.networknt:json-schema-validator:2.0.8'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
+}
+
+// The contract is on the test classpath, so ContractTest validates against the real api/openapi.yaml.
+sourceSets.test.resources.srcDir rootProject.file('api')

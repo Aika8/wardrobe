@@ -1,8 +1,8 @@
 # Design: «уютный блокнот» (cozy notebook)
 
 Status: **approved by Aika on 25 November 2026** (mockups: `docs/design/mockups/mockups.html`, the «cut-out photo»
-look of items and the drawn doll included). Screen tasks follow it; the avatar itself waits for her decision (doll or
-photo try-on), and ADR-0003 (`react-native-svg`) for her «да».
+look of items and the drawn doll included). Screen tasks follow it. The avatar is the drawn doll (her decision the same
+day; a photo try-on after the holiday); ADR-0003 (`react-native-svg`) is accepted.
 
 ## Where it comes from
 
@@ -132,13 +132,13 @@ Aika's decision (25 November 2026): clothes and the avatar must look real, not b
   waistband with belt loops and fly, pockets and flaps, darts, ribbing, soles and laces, and soft folds. Fill: the
   item's colour from `item`; outline `ink` 1.5; shadow `ink` at 10–30 %; light `card` at 20–40 %; seams and folds
   `ink` lines at 20–60 %; top-stitching dashed. One drawing per garment kind, in a 100 × 100 box.
-- **The doll** (a placeholder until Aika decides on the avatar; logic of fit and layers is what it is for) is a faceless figure with natural proportions (head, neck, rounded shoulders, arms with elbows and
+- **The doll** (Aika's choice for the avatar of version 1; a photo try-on may come after the holiday) is a faceless figure with natural proportions (head, neck, rounded shoulders, arms with elbows and
   hands, waist and hips, knees, feet) in `doll-skin` with `doll-hair`. Clothes are drawn over it in layer order and
   follow the body (sleeves along the arms, trousers along the legs), with the same shading as the flats. Fit notes
   are numbered markers on the doll.
 - The drawings are made by `docs/design/mockups/garments.py` (the source of the shapes); it rewrites the drawings in
   `mockups.html`; `--json` exports the flat drawings, the bare doll and its landmarks for the app. In the app an
-  item without a photo shows the flat drawing (`render`); on the phone it needs SVG — ADR-0003 (Proposed).
+  item without a photo shows the flat drawing (`render`); on the phone it needs SVG — ADR-0003 (Accepted).
 - Never a photo of a real item or person as a placeholder; never a garment that looks like a box.
 
 ## Screens (mockups)
@@ -149,5 +149,5 @@ statuses), avatar doll (draft), and the component sheet. Open the file in a brow
 ## Open points for Aika
 
 - Fonts on the phone need `expo-font` with the two Google fonts — a new dependency (ADR before the screen tasks).
-- Real-looking clothes and the doll on the phone need `react-native-svg` — ADR-0003, Proposed, waits for Aika.
+- Real-looking clothes and the doll on the phone need `react-native-svg` — ADR-0003, accepted by Aika.
 - Currency on the calendar's «цена за носку» is shown in ₸; prices are not in the item model yet.

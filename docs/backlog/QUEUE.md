@@ -419,21 +419,24 @@ must ignore its own file. Put a planted temporary file in `os.tmpdir()` to show 
 
 ### WR-027 — The avatar screen: the dressed doll (вид проверяет Aika)
 - status: waiting
-- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- waits: Aika's decision on the avatar (the drawn doll, or a photo try-on later) and her «да» on the look
 - depends: WR-021, WR-024, WR-028, WR-033
 - size: S
 - paths: `client/src/avatar/**`, `client/src/screens/**`, `client/App.tsx`, `client/test/avatar.test.mjs`
 - verify: `cd client && npm test`
 - expect: green; the scaling logic is tested; the PR says «draft — вид проверяет Aika»
 
-The doll must look real, not boxy (`docs/design/DESIGN.md`, «Clothes and the doll»). `client/src/avatar/fit.ts`:
-`bands(answer, heightPx)` maps the server's `POST /avatar/dress` landmarks (mm: shoulders, chest, waist, hips,
-crotch, knee, ankle) to pixel bands, and `place(point, bands)` moves a point of the doll template (the doll of
-`garments.py`, in `client/src/ui/garments.data.ts` from WR-033) piecewise-linearly between the template's
-landmarks and the figure's — so a wider waist widens the drawn waist and the clothes over it. Integer pixels, the
-drawing order of the answer kept. No fit geometry here — the server computed it (one rule in one place). Screen
-`client/src/screens/Avatar.tsx` draws `PaperDoll` with the clothes layered over it (`ClothingDrawing` of WR-033) and
-the numbered `FitNote` markers; one invented figure, the clean items of the current list. Tests: a template
+The doll must look real, not boxy (`docs/design/DESIGN.md`, «Clothes and the doll»). Its template comes from
+`python3 docs/design/mockups/garments.py --json`: `doll_bare` (the body), `doll_landmarks` (y of head, shoulders,
+chest, waist, hips, crotch, knee, ankle, floor and the centre x) — already in `client/src/ui/garments.data.ts` after
+WR-033; never type the landmarks a second time. `client/src/avatar/fit.ts`: `bands(answer, heightPx)` maps the
+server's `POST /avatar/dress` landmarks (mm) to pixel bands, and `place(point, bands)` moves a template point
+piecewise-linearly between the template's landmarks and the figure's — so a wider waist widens the drawn waist.
+Version 1 draws on the doll only what the template has clothes for: a TOP as the shirt and a BOTTOM as the trousers
+of the template `doll` (other kinds are listed beside the doll with their fit notes, not drawn on it — write this
+in `DECISIONS.md`). FitNote markers sit at the end of the garment edge the note is about (sleeve end, hem), from
+the server's shapes. Integer pixels, the drawing order of the answer kept; no fit geometry here — the server
+computed it (one rule in one place). Screen `client/src/screens/Avatar.tsx`; one invented figure. Tests: a template
 landmark maps exactly onto the figure's landmark; points between landmarks stay between; order is kept. Describe the
 look in words in the PR.
 
@@ -451,17 +454,18 @@ look in words in the PR.
 `ui-tokens.test.mjs` reads `../docs/design/DESIGN.md`, takes the first ```json block, and compares it deep-equal with
 the exported tokens — so a token changes in DESIGN.md first. Then the simple components of the DESIGN.md table as
 React Native components in `client/src/ui/` (one file each, names as in the table): `ScreenTitle`, `SectionTitle`,
-`PaperCard` (+ `Tape`), `Chip`, `StatusBadge`, `StatusDot`, `Button`, `ItemThumb`, `WhyItFits`. Only `View`, `Text`
+`PaperCard` (+ `Tape`), `Chip`, `StatusBadge`, `StatusDot`, `Button`, `WhyItFits` (not `ItemThumb`: it shows a
+real-looking item and comes with WR-033). Only `View`, `Text`
 and `StyleSheet`; no new dependency. Handwritten headings need fonts (`expo-font`): not in this task — use the
 system font and write in `DECISIONS.md` that the font waits for an ADR. Pure logic (e.g. status → colour token) in
 `client/src/ui/status.ts`, tested.
 
 ### WR-033 — Real-looking clothes on the phone: ClothingDrawing (вид проверяет Aika)
 - status: waiting
-- waits: Aika accepts ADR-0003 (`react-native-svg`) and says «да» on the look
+- waits: Aika's «да» to ADR-0003 (`react-native-svg`; its status stays Proposed on main — this task's PR sets it Accepted) and her «да» on the look
 - depends: WR-028
 - size: S
-- paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/test/garments.test.mjs`, `docs/adr/0003-draw-clothes-with-svg.md`
+- paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/src/ui/ItemThumb.tsx`, `client/test/garments.test.mjs`, `docs/adr/0003-draw-clothes-with-svg.md`
 - verify: `cd client && npm test`
 - expect: green; the test fails when `garments.data.ts` differs from what `docs/design/mockups/garments.py` draws
 
@@ -469,7 +473,10 @@ Implement ADR-0003 and set its status to Accepted in the same PR. `cd client && 
 Generate `client/src/ui/garments.data.ts` from `python3 docs/design/mockups/garments.py --json` (SVG markup per
 garment kind with a `{colour}` placeholder, and the doll with `{shirt}` / `{trousers}`; do not change the script —
 it is Aika's). `ClothingDrawing({kind, colour, size})` fills the placeholder and renders the markup with
-`SvgXml` of `react-native-svg`; `PaperDoll` does the same for the doll. Garment kinds
+`SvgXml` of `react-native-svg`; `PaperDoll` does the same for the doll (`doll_bare`, `doll`, `doll_landmarks`).
+`ItemThumb` (DESIGN.md) shows an item: its cut-out photo when it has one (none in version 1), else
+`ClothingDrawing` — never a box. The drawings are the app's fallback; the mockups show the «cut-out photo» look that
+real photos will have once background removal is decided (WR-034). Garment kinds
 by `ItemType` + a default per type (TOP → shirt, BOTTOM → trousers, DRESS → dress, OUTERWEAR → coat, SHOES → shoes,
 ACCESSORY → bag); the mapping is in one place in `client/src/ui/garments.ts` and tested. `garments.test.mjs` runs
 `python3 ../docs/design/mockups/garments.py --json` and checks `garments.data.ts` holds exactly that data.
@@ -532,3 +539,26 @@ three worded examples.
 A test only (intent 01, invariant 9): a `@TestConfiguration` with a `@Primary` `ItemCatalog` of 2 000 invented items
 (generated in the test), `GET /items` returns all 2 000 and the clean filter returns exactly the clean ones. If the
 code has a cap anywhere, the test fails and the task parks with where the cap is — do not remove a cap without Aika.
+
+## Research (no code; Aika decides)
+
+### WR-034 — How to cut out the background of an item photo for free
+- status: todo
+- size: S
+- paths: `docs/backlog/reports/background-removal.md`
+- verify: `f=docs/backlog/reports/background-removal.md; test -f $f && grep -c '^|' $f && grep -ci 'licen' $f`
+- expect: a table of at least 5 options (at least 7 lines starting with `|`), every row with its licence; a recommendation; «Решение — за Aika»
+
+Items will be shown like product photos: the item cut out of its background on a light backing (DESIGN.md). Write a
+report — no code, no dependency, nothing installed in the project — on how to cut out the background **for free**:
+on the phone or on our own server, with no paid API and no key. Compare at least: Apple Vision subject lifting on
+iOS (`VNGenerateForegroundInstanceMaskRequest`), Google ML Kit Subject Segmentation on Android, `rembg` with its
+open models (U²-Net, IS-Net, BiRefNet …) on our Java server's machine (as a separate process), background removal
+in the browser/JS (e.g. transformers.js models, `@imgly/background-removal`), and one more you find. Columns: where
+it runs (device / our server), what it needs (OS version, CPU/GPU, model size), licence of the code **and of the
+model weights** (commercial use allowed? AGPL? non-commercial only?), quality on clothes (folds, white on white),
+speed, how it fits Expo (works in Expo Go, needs a dev build, a native module), cost (must be 0). Say where each
+fact comes from (link) and mark what you could not check from this environment. Remember intent 01: photos are
+personal data — prefer options where the photo never leaves the phone or our own server. End with a recommendation
+and 2–3 options, and the line «Решение — за Aika». Use only what you can read from here; if a page cannot be
+reached, say so in the report.

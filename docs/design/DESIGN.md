@@ -122,16 +122,22 @@ and Aika decides. Each component in the mockups has a `data-component="…"` att
 
 Aika's decision (25 November 2026): clothes and the avatar must look real, not boxy.
 
-- **Clothes** are fashion flats — the real cut of each garment: collar and placket with buttons, cuffs, yokes,
+- **Items look like cut-out photos** (Aika, 25 November, after the reference app): the item without its
+  background on a light backing, in a flat lay; an outfit is a collage of such cut-outs. The theme stays for the
+  background, cards and text. Real photos come once background removal is decided (queue WR-034; Aika decides).
+  Until then the mockups imitate cut-out photos with drawings (`render_photo`: no outline, light from the top left,
+  fabric grain, a soft contact shadow) — never pictures of the reference app or of real items.
+- **The drawn garments** (the shapes behind both looks) are fashion flats — the real cut of each garment: collar and placket with buttons, cuffs, yokes,
   waistband with belt loops and fly, pockets and flaps, darts, ribbing, soles and laces, and soft folds. Fill: the
   item's colour from `item`; outline `ink` 1.5; shadow `ink` at 10–30 %; light `card` at 20–40 %; seams and folds
   `ink` lines at 20–60 %; top-stitching dashed. One drawing per garment kind, in a 100 × 100 box.
-- **The doll** is a faceless figure with natural proportions (head, neck, rounded shoulders, arms with elbows and
+- **The doll** (a placeholder until Aika decides on the avatar; logic of fit and layers is what it is for) is a faceless figure with natural proportions (head, neck, rounded shoulders, arms with elbows and
   hands, waist and hips, knees, feet) in `doll-skin` with `doll-hair`. Clothes are drawn over it in layer order and
   follow the body (sleeves along the arms, trousers along the legs), with the same shading as the flats. Fit notes
   are numbered markers on the doll.
 - The drawings are made by `docs/design/mockups/garments.py` (the source of the shapes); it rewrites the drawings in
-  `mockups.html`. On the phone they need SVG — ADR-0003 (Proposed) adds `react-native-svg`.
+  `mockups.html`; `--json` exports the flat drawings, the bare doll and its landmarks for the app. In the app an
+  item without a photo shows the flat drawing (`render`); on the phone it needs SVG — ADR-0003 (Proposed).
 - Never a photo of a real item or person as a placeholder; never a garment that looks like a box.
 
 ## Screens (mockups)

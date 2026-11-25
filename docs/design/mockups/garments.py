@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Drawn clothes and the paper doll for the mockups (docs/design/DESIGN.md, «Clothes and the doll»).
 
-Clothes are fashion flats: the real cut of a garment (collar, placket, cuffs, seams, pockets, folds) with soft
-shading, in the item's colour with an ink outline — not icons. Each garment sits in a 0 0 100 100 box.
+Clothes are the real cut of a garment (collar, placket, cuffs, seams, pockets, folds) in the item's colour — not
+icons. Two looks from the same shapes: `render_photo` (the mockups: a cut-out product photo on a light backing — no
+outline, light from the top left, fabric grain, a soft contact shadow) and `render` (a flat drawing with an ink
+outline: the app's fallback for an item without a photo, and the doll's clothes). Each garment sits in a 0 0 100 100 box.
 
     python3 docs/design/mockups/garments.py          # rewrites the drawings inside mockups.html in place
     python3 docs/design/mockups/garments.py --json   # SVG markup per garment and the doll, for the app (ADR-0003)
@@ -293,6 +295,115 @@ def render(gid: str, colour: str) -> str:
     return "".join(out)
 
 
+# ---------------------------------------------------------------- «cut-out photo» look
+
+_uid = [0]
+
+
+def render_photo(gid: str, colour: str) -> str:
+    """The same garment as a cut-out product photo on a light backing: no ink outline, light from the top left,
+    soft folds, a woven fabric grain, a soft contact shadow. Each call gets its own ids (one page holds many)."""
+    _uid[0] += 1
+    u = f"p{_uid[0]}"
+    shapes = [l for l in _flatten(GARMENTS[gid]) if l[0] in ("base", "part")]
+    clip = "".join(f'<path d="{l[1]}"/>' for l in shapes)
+    out = [
+        f'<defs>'
+        f'<clipPath id="{u}c">{clip}</clipPath>'
+        f'<linearGradient id="{u}g" x1="0" y1="0" x2="1" y2="1">'
+        f'<stop offset="0" stop-color="{CARD}" stop-opacity=".30"/>'
+        f'<stop offset=".45" stop-color="{CARD}" stop-opacity="0"/>'
+        f'<stop offset="1" stop-color="{INK}" stop-opacity=".28"/></linearGradient>'
+        f'<filter id="{u}b" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="1.6"/></filter>'
+        f'<filter id="{u}s" x="-20%" y="-20%" width="140%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter>'
+        f'<filter id="{u}t" x="0" y="0" width="100%" height="100%">'
+        f'<feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="{_uid[0] % 7 + 1}" result="n"/>'
+        f'<feColorMatrix type="matrix" values="0 0 0 0 0.25  0 0 0 0 0.21  0 0 0 0 0.19  0 0 0 .55 -.18"/>'
+        f'</filter>'
+        f'</defs>'
+    ]
+    # contact shadow under the item, as if it lay on the backing
+    out.append(f'<g filter="url(#{u}s)" opacity=".35" transform="translate(1.5 2.5)">'
+               + "".join(f'<path d="{l[1]}" fill="{INK}"/>' for l in shapes) + '</g>')
+    for l in _flatten(GARMENTS[gid]):   # a bag's handle stands behind the bag, outside the clip
+        if l[0] == "handle":
+            out.append(f'<path d="{l[1]}" fill="none" stroke="{colour}" stroke-width="3.6" stroke-linecap="round"/>'
+                       f'<path d="{l[1]}" fill="none" stroke="{INK}" stroke-opacity=".3" stroke-width="3.6" '
+                       f'stroke-linecap="round" filter="url(#{u}b)"/>'
+                       f'<path d="{l[1]}" fill="none" stroke="{CARD}" stroke-opacity=".35" stroke-width="1" '
+                       f'transform="translate(-.6 -.6)"/>')
+    for l in _flatten(GARMENTS[gid]):
+        k = l[0]
+        if k in ("base", "part"):
+            fill = colour if k == "base" or l[2] is None else l[2]
+            out.append(f'<path d="{l[1]}" fill="{fill}"/>')
+        elif k == "group":
+            pass
+    g = []
+    for l in _flatten(GARMENTS[gid]):
+        k = l[0]
+        if k == "shade":
+            g.append(f'<path d="{l[1]}" fill="{INK}" fill-opacity="{min(l[2] * 1.8, .45):.2f}" filter="url(#{u}b)"/>')
+        elif k == "light":
+            g.append(f'<path d="{l[1]}" fill="{CARD}" fill-opacity="{min(l[2] * 1.3, .5):.2f}" filter="url(#{u}b)"/>')
+        elif k == "line":
+            g.append(f'<path d="{l[1]}" fill="none" stroke="{INK}" stroke-opacity="{l[2] * .55:.2f}" '
+                     f'stroke-width="{l[3] * 1.4:.2f}" filter="url(#{u}b)"/>')
+            g.append(f'<path d="{l[1]}" fill="none" stroke="{INK}" stroke-opacity="{l[2] * .35:.2f}" stroke-width=".5"/>')
+        elif k == "stitch":
+            g.append(f'<path d="{l[1]}" fill="none" stroke="{INK}" stroke-opacity=".28" stroke-width=".45" '
+                     f'stroke-dasharray="1.2 1"/>')
+        elif k == "dot":
+            _, cx, cy, r, fill = l
+            g.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{fill}"/>'
+                     f'<circle cx="{cx - r * .25:.2f}" cy="{cy - r * .25:.2f}" r="{r * .45:.2f}" fill="{CARD}" fill-opacity=".45"/>')
+        elif k == "rect":
+            _, x, y, w, h, fill = l
+            g.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="1.2" fill="{fill}"/>'
+                     f'<rect x="{x}" y="{y}" width="{w}" height="{h / 2:.2f}" rx="1.2" fill="{CARD}" fill-opacity=".35"/>')
+    g.append(f'<rect x="-5" y="-5" width="110" height="110" fill="url(#{u}g)"/>')
+    g.append(f'<rect x="-5" y="-5" width="110" height="110" filter="url(#{u}t)" opacity=".3"/>')
+    # a faint darker rim instead of an outline: the edge of a real object
+    rim = "".join(f'<path d="{l[1]}" fill="none" stroke="{INK}" stroke-opacity=".22" stroke-width=".7"/>' for l in shapes)
+    out.append(f'<g clip-path="url(#{u}c)">' + "".join(g) + '</g>' + rim)
+    return "".join(out)
+
+
+def _flatten(layers, dx=0.0, dy=0.0):
+    """Groups (the back shoe) become plain layers moved by their translate, so clipping and shadows see them."""
+    for l in layers:
+        if l[0] == "group":
+            tx, ty = map(float, re.findall(r"-?\d+(?:\.\d+)?", l[1]))
+            yield from _flatten(l[2], dx + tx, dy + ty)
+        elif dx or dy:
+            yield _shift(l, dx, dy)
+        else:
+            yield l
+
+
+def _shift(layer, dx, dy):
+    def mv(d):
+        toks = re.findall(r"[A-Za-z]|-?\d+(?:\.\d+)?", d)
+        out, i, cmd = [], 0, ""
+        while i < len(toks):
+            t = toks[i]
+            if t.isalpha():
+                cmd = t; out.append(t); i += 1; continue
+            if cmd in ("H",):
+                out.append(f"{float(t) + dx:g}"); i += 1; continue
+            if cmd in ("V",):
+                out.append(f"{float(t) + dy:g}"); i += 1; continue
+            out.append(f"{float(toks[i]) + dx:g} {float(toks[i + 1]) + dy:g}"); i += 2
+        return " ".join(out)
+    k = layer[0]
+    if k in ("base", "shade", "light", "line", "stitch", "part", "handle"):
+        return (k, mv(layer[1]), *layer[2:])
+    if k == "dot":
+        return (k, layer[1] + dx, layer[2] + dy, *layer[3:])
+    if k == "rect":
+        return (k, layer[1] + dx, layer[2] + dy, *layer[3:])
+    return layer
+
 # ---------------------------------------------------------------- the paper doll
 
 def mirror(d: str, axis: float = 89.0) -> str:
@@ -314,7 +425,13 @@ def mirror(d: str, axis: float = 89.0) -> str:
 SKIN, HAIR = "var(--doll-skin)", "var(--doll-hair)"
 
 
-def doll(shirt: str, trousers: str) -> str:
+# Where the template's body lines are (y in the 178 × 360 box; x of the centre line 89). The app maps these onto
+# the figure the server computes (POST /avatar/dress), so the drawing follows the measurements.
+DOLL_LANDMARKS = {"head_top": 10.5, "chin": 50, "shoulders": 66, "chest": 92, "waist": 122, "hips": 150,
+                  "crotch": 183, "knee": 241, "ankle": 326, "floor": 339.5, "centre_x": 89}
+
+
+def doll(shirt: str | None, trousers: str | None) -> str:
     """Front view, 178 × 360, from the invented figure of the mockup (168 cm). Faceless on purpose."""
     leg_l = ("M64 172 C66 186 66 196 66.5 206 C67.5 222 69.5 232 70 241 C70 262 71 290 72.6 318 C73 324 71.6 328 "
              "69.8 332 C68 336 70 339.5 75 339.5 L84 339.5 C86.2 339.5 86.8 336 85.6 332 C84.6 326 84.6 320 85 316 "
@@ -355,6 +472,8 @@ def doll(shirt: str, trousers: str) -> str:
     a(f'<path d="M95 47 C94 51 92 53 89 53.6 C92.5 55 95.5 54 97 50 Z" fill="{INK}" fill-opacity=".12"/>')  # under the chin
     a(f'<path d="{hair}" style="fill:{HAIR}" stroke="{INK}" stroke-width="1.1"/>')
     a(f'<path d="{bun}" style="fill:{HAIR}" stroke="{INK}" stroke-width="1.1"/>')
+    if shirt is None or trousers is None:   # the bare doll: the app draws the clothes over it
+        return "".join(p)
     # trousers (lower layer)
     a(f'<path d="{trousers_p}" fill="{trousers}" stroke="{INK}" stroke-width="1.3" stroke-linejoin="round"/>')
     a(f'<path d="M89 183 L88.2 187 C87.2 210 86 230 86 244 C86.1 262 86.1 296 85.6 326 L81 326 C81.6 296 82 262 '
@@ -440,6 +559,8 @@ def main() -> int:
             "viewBox": {"garment": "0 0 100 100", "doll": "0 0 178 360"},
             "garments": {k: as_app_svg(render(k, "{colour}")) for k in GARMENTS},
             "doll": as_app_svg(doll("{shirt}", "{trousers}")),
+            "doll_bare": as_app_svg(doll(None, None)),
+            "doll_landmarks": DOLL_LANDMARKS,
         }, ensure_ascii=False, indent=1, sort_keys=True))
         return 0
     page = Path(__file__).with_name("mockups.html")
@@ -447,7 +568,7 @@ def main() -> int:
 
     def fill(m):
         attrs, gid, colour = m.group(1), m.group(2), m.group(3)
-        return f'<svg class="cl"{attrs}>{render(gid, colour)}</svg>'
+        return f'<svg class="cl"{attrs}>{render_photo(gid, colour)}</svg>'
 
     s, n = re.subn(r'<svg class="cl"((?:(?!>).)*?data-g="([a-z]+)" data-c="(#[0-9A-Fa-f]{6})"[^>]*)>.*?</svg>', fill, s,
                    flags=re.S)

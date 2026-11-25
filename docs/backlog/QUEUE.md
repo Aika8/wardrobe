@@ -366,9 +366,9 @@ label. A test fixture with a second schema after `Item` shows those enums are ig
 ### WR-023 — The list screen: filter by status (вид проверяет Aika)
 - status: waiting
 - waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
-- depends: WR-022, WR-028
+- depends: WR-022, WR-028, WR-035
 - size: S
-- paths: `client/App.tsx`, `client/src/filter.ts`, `client/test/filter.test.mjs`
+- paths: `client/App.tsx`, `client/src/filter.ts`, `client/test/filter.test.mjs`, `docs/backlog/reports/screens/WR-023.png`
 - verify: `cd client && npm test`
 - expect: green; the filter logic is tested; the PR says «draft — вид проверяет Aika»
 
@@ -377,12 +377,14 @@ status present, zero included). On the screen: a row of chips «Все · Чис
 list. Filtering is local (the list is small); the server's `?status=` is for later. No new dependency. The look is a
 draft: describe it in words in the PR.
 
+Screenshot (after WR-035): `cd client && npm run screenshot -- WR-023` writes `docs/backlog/reports/screens/WR-023.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
+
 ### WR-024 — Item details screen (вид проверяет Aika)
 - status: waiting
 - waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
-- depends: WR-022, WR-028
+- depends: WR-022, WR-028, WR-035
 - size: S
-- paths: `client/App.tsx`, `client/src/details.ts`, `client/src/screens/**`, `client/test/details.test.mjs`
+- paths: `client/App.tsx`, `client/src/details.ts`, `client/src/screens/**`, `client/test/details.test.mjs`, `docs/backlog/reports/screens/WR-024.png`
 - verify: `cd client && npm test`
 - expect: green; `describeItem` is tested for every field; the PR says «draft — вид проверяет Aika»
 
@@ -390,12 +392,14 @@ draft: describe it in words in the PR.
 seasons in calendar order. Tapping a row of the list opens a details view (`client/src/screens/ItemDetails.tsx`;
 simple state in `App.tsx`, no navigation library — no new dependency). Shows the rows and the status.
 
+Screenshot (after WR-035): `cd client && npm run screenshot -- WR-024` writes `docs/backlog/reports/screens/WR-024.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
+
 ### WR-025 — Change the status from the details screen (вид проверяет Aika)
 - status: waiting
 - waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
-- depends: WR-008, WR-024, WR-028
+- depends: WR-008, WR-024, WR-028, WR-035
 - size: S
-- paths: `client/src/api.ts`, `client/src/items.ts`, `client/src/screens/**`, `client/App.tsx`, `client/test/api.test.mjs`
+- paths: `client/src/api.ts`, `client/src/items.ts`, `client/src/screens/**`, `client/App.tsx`, `client/test/api.test.mjs`, `docs/backlog/reports/screens/WR-025.png`
 - verify: `cd client && npm test`
 - expect: green; buttons come only from the server's `next`; an error's `message` is shown as is
 
@@ -403,6 +407,8 @@ simple state in `App.tsx`, no navigation library — no new dependency). Shows t
 server's `Error.message`. Extend `parseItems` to read `next` (keep it tolerant of its absence for older servers:
 then no buttons). Details screen: one button per status in `next` («В стирку», «В ремонт», «В поездку», «Чистое»).
 The client does **not** know the transition table (one rule in one place). Test `api.ts` with a fake `fetch`.
+
+Screenshot (after WR-035): `cd client && npm run screenshot -- WR-025` writes `docs/backlog/reports/screens/WR-025.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
 
 ### WR-026 — No key and no photo ever lands in the client
 - status: todo
@@ -420,9 +426,9 @@ must ignore its own file. Put a planted temporary file in `os.tmpdir()` to show 
 ### WR-027 — The avatar screen: the dressed doll (вид проверяет Aika)
 - status: waiting
 - waits: Aika's decision on the avatar (the drawn doll, or a photo try-on later) and her «да» on the look
-- depends: WR-021, WR-024, WR-028, WR-033
+- depends: WR-021, WR-024, WR-028, WR-033, WR-035
 - size: S
-- paths: `client/src/avatar/**`, `client/src/screens/**`, `client/App.tsx`, `client/test/avatar.test.mjs`
+- paths: `client/src/avatar/**`, `client/src/screens/**`, `client/App.tsx`, `client/test/avatar.test.mjs`, `docs/backlog/reports/screens/WR-027.png`
 - verify: `cd client && npm test`
 - expect: green; the scaling logic is tested; the PR says «draft — вид проверяет Aika»
 
@@ -440,13 +446,16 @@ computed it (one rule in one place). Screen `client/src/screens/Avatar.tsx`; one
 landmark maps exactly onto the figure's landmark; points between landmarks stay between; order is kept. Describe the
 look in words in the PR.
 
+Screenshot (after WR-035): `cd client && npm run screenshot -- WR-027` writes `docs/backlog/reports/screens/WR-027.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
+
 ## UI kit (after Aika's «да» on the look)
 
 ### WR-028 — Tokens and components of «уютный блокнот» as code (вид проверяет Aika)
 - status: waiting
 - waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- depends: WR-035
 - size: S
-- paths: `client/src/ui/**`, `client/test/ui-tokens.test.mjs`
+- paths: `client/src/ui/**`, `client/test/ui-tokens.test.mjs`, `docs/backlog/reports/screens/WR-028.png`
 - verify: `cd client && npm test`
 - expect: green; the test fails when `client/src/ui/tokens.ts` differs from the JSON block of `docs/design/DESIGN.md`
 
@@ -460,12 +469,14 @@ and `StyleSheet`; no new dependency. Handwritten headings need fonts (`expo-font
 system font and write in `DECISIONS.md` that the font waits for an ADR. Pure logic (e.g. status → colour token) in
 `client/src/ui/status.ts`, tested.
 
+Screenshot (after WR-035): `cd client && npm run screenshot -- WR-028` writes `docs/backlog/reports/screens/WR-028.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
+
 ### WR-033 — Real-looking clothes on the phone: ClothingDrawing (вид проверяет Aika)
 - status: waiting
 - waits: Aika's «да» to ADR-0003 (`react-native-svg`; its status stays Proposed on main — this task's PR sets it Accepted) and her «да» on the look
-- depends: WR-028
+- depends: WR-028, WR-035
 - size: S
-- paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/src/ui/ItemThumb.tsx`, `client/test/garments.test.mjs`, `docs/adr/0003-draw-clothes-with-svg.md`
+- paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/src/ui/ItemThumb.tsx`, `client/test/garments.test.mjs`, `docs/adr/0003-draw-clothes-with-svg.md`, `docs/backlog/reports/screens/WR-033.png`
 - verify: `cd client && npm test`
 - expect: green; the test fails when `garments.data.ts` differs from what `docs/design/mockups/garments.py` draws
 
@@ -480,6 +491,8 @@ real photos will have once background removal is decided (WR-034). Garment kinds
 by `ItemType` + a default per type (TOP → shirt, BOTTOM → trousers, DRESS → dress, OUTERWEAR → coat, SHOES → shoes,
 ACCESSORY → bag); the mapping is in one place in `client/src/ui/garments.ts` and tested. `garments.test.mjs` runs
 `python3 ../docs/design/mockups/garments.py --json` and checks `garments.data.ts` holds exactly that data.
+
+Screenshot (after WR-035): `cd client && npm run screenshot -- WR-033` writes `docs/backlog/reports/screens/WR-033.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
 
 ## Our difference: say why, keep statuses, no limits (intent 01, invariants 8 and 9)
 
@@ -546,8 +559,8 @@ code has a cap anywhere, the test fails and the task parks with where the cap is
 - status: todo
 - size: S
 - paths: `docs/backlog/reports/background-removal.md`
-- verify: `f=docs/backlog/reports/background-removal.md; test -f $f && grep -c '^|' $f && grep -ci 'licen' $f`
-- expect: a table of at least 5 options (at least 7 lines starting with `|`), every row with its licence; a recommendation; «Решение — за Aika»
+- verify: `f=docs/backlog/reports/background-removal.md; test -f $f && test $(grep -c '^|' $f) -ge 7 && grep -qi 'licen' $f && grep -q 'Решение — за Aika' $f && echo ok`
+- expect: prints `ok`; a table of at least 5 options (at least 7 lines starting with `|`), every row with its licence; a recommendation; «Решение — за Aika»
 
 Items will be shown like product photos: the item cut out of its background on a light backing (DESIGN.md). Write a
 report — no code, no dependency, nothing installed in the project — on how to cut out the background **for free**:
@@ -562,3 +575,23 @@ fact comes from (link) and mark what you could not check from this environment. 
 personal data — prefer options where the photo never leaves the phone or our own server. End with a recommendation
 and 2–3 options, and the line «Решение — за Aika». Use only what you can read from here; if a page cannot be
 reached, say so in the report.
+
+## Tools
+
+### WR-035 — Screenshot of the Expo web build in a headless browser
+- status: todo
+- size: S
+- paths: `client/package.json`, `client/package-lock.json`, `client/scripts/screenshot.mjs`, `client/test/screenshot-args.test.mjs`, `docs/backlog/reports/screens/WR-035.png`
+- verify: `cd client && npm test`
+- expect: green; `npm run screenshot -- WR-035` writes `docs/backlog/reports/screens/WR-035.png` showing the item list
+
+So screen tasks can look at what they built (the trial of learning-exchange showed that Chrome for Testing is at
+`$CHROME_PATH` in the cloud, npm installs `playwright-core`, and `npx expo export --platform web` builds). Add
+`playwright-core` as a **dev** dependency (no browser download: it uses `$CHROME_PATH`; locally, the Chrome the
+person has). `client/scripts/screenshot.mjs <id> [--route /path]`: builds the web export into a temp folder, serves
+it on a free local port with Node's `http` module (no new server package), starts the server of this repo on port
+8091 if nothing answers `GET /items` there (`make dev PORT=8091`) and stops it at the end, opens the page at
+390 × 844 (phone width, device scale 2), waits for the list, saves `docs/backlog/reports/screens/<id>.png`, and
+exits non-zero with a clear message when Chrome is missing. `npm run screenshot` in `package.json`. The argument
+parsing and the output path are a pure function, tested in `screenshot-args.test.mjs`. CI does not run the
+screenshot (no server there); say so in the script's header. Never commit anything but the PNG it names.

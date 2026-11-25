@@ -65,6 +65,8 @@ Add questions specific to the task. Leave style nitpicks out (or mark them "nice
    costly to undo done anyway (new public contract, new runtime dependency, a storage format, an approved design)? For a task
    marked «вид проверяет Aika»: does the PR say it is a draft, is the logic behind the look under tests, and is the
    screen built only from the components and tokens of `docs/design/DESIGN.md` (no new component, no new colour)?
+   Read the screenshot the PR commits under `docs/backlog/reports/screens/` (or take one yourself with
+   `cd client && npm run screenshot -- <task id>` once WR-035 is merged) and compare it with the mockup.
 8. Is the PR free of AI attribution lines, secrets and model keys, photos or personal data, and real brands?
 
 Verdict: **pass** when every question is yes. **fail** when any is no or unclear-and-it-matters.

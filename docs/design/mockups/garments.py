@@ -431,7 +431,7 @@ DOLL_LANDMARKS = {"head_top": 10.5, "chin": 50, "shoulders": 66, "chest": 92, "w
                   "crotch": 183, "knee": 241, "ankle": 326, "floor": 339.5, "centre_x": 89}
 
 
-def doll(shirt: str | None, trousers: str | None) -> str:
+def doll(shirt: str | None, trousers: str | None, markers: bool = False) -> str:
     """Front view, 178 × 360, from the invented figure of the mockup (168 cm). Faceless on purpose."""
     leg_l = ("M64 172 C66 186 66 196 66.5 206 C67.5 222 69.5 232 70 241 C70 262 71 290 72.6 318 C73 324 71.6 328 "
              "69.8 332 C68 336 70 339.5 75 339.5 L84 339.5 C86.2 339.5 86.8 336 85.6 332 C84.6 326 84.6 320 85 316 "
@@ -506,7 +506,9 @@ def doll(shirt: str | None, trousers: str | None) -> str:
     for d in ("M72 100 C74 112 74 128 71.5 146", "M106 100 C104 112 104 128 106.5 146",
               "M52 96 C51 108 49.5 122 47 134", "M126 96 C127 108 128.5 122 131 134"):
         a(f'<path d="{d}" fill="none" stroke="{INK}" stroke-opacity=".2" stroke-width=".8"/>')
-    # fit markers (FitNote 1: the sleeve, 2: the trouser length)
+    if not markers:   # the app places FitNote markers from the server's shapes; only the mockup has fixed ones
+        return "".join(p)
+    # fit markers of the mockup (FitNote 1: the sleeve, 2: the trouser length)
     for (cx, cy, colour, n) in ((40, 166, "var(--mustard)", 1), (66, 326, "var(--sage)", 2)):
         a(f'<circle cx="{cx}" cy="{cy}" r="6.5" style="fill:{colour}" stroke="{CARD}" stroke-width="1.5"/>')
         a(f'<text x="{cx}" y="{cy + 3.4}" font-size="9.5" font-weight="800" text-anchor="middle" '
@@ -574,7 +576,7 @@ def main() -> int:
                    flags=re.S)
     s, m = re.subn(r'(<svg data-doll="1"[^>]*data-shirt="(#[0-9A-Fa-f]{6})" data-trousers="(#[0-9A-Fa-f]{6})"[^>]*>)'
                    r'.*?(<!-- /doll -->)',
-                   lambda mm: mm.group(1) + doll(mm.group(2), mm.group(3)) + mm.group(4), s, flags=re.S)
+                   lambda mm: mm.group(1) + doll(mm.group(2), mm.group(3), markers=True) + mm.group(4), s, flags=re.S)
     page.write_text(s, encoding="utf-8")
     print(f"garments drawn: {n}, dolls drawn: {m}")
     return 0

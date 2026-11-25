@@ -1,0 +1,55 @@
+# Intake for the cloud backlog run (docs/backlog/README.md): once a day, code — not an agent — moves at most five
+# small, checkable proposals of the day from docs/backlog/proposals/ into docs/backlog/QUEUE.md. Everything else
+# waits for Aika (docs/backlog/intake-log.md says why). Rules: scripts/backlog/backlog.py, `intake`.
+name: intake
+
+on:
+  schedule:
+    - cron: '55 21 * * *'   # 21:55 UTC = 02:55 Almaty, after the analyst and user runs of the day
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Day of the proposals (YYYY-MM-DD, UTC); empty = today'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: intake
+  cancel-in-progress: false
+
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Stop when paused
+        id: pause
+        run: |
+          if python3 scripts/backlog/backlog.py paused; then echo "paused=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Move proposals into the queue
+        if: steps.pause.outputs.paused != 'true'
+        env:
+          DAY: ${{ inputs.date }}
+        run: |
+          # Yesterday too: a proposals PR merged after this time yesterday is not lost.
+          if [ -n "$DAY" ]; then days="$DAY"; else days="$(date -u -d yesterday +%F) $(date -u +%F)"; fi
+          for d in $days; do python3 scripts/backlog/backlog.py intake --date "$d"; done
+          python3 scripts/backlog/backlog.py lint
+      - name: Commit to main
+        if: steps.pause.outputs.paused != 'true'
+        run: |
+          git config user.name "backlog-intake"
+          git config user.email "backlog-intake@users.noreply.github.com"
+          git add docs/backlog/QUEUE.md docs/backlog/intake-log.md 2>/dev/null || true
+          if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
+          git commit -m "backlog: intake of proposals ($(date -u +%F))"
+          for i in 1 2 3; do   # automerge may have moved main since the checkout
+            git push origin HEAD:main && exit 0
+            git pull --rebase origin main || exit 1
+          done
+          exit 1

@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "Гардероб",
+    "slug": "wardrobe",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": { "bundleIdentifier": "dev.wardrobe.app" },
+    "android": { "package": "dev.wardrobe.app" }
+  }
+}

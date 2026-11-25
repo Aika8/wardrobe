@@ -1,0 +1,63 @@
+# Automerge for the cloud backlog run (docs/backlog/README.md). Code merges, not an agent: an agent PR is merged
+# only when every gate holds —
+#   • docs/backlog/PAUSE does not exist on main (the off switch);
+#   • the branch is an agent branch: claude/<task id> of docs/backlog/QUEUE.md, claude/proposals-…, claude/summary-…;
+#   • the changed files are allowed: inside the task's paths, no protected file (CI, Makefile, CLAUDE.md, the
+#     backlog's own rules), no edit of an existing test or an accepted ADR, no approved design (docs/design/approved/);
+#   • a task PR carries the label review:pass from the independent reviewer run, and none of
+#     parked / hold / needs-fix / blocked-paths;
+#   • CI (`test`) is green on the head commit, and the branch is up to date with main
+#     (if not, this workflow updates it and re-runs CI; a conflict gets the label needs-rebase for the executor).
+# The rules are scripts/backlog/backlog.py (unit-tested in `make test`); this file only calls them.
+name: automerge
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+  # pull_request_target runs this file as it is on main (an agent branch cannot rewrite the job that holds a write
+  # token); the job never checks out the PR's code.
+  pull_request_target:
+    types: [synchronize]
+  schedule:
+    - cron: '43 */3 * * *'   # safety net every 3 hours (UTC); CI completion is the main trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+  checks: read
+
+jobs:
+  # A new commit pushed by an agent invalidates the review: the reviewer looks again.
+  reset-review:
+    if: github.event_name == 'pull_request_target' && startsWith(github.head_ref, 'claude/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Remove review:pass and needs-rebase
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          for l in review:pass needs-rebase; do
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/issues/${PR}/labels/${l}" >/dev/null 2>&1 || true
+          done
+
+  merge:
+    if: github.event_name != 'pull_request_target'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:   # one sweep at a time; a sweep looks at every open PR, so a dropped pending run loses nothing
+      group: automerge
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Merge agent PRs that passed every gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/backlog/backlog.py automerge

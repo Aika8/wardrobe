@@ -39,8 +39,10 @@ git fetch origin <branch> && git diff origin/main...origin/<branch>
 Check out the branch and run the task's `verify` command yourself; compare with `expect`.
 
 Tests in a vacuum: if the PR changes production code (`python3 scripts/backlog/backlog.py prod-changes --base
-origin/main` lists those files; empty = a test-only task, skip this), put those files back to main
-(`git checkout origin/main -- <files>`), run the new tests, then restore the branch (`git checkout <head sha> -- .`).
+origin/main` prints `added <path>` / `changed <path>`; empty = a test-only task, skip this), take the change out:
+`git checkout origin/main -- <changed paths>` and `rm <added paths>` (they do not exist on main), run the new tests
+(a compile error because a new class is missing counts as "fails"), then restore the branch
+(`git checkout <head sha> -- .`, which also brings the added files back).
 The new tests must **fail** without the change and **pass** with it. A new test green both ways pins nothing:
 answer "no" to question 3. Do not trust the PR
 description's claims; the diff and your own run are the evidence. (CI already ran `make test`; you need not repeat it.)

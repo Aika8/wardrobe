@@ -297,6 +297,18 @@ class DebtAndExperienceTest(unittest.TestCase):
         self.assertTrue(b.check_paths("claude/wr-001", [b.Change("modified", "docs/backlog/TECH-DEBT.md")], tasks))
 
 
+class NotesMayQuoteSkipMarkersTest(unittest.TestCase):
+    def test_a_note_naming_a_disabled_test_is_not_a_skipped_test(self):
+        tasks = b.parse_tasks(QUEUE)
+        ok = b.check_paths("claude/wr-001", [
+            b.Change("added", "docs/backlog/tech-debt/2026-12-03-WR-001-1.md", None, "Test X is @Disabled"),
+            b.Change("added", "docs/backlog/experience/2026-12-03-WR-001-0912.md", None, "saw test.skip( in y")], tasks)
+        self.assertEqual(ok, [])
+        bad = b.check_paths("claude/wr-001", [
+            b.Change("added", "backend/engine/src/test/java/engine/model/T.java", None, "@Disabled")], tasks)
+        self.assertTrue(any("skips or disables" in x for x in bad))
+
+
 class WardrobeGateTest(unittest.TestCase):
     """Holes found by the independent review of the wardrobe skeleton (2026-11-25)."""
 

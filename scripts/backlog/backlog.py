@@ -18,7 +18,8 @@ Commands
   plan                         the executor's move for this run: PAUSED | PARK | FIX | REBASE | CI-RED |
                                WIP-LIMIT | NOTHING | NEW <task>
   review-queue                 the reviewer's move: PAUSED | REVIEW #n … | NOTHING
-  prod-changes [--base REF]    changed non-test, non-doc files (the reviewer's "tests in a vacuum" check)
+  prod-changes [--base REF]    `added <path>` / `changed <path>` for non-test, non-doc files (the reviewer's
+                               "tests in a vacuum" check)
 """
 from __future__ import annotations
 
@@ -109,6 +110,8 @@ APPEND_ONLY = [
     "docs/backlog/tech-debt/**",
     "docs/backlog/experience/**",
 ]
+# Notes, not tests: append-only, but a note may quote `@Disabled` or `test.skip(` when it reports one.
+NOTES = ["docs/backlog/tech-debt/**", "docs/backlog/experience/**"]
 # Every task PR may add these (new files only — APPEND_ONLY covers the two folders).
 ALWAYS_ALLOWED_FOR_TASKS = ["DECISIONS.md", "docs/backlog/tech-debt/*.md", "docs/backlog/experience/*.md"]
 SKIP_MARKERS = re.compile(r"@Disabled|@Ignore|\btest\.skip\(|\bit\.skip\(|\bdescribe\.skip\(|\btest\.todo\(|"
@@ -429,7 +432,8 @@ def check_paths(branch: str, changes: list[Change], tasks: list[Task], root: Pat
                 problems.append(f"{p}: an existing test or quality gate is {c.status}; add a new file instead")
             if c.status != "added" and ADR_FILE.match(p) and not adr_is_open(p, root):
                 problems.append(f"{p}: an accepted ADR is never edited; supersede it with a new ADR")
-        if c.status == "added" and matches(c.path, APPEND_ONLY) and SKIP_MARKERS.search(c.added_text):
+        if c.status == "added" and matches(c.path, APPEND_ONLY) and not matches(c.path, NOTES) \
+                and SKIP_MARKERS.search(c.added_text):
             problems.append(f"{c.path}: a new test file skips or disables tests")
         if kind == "task":
             if not matches(c.path, task.paths + ALWAYS_ALLOWED_FOR_TASKS):
@@ -816,7 +820,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "prod-changes":
         for c in changes_from_git(a.base):
             if c.status != "removed" and is_production(c.path):
-                print(c.path)
+                print(("added " if c.status in ("added", "renamed") else "changed ") + c.path)  # a renamed path is new on main
         return 0
     tasks = load_tasks()
     if a.cmd in ("plan", "review-queue"):

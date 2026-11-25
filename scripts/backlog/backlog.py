@@ -70,6 +70,10 @@ PROTECTED = [
     "gradle.properties",
     "**/gradle.properties",
     "docs/backlog/UNATTENDED",
+    # Test-engine configuration could switch tests off without a skip marker.
+    "**/junit-platform.properties",
+    "**/META-INF/**",
+    "**/.npmrc",
 ]
 # Approved designs are Aika's: once she has looked at a screen or the avatar and approved it, the reference goes
 # here and no cloud agent changes it. Drafts of screens and the avatar (client/, avatar logic) are not visual in
@@ -88,6 +92,7 @@ INTAKE_DENY = [
     "**/tsconfig*.json",
     "docs/adr/**",
     "api/**",
+    "intent/**",
 ]
 # Tests and quality gates of earlier work: new files may be added, existing ones are never changed or removed.
 APPEND_ONLY = [
@@ -128,9 +133,10 @@ def matches(path: str, patterns: list[str]) -> bool:
 
 
 def narrow(path: str) -> bool:
-    """A proposal's glob names at least two folders before any wildcard: `backend/app/**` yes, `backend/**` no."""
+    """A proposal's glob names at least three folders before any wildcard: `domain/src/main/**` yes, `app/src/**` no
+    (here modules sit at the top level, so two folders would still reach test resources and configuration)."""
     head = re.split(r"[*?]", path, 1)[0]
-    return head == path or head.count("/") >= 2
+    return head == path or head.count("/") >= 3
 
 
 def visual(path: str) -> bool:

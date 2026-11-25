@@ -40,7 +40,8 @@ avatar, accounts and sync, persistence beyond memory.
 ## Invariants
 1. Every item has exactly one status; an item is offered for an outfit only when it is clean.
 2. Status changes follow the allowed transitions (`ItemStatus`); any other change is rejected, not ignored.
-3. A combination rule is symmetric: `a goes with b` ⇔ `b goes with a`, and an item always goes with itself.
+3. A combination rule is symmetric: `a goes with b` ⇔ `b goes with a`, and an item always goes with itself (the
+   same item, by id; two different items with an unknown field the rule judges do not go together).
 4. Formality is an ordered scale; two items whose formality differs by more than one step never combine.
 5. A card parsed from a model answer is a draft until confirmed; a field the answer lacks or garbles stays
    unknown — it is never guessed.

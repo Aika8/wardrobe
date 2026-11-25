@@ -18,7 +18,8 @@ testable without one.
 - `app/` (`:app`, package `wardrobe.app..`): Spring Boot adapters — REST (`GET /items` …), in-memory catalogue,
   later the model client behind a port. Depends on `:domain`, never the other way round. ArchUnit enforces it
   (`app/src/test/java/wardrobe/app/ArchitectureTest.java`).
-- `api/openapi.yaml` is the REST contract; `ContractTest` checks every response against it. Contract first.
+- `api/openapi.yaml` is the REST contract; the API tests in `app/src/test/java/wardrobe/app/` (`ItemsApiTest`
+  and one per endpoint after it) check every response body against it over real HTTP. Contract first.
 - `client/`: Expo (React Native, TypeScript). Pure logic lives in `client/src/*.ts` with no React import and is
   tested with `node --test`; screens are thin. The client never holds a model key.
 

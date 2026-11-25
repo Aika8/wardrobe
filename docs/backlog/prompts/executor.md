@@ -63,7 +63,9 @@ after green CI and the independent review.
    decide and write it in `DECISIONS.md` under `## Backlog run (December 2026)`; costly → park.
 6. If you start a server: `make dev PORT=8091` (never 8080), and stop it before you finish
    (`make stop PORT=8091`; `make ps` shows nothing of yours).
-7. Check, all three, and read the output:
+7. Check, all three, and read the output. `make test` takes 3–8 minutes: run it in the foreground with the Bash
+   tool's `timeout` set to 600000 (10 minutes) — never in the background, and never end your turn while a command
+   is still running (an ended turn ends the run):
    ```bash
    <the task's verify command>          # must meet the task's expect
    make test                            # must be green

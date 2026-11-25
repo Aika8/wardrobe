@@ -273,6 +273,31 @@ class GlobTest(unittest.TestCase):
         self.assertTrue(b.matches("clients/web/src/x.test.ts", ["clients/**/*.test.ts"]))
 
 
+class WardrobeGateTest(unittest.TestCase):
+    """Holes found by the independent review of the wardrobe skeleton (2026-11-25)."""
+
+    def setUp(self):
+        self.tasks = b.parse_tasks(QUEUE)
+
+    def prop(self, paths):
+        return b.parse_proposals(f"### P\n- size: S\n- paths: {paths}\n- verify: `x`\n- expect: y\n\nd\n")[0]
+
+    def test_proposal_globs_need_three_folders_and_never_reach_intent_or_test_config(self):
+        for paths in ["`app/src/**`", "`domain/src/**`", "`client/src/**`", "`intent/01-wardrobe.md`",
+                      "`client/.npmrc`", "`app/src/test/resources/junit-platform.properties`",
+                      "`app/src/main/resources/META-INF/services/x`"]:
+            self.assertTrue(b.proposal_problems(self.prop(paths), self.tasks), paths)
+        self.assertEqual(b.proposal_problems(self.prop("`domain/src/main/java/wardrobe/domain/x/**`"), self.tasks), [])
+
+    def test_test_engine_configuration_is_protected(self):
+        tasks = b.parse_tasks(QUEUE.replace("`clients/mobile/src/**`", "`**`"))
+        for path in ["app/src/test/resources/junit-platform.properties",
+                     "app/src/test/resources/META-INF/services/org.junit.jupiter.api.extension.Extension",
+                     "client/.npmrc"]:
+            p = b.check_paths("claude/wr-002", [b.Change("added", path)], tasks)
+            self.assertTrue(any("protected" in x for x in p), path)
+
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -47,7 +47,8 @@ from its table (iterate `Colour.values()`).
 - verify: `./gradlew :domain:test --tests 'wardrobe.domain.match.ColourRuleTest'`
 - expect: green; symmetry and "an item goes with itself" are checked over every pair of colours
 
-`ColourRule implements CombinationRule` (see `FormalityRule` for the shape). Verdict:
+`ColourRule implements CombinationRule` (see `FormalityRule` for the shape). Verdict, in this order:
+- the same item (same `ItemId`) → yes: an item always goes with itself (intent 01, invariant 3);
 - either item's colour is UNKNOWN → no, reason says which item's colour is unknown;
 - either colour is neutral → yes;
 - same colour → yes;
@@ -56,9 +57,9 @@ from its table (iterate `Colour.values()`).
 - otherwise no, reason names both colours.
 
 Tests in `ColourRuleTest` (helper `ColourItems.item(id, Colour)` in its own new file): the cases above; over all
-pairs of `Colour.values()`: `judge(a,b).goes() == judge(b,a).goes()`; every colour except UNKNOWN goes with itself.
-UNKNOWN does not go with itself — say in the test why (invariant 5 is stronger than invariant 3 for unknown fields)
-and add that note to `DECISIONS.md`.
+pairs of `Colour.values()` on two **different** items: `judge(a,b).goes() == judge(b,a).goes()`; two different items
+of the same known colour go together, two different items of colour UNKNOWN do not; every item, UNKNOWN colour
+included, goes with itself (same `ItemId`).
 
 ### WR-003 — Pattern rule: at most one patterned item in a pair
 - status: todo
@@ -133,7 +134,7 @@ by id; unknown id → `UnknownItem`). Use case `ChangeStatus` (domain, plain Jav
 - status: todo
 - depends: WR-007
 - size: S
-- paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/**`, `app/src/test/java/wardrobe/app/StatusApiTest.java`
+- paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/**`, `app/src/test/java/wardrobe/app/StatusApiTest.java`, `app/src/test/java/wardrobe/app/StatusCorsTest.java`
 - verify: `./gradlew :app:test --tests 'wardrobe.app.StatusApiTest'`
 - expect: green; 200 / 404 / 409 / 400 each checked against the contract
 
@@ -144,7 +145,8 @@ naming the item and both statuses). Add `next` to the `Item` schema and to `Item
 change to (`ItemStatus.next()`, enum order) — so the client never re-implements the table. Implement with a
 `@RestControllerAdvice` mapping `UnknownItem` and `IllegalStatusChange`. `StatusApiTest` (real HTTP like
 `ItemsApiTest`) validates every response body against the contract schema and checks that a 409 leaves the item as
-it was (`GET /items`). Note: the seed catalogue is shared by tests in one Spring context — use items no other test
+it was (`GET /items`). Extend `CorsConfig` to allow PUT (same local origins) and test the preflight (`OPTIONS` with
+`Origin: http://localhost:8081` and `Access-Control-Request-Method: PUT` → allowed). Note: the seed catalogue is shared by tests in one Spring context — use items no other test
 asserts on, or `@DirtiesContext`.
 
 ### WR-009 — REST: filter the list by status
@@ -178,8 +180,8 @@ first; test over real HTTP with schema validation; one assertion that a pair two
 - status: todo
 - size: S
 - paths: `domain/src/test/resources/cards/**`, `docs/cards.md`
-- verify: `ls domain/src/test/resources/cards/*.txt | wc -l`
-- expect: at least 10 files; `docs/cards.md` describes the answer format and lists every fixture with what it tests
+- verify: `cd domain/src/test/resources/cards && n=0; for f in *.txt; do test -f "${f%.txt}.expected" || { echo "missing ${f%.txt}.expected"; exit 1; }; grep -q "$f" ../../../../../docs/cards.md || { echo "$f not in docs/cards.md"; exit 1; }; n=$((n+1)); done; echo "$n fixtures"`
+- expect: prints `N fixtures` with N ≥ 10; every `.txt` has its `.expected` and is listed in `docs/cards.md`
 
 There are no model calls in version 1. Write what a vision model **would** answer for an item photo, as saved text.
 First `docs/cards.md`: the format we will ask the model for — one `key: value` per line, keys `type, colour, pattern,
@@ -189,7 +191,10 @@ no people: 3 clean answers; one wrapped in a Markdown code fence with a sentence
 values («хлопок», «зима, весна», «синий»); one with a missing `fabric`; one with a garbled value (`colour: blueish
 ?`); one with two values for one key; one with extra keys (`brand: …` — must be ignored, and the value must be an
 invented word, not a real brand); one empty answer. Each fixture has a sibling `NN-short-name.expected` with the
-card a correct parser should produce (`key: value`, `UNKNOWN` where unknown) — the later tasks test against these.
+card a correct parser should produce, one `key: value` per key in the order of `docs/cards.md`: enum keys use the
+enum word or `UNKNOWN`; for `name`, `type`, `formality` and `seasons` an unknown value is written `?` (a name may be
+the word "Unknown"); `seasons` comma-separated in enum order. These files are append-only once merged and the next
+tasks test against them: check each one twice against `docs/cards.md` before pushing.
 
 ### WR-012 — Parse a clean model answer into a card draft
 - status: todo
@@ -224,10 +229,11 @@ stays UNKNOWN — never the closest match.
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/card/**`, `domain/src/test/java/wardrobe/domain/card/CardParserDoubtsTest.java`
 - verify: `./gradlew :domain:test --tests 'wardrobe.domain.card.*'`
-- expect: green on every fixture; each doubt names the key and the raw value
+- expect: green on every fixture; each doubt names the key and the raw value; the earlier card tests pass unchanged
 
-`CardParser.parse` returns, next to the draft, a `List<Doubt>` (record key, raw value, why: MISSING, UNREADABLE,
-CONFLICTING). Two different values for one key → UNKNOWN and CONFLICTING (never "the first one wins"). Missing →
+Add `CardParser.read(String answer)` → `ParsedCard(CardDraft draft, List<Doubt> doubts)`; `parse` keeps its
+signature and returns `read(answer).draft()` (the tests of WR-012/013 must stay green untouched). `Doubt`: record
+key, raw value, why: MISSING, UNREADABLE, CONFLICTING. Two different values for one key → UNKNOWN and CONFLICTING (never "the first one wins"). Missing →
 MISSING. Empty answer → every field unknown, one doubt per key. Test against every fixture's `.expected` plus the
 exact doubts for the garbled, missing, doubled and empty ones.
 
@@ -250,14 +256,15 @@ version 1 (the rules cannot judge an unknown colour).
 ### WR-016 — Measurements of a figure, in millimetres
 - status: todo
 - size: S
-- paths: `domain/src/main/java/wardrobe/domain/avatar/**`, `domain/src/test/java/wardrobe/domain/avatar/MeasurementsTest.java`
+- paths: `domain/src/main/java/wardrobe/domain/avatar/**`, `domain/src/test/java/wardrobe/domain/avatar/MeasurementsTest.java`, `domain/src/test/java/wardrobe/domain/avatar/TestFigures.java`
 - verify: `./gradlew :domain:test --tests 'wardrobe.domain.avatar.MeasurementsTest'`
 - expect: green; out-of-range values are rejected with the field's name
 
 Package `wardrobe.domain.avatar`: `Measurements` record, all `int` millimetres: height, shoulders (width), chest,
 waist, hips (girths), arm (shoulder to wrist), inseam. Validation ranges (adult, generous): height 1300–2200;
 shoulders 300–600; chest 600–1600; waist 450–1500; hips 650–1700; arm 450–800; inseam 600–1000. Also inseam <
-height and arm < height. Three invented figures as constants in a **test** helper (new file) — never Aika's real
+height and arm < height. Three invented figures as constants in the test helper `TestFigures` (new file; the later
+avatar tasks reuse it) — never Aika's real
 measurements (invariant 7). No floating point anywhere (invariant 6).
 
 ### WR-017 — A flat figure from proportions: where the lines of the body are
@@ -321,7 +328,7 @@ from the garment girth if given, else from the figure plus the minimum ease of W
 
 ### WR-021 — REST: dress the avatar
 - status: todo
-- depends: WR-019, WR-020
+- depends: WR-008, WR-019, WR-020
 - size: S
 - paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/**`, `app/src/test/java/wardrobe/app/AvatarApiTest.java`
 - verify: `./gradlew :app:test --tests 'wardrobe.app.AvatarApiTest'`
@@ -329,7 +336,9 @@ from the garment girth if given, else from the figure plus the minimum ease of W
 
 `POST /avatar/dress` with `{ measurements: {...}, items: [ {id, size: {...}} ] }` → `{ figure: {landmarks…,
 widths…}, layers: [ {itemId, type, shape: {...}, fit: [notes]} ] }`, all integers in mm. Unknown item → 404;
-invalid measurements → 400 naming the field; an impossible outfit → 409 with the problems. Contract first; the
+invalid measurements → 400 naming the field; an impossible outfit → 409 with the problems; errors use the `Error`
+schema of WR-008. Extend `CorsConfig` to allow POST with a JSON body from the local origins and test the preflight
+(`Access-Control-Request-Method: POST`, `Access-Control-Request-Headers: content-type`). Contract first; the
 controller only calls the domain (`Layers`, `Placement`, `Fit`). Test over real HTTP with schema validation using
 the invented figures. Sizes travel in the request in version 1 (no storage of sizes yet; write in `DECISIONS.md`).
 
@@ -346,8 +355,10 @@ the invented figures. Sizes travel in the request in version 1 (no storage of si
 Russian («умеренно-официальный» is not plain: prefer «повседневный», «смарт-кэжуал» with a hint, etc.; write the
 choices that are debatable in `DECISIONS.md`). Move nothing out of `items.ts` (its `STATUS_LABEL` stays; reuse it in
 `labels.ts` for statuses — one table per thing). `labels.test.mjs` reads `../api/openapi.yaml` as text, extracts
-the `enum: [...]` lists of the `Item` schema with a regular expression, and checks every value has a non-empty
-label.
+the `enum: [...]` lists **inside `Item.properties` only** (from the line `    Item:` to the next line with the same
+four-space indentation or the end of `components.schemas`; later tasks add other schemas with enums, such as
+`Error.code`, that are not shown to people) with a regular expression, and checks every value has a non-empty
+label. A test fixture with a second schema after `Item` shows those enums are ignored.
 
 ### WR-023 — The list screen: filter by status (вид проверяет Aika)
 - status: todo

@@ -3,8 +3,8 @@ info:
   title: Wardrobe API
   version: 0.1.0
   description: |
-    The wardrobe server (ADR-0002). Contract first: a change goes here before the code; ContractTest checks every
-    response against this file.
+    The wardrobe server (ADR-0002). Contract first: a change goes here before the code; the API tests in
+    app/src/test/java/wardrobe/app/ (*ApiTest) check every response body against this file.
 paths:
   /items:
     get:

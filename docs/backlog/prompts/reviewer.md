@@ -25,6 +25,10 @@ Use `gh api` (REST) only; `gh pr` does not work here. Read `CLAUDE.md` and the s
 
 ## 1. Gather
 
+Long commands (Gradle, `make`): run them in the foreground with the Bash `timeout` set to 600000; never end your
+turn while a command is still running (an ended turn ends the run).
+
+
 ```bash
 python3 scripts/backlog/backlog.py show <task id>            # the requirement
 gh api repos/Aika8/wardrobe/pulls/<n>                # description

@@ -16,7 +16,7 @@ Small behaviour choices, one bullet each, newest section last. Costly-to-reverse
 - **JSON of an item** uses the enum names as they are (`IN_WASH`, `SMART_CASUAL`); the client maps them to Russian
   words. Seasons in calendar order of the enum (winter first).
 - **The client sorts** clean items first, then wash, repair, trip, then by name — display order, not a rule.
-- **CORS**: the server allows GET from `http://localhost:*` (the Expo web build). Nothing else.
+- **CORS**: the server allows GET from `http://localhost:*` (the Expo web build); WR-008 adds PUT and WR-021 POST, each with a preflight test.
 - **The backlog run is a copy** of `Aika8/learning-exchange`'s (`scripts/backlog/backlog.py` with its tests,
   workflows, prompts, `scripts/cloud/setup-env.sh`). Changed for this repository: repository name; Godot removed;
   `VISUAL` = only `docs/design/approved/**` (drafts of screens and the avatar are agent work, marked «вид

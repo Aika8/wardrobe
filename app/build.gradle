@@ -14,5 +14,5 @@ dependencies {
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
 }
 
-// The contract is on the test classpath, so ContractTest validates against the real api/openapi.yaml.
+// The contract is on the test classpath, so the API tests validate against the real api/openapi.yaml.
 sourceSets.test.resources.srcDir rootProject.file('api')

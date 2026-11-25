@@ -1,0 +1,20 @@
+.DS_Store
+.gradle/
+build/
+.idea/
+*.iml
+# JS
+node_modules/
+dist/
+.expo/
+web-build/
+*.tsbuildinfo
+# Python
+__pycache__/
+# Secrets never live here (CLAUDE.md): no model keys, no .env with keys
+.env
+.env.*
+!.env.example
+# Personal photos never go into the repository (intent 01, invariant 7)
+photos/
+**/personal/**

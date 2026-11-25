@@ -14,6 +14,10 @@
   --terracotta:#C47A5C; --sage:#8DA48A; --mustard:#D7A955; --dusty-blue:#7F98AA; --plum:#9A7B8C; --tape:#E7C98E;
   --s-clean:var(--sage); --s-wash:var(--dusty-blue); --s-repair:var(--mustard); --s-trip:var(--terracotta);
   --r-chip:12px; --r-card:18px; --r-sheet:24px;
+  --on-accent:#FFF8EE; --doll-skin:#EBD9C4;
+  --fs-xs:11px; --fs-sm:13px; --fs-md:15px; --fs-lg:18px; --fs-section:24px; --fs-title:28px; --fs-hero:34px;
+  --sp-xxs:2px; --sp-xs:4px; --sp-sm:8px; --sp-md:12px; --sp-lg:16px; --sp-xl:24px; --sp-xxl:32px;
+  --r-pill:999px;
   --shadow:0 1px 0 rgba(63,54,48,.06), 0 6px 16px rgba(63,54,48,.07);
   --hand:'Caveat', cursive; --body:'Nunito', system-ui, sans-serif;
 }
@@ -28,121 +32,121 @@ body{margin:0;background:#E9E1D3;font-family:var(--body);color:var(--ink);}
 .cap .draft{color:var(--terracotta)}
 
 /* phone */
-.phone{width:390px;height:844px;border-radius:46px;border:9px solid #4B423B;background:var(--paper);position:relative;overflow:hidden;
+.phone{width:390px;height:844px;border-radius:var(--r-sheet);border:9px solid #4B423B;background:var(--paper);position:relative;overflow:hidden;
   box-shadow:0 20px 40px rgba(63,54,48,.18);
   background-image:radial-gradient(rgba(63,54,48,.035) 1px, transparent 1.2px);background-size:14px 14px}
 .sb{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:14px;font-weight:700}
-.content{position:absolute;top:44px;left:0;right:0;bottom:84px;overflow:hidden;padding:4px 16px 16px}
+.content{position:absolute;top:44px;left:0;right:0;bottom:84px;overflow-y:auto;scrollbar-width:none;padding:var(--sp-xs) var(--sp-lg) var(--sp-lg)}
 .content.full{bottom:0}
 
 /* components */
 [data-component]{position:relative}
-.title{font-family:var(--hand);font-weight:700;font-size:34px;line-height:1;margin:6px 0 2px}
-.subtitle{color:var(--ink-soft);font-size:14px;margin:0 0 12px}
-.sect{display:flex;justify-content:space-between;align-items:baseline;margin:16px 2px 8px}
-.sect h3{font-family:var(--hand);font-weight:700;font-size:25px;margin:0}
-.sect a{font-size:13px;color:var(--terracotta);font-weight:700;text-decoration:none}
-.weather{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-soft);font-weight:600}
+.title{font-family:var(--hand);font-weight:700;font-size:var(--fs-hero);line-height:1;margin:var(--sp-xs) 0 var(--sp-xxs)}
+.subtitle{color:var(--ink-soft);font-size:var(--fs-sm);margin:0 0 var(--sp-md)}
+.sect{display:flex;justify-content:space-between;align-items:baseline;margin:var(--sp-lg) var(--sp-xxs) var(--sp-sm)}
+.sect h3{font-family:var(--hand);font-weight:700;font-size:var(--fs-section);margin:0}
+.sect a{font-size:var(--fs-sm);color:var(--terracotta);font-weight:700;text-decoration:none}
+.weather{display:flex;gap:var(--sp-sm);align-items:center;font-size:var(--fs-sm);color:var(--ink-soft);font-weight:600}
 .weather b{color:var(--ink)}
 .weather .dot{width:4px;height:4px;border-radius:50%;background:var(--ink-faint)}
-.card{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);padding:14px}
-.tape{position:absolute;top:-9px;left:50%;width:84px;height:20px;margin-left:-42px;background:var(--tape);opacity:.75;transform:rotate(-3deg);
-  border-radius:2px;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.25) 0 6px,transparent 6px 12px)}
+.card{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);padding:var(--sp-md)}
+.tape{position:absolute;top:-9px;left:50%;width:84px;height:20px;margin-left:calc(-1 * var(--sp-xxl));background:var(--tape);opacity:.75;transform:rotate(-3deg);
+  border-radius:var(--r-chip);background-image:repeating-linear-gradient(90deg,rgba(252,248,241,.35) 0 6px,transparent 6px 12px)}
 .tape.r{transform:rotate(4deg);left:72%}
-.canvas{border-radius:14px;background:var(--card);
+.canvas{border-radius:var(--r-chip);background:var(--card);
   background-image:repeating-linear-gradient(180deg,transparent 0 23px,var(--rule) 23px 24px);
   border-left:2px solid rgba(196,122,92,.35);position:relative}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tile{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);padding:12px;min-height:88px;display:flex;flex-direction:column;justify-content:space-between}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-sm)}
+.tile{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);padding:var(--sp-md);min-height:88px;display:flex;flex-direction:column;justify-content:space-between}
 .tile svg{width:30px;height:30px}
-.tile span{font-weight:700;font-size:14px;line-height:1.2}
-.tile .count{position:absolute;top:10px;right:12px;font-size:12px;font-weight:800;color:var(--card);background:var(--dusty-blue);border-radius:999px;padding:1px 8px}
-.thumb{width:62px;height:62px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;flex:none}
-.thumb.sq{border-radius:14px}
+.tile span{font-weight:700;font-size:var(--fs-sm);line-height:1.2}
+.tile .count{position:absolute;top:10px;right:12px;font-size:var(--fs-xs);font-weight:800;color:var(--card);background:var(--dusty-blue);border-radius:var(--r-pill);padding:var(--sp-xxs) var(--sp-sm)}
+.thumb{position:relative;width:62px;height:62px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;flex:none}
+.thumb.sq{border-radius:var(--r-chip)}
 .thumb svg{width:66%;height:66%}
 .thumb .sdot{position:absolute;right:2px;bottom:2px;width:13px;height:13px;border-radius:50%;border:2.5px solid var(--card)}
-.row{display:flex;gap:12px;overflow:hidden}
-.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px 3px 8px;font-size:12px;font-weight:700}
+.row{display:flex;gap:var(--sp-md);overflow:hidden}
+.badge{display:inline-flex;align-items:center;gap:var(--sp-xs);border-radius:var(--r-pill);padding:var(--sp-xxs) var(--sp-sm) var(--sp-xxs) var(--sp-sm);font-size:var(--fs-xs);font-weight:700}
 .badge i{width:8px;height:8px;border-radius:50%;display:inline-block}
 .b-clean{background:rgba(141,164,138,.2)} .b-clean i{background:var(--s-clean)}
 .b-wash{background:rgba(127,152,170,.2)} .b-wash i{background:var(--s-wash)}
 .b-repair{background:rgba(215,169,85,.22)} .b-repair i{background:var(--s-repair)}
 .b-trip{background:rgba(196,122,92,.18)} .b-trip i{background:var(--s-trip)}
-.chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{border-radius:var(--r-chip);padding:6px 11px;font-size:13px;font-weight:600;background:var(--card);box-shadow:var(--shadow);white-space:nowrap}
+.chips{display:flex;gap:var(--sp-sm);flex-wrap:wrap}
+.chip{border-radius:var(--r-chip);padding:var(--sp-xs) var(--sp-md);font-size:var(--fs-sm);font-weight:600;background:var(--card);box-shadow:var(--shadow);white-space:nowrap}
 .chip.on{box-shadow:inset 0 0 0 1.5px var(--ink);background:var(--paper-deep)}
-.chip small{color:var(--ink-soft);font-weight:700;margin-left:3px}
-.why{list-style:none;margin:0;padding:0;font-size:13.5px}
-.why li{display:flex;gap:9px;padding:6px 0;border-top:1px dashed var(--rule);line-height:1.3}
+.chip small{color:var(--ink-soft);font-weight:700;margin-left:var(--sp-xxs)}
+.why{list-style:none;margin:0;padding:0;font-size:var(--fs-sm)}
+.why li{display:flex;gap:var(--sp-sm);padding:var(--sp-xs) 0;border-top:1px dashed var(--rule);line-height:1.3}
 .why li:first-child{border-top:0}
 .why .ok{color:var(--sage);font-weight:800;flex:none;width:14px}
 .why .no{color:var(--terracotta);font-weight:800;flex:none;width:14px}
 .why b{font-weight:700}
-.btn{border:0;border-radius:999px;padding:10px 18px;font:700 14px var(--body);background:var(--terracotta);color:#FFF8EE}
+.btn{border:0;border-radius:var(--r-pill);padding:var(--sp-sm) var(--sp-lg);font:700 14px var(--body);background:var(--terracotta);color:var(--on-accent)}
 .btn.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
 .nav{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--card);border-top:1px solid var(--rule);
-  display:grid;grid-template-columns:repeat(5,1fr);align-items:start;padding-top:10px;border-radius:0 0 36px 36px}
-.nav div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--ink-faint)}
+  display:grid;grid-template-columns:repeat(5,1fr);align-items:start;padding-top:var(--sp-sm);border-radius:0 0 36px 36px}
+.nav div{display:flex;flex-direction:column;align-items:center;gap:var(--sp-xxs);font-size:var(--fs-xs);font-weight:700;color:var(--ink-faint)}
 .nav div.on{color:var(--ink)}
 .nav svg{width:24px;height:24px}
-.nav .add{width:56px;height:56px;border-radius:50%;background:var(--terracotta);margin-top:-26px;display:flex;align-items:center;justify-content:center;
+.nav .add{width:56px;height:56px;border-radius:50%;background:var(--terracotta);margin-top:calc(-1 * var(--sp-xl));display:flex;align-items:center;justify-content:center;
   box-shadow:0 6px 14px rgba(196,122,92,.4);border:4px solid var(--paper)}
 .nav .add svg{width:26px;height:26px}
 .ract{display:flex;justify-content:space-between}
-.ract div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:700;width:76px;text-align:center}
+.ract div{display:flex;flex-direction:column;align-items:center;gap:var(--sp-xs);font-size:var(--fs-xs);font-weight:700;width:76px;text-align:center}
 .ract span.c{width:56px;height:56px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
 .ract svg{width:26px;height:26px}
-.coll{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.coll .card{padding:10px}
-.coll .g{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
-.coll .g div{aspect-ratio:1;border-radius:10px;background:var(--paper);display:flex;align-items:center;justify-content:center;position:relative}
+.coll{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-md)}
+.coll .card{padding:var(--sp-sm)}
+.coll .g{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-xs);margin-bottom:var(--sp-sm)}
+.coll .g div{aspect-ratio:1;border-radius:var(--r-chip);background:var(--paper);display:flex;align-items:center;justify-content:center;position:relative}
 .coll .g svg{width:70%;height:70%}
-.coll .g .more{font-weight:800;color:var(--ink-soft);font-size:14px}
-.coll b{display:block;font-size:14px}
-.coll small{color:var(--ink-soft);font-size:12px;font-weight:600}
-.newc{border:1.5px dashed var(--ink-faint);border-radius:var(--r-card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-  color:var(--ink-soft);font-weight:700;font-size:13px;min-height:190px}
-.newc span{font-size:30px;line-height:1}
-.tabs{display:flex;gap:18px;font-weight:700;font-size:14px;color:var(--ink-faint);border-bottom:1px solid var(--rule);padding:0 2px}
-.tabs div{padding:8px 0}
+.coll .g .more{font-weight:800;color:var(--ink-soft);font-size:var(--fs-sm)}
+.coll b{display:block;font-size:var(--fs-sm)}
+.coll small{color:var(--ink-soft);font-size:var(--fs-xs);font-weight:600}
+.newc{border:1.5px dashed var(--ink-faint);border-radius:var(--r-card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp-xs);
+  color:var(--ink-soft);font-weight:700;font-size:var(--fs-sm);min-height:190px}
+.newc span{font-size:var(--fs-title);line-height:1}
+.tabs{display:flex;gap:var(--sp-lg);font-weight:700;font-size:var(--fs-sm);color:var(--ink-faint);border-bottom:1px solid var(--rule);padding:0 var(--sp-xxs)}
+.tabs div{padding:var(--sp-sm) 0}
 .tabs .on{color:var(--ink);box-shadow:inset 0 -2.5px 0 var(--terracotta)}
-.strip{display:flex;gap:10px;padding:12px 2px 4px;overflow:hidden}
-.strip .it{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--ink-soft);width:64px;text-align:center}
+.strip{display:flex;gap:var(--sp-sm);padding:var(--sp-md) var(--sp-xxs) var(--sp-xs);overflow:hidden}
+.strip .it{display:flex;flex-direction:column;align-items:center;gap:var(--sp-xs);font-size:var(--fs-xs);font-weight:700;color:var(--ink-soft);width:64px;text-align:center}
 .strip .it.away{opacity:.45}
-.tool{display:flex;gap:6px;justify-content:center;margin:8px 0}
-.tool span{width:38px;height:38px;border-radius:12px;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
+.tool{display:flex;gap:var(--sp-xs);justify-content:center;margin:var(--sp-sm) 0}
+.tool span{width:38px;height:38px;border-radius:var(--r-chip);background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
 .tool svg{width:20px;height:20px}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
-.cal .h{font-size:11px;font-weight:800;color:var(--ink-faint);padding-bottom:2px}
-.cal .d{aspect-ratio:.78;border-radius:10px;background:var(--card);box-shadow:var(--shadow);font-size:11px;font-weight:700;padding:3px 0 0;position:relative;color:var(--ink-soft)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--sp-xs);text-align:center}
+.cal .h{font-size:var(--fs-xs);font-weight:800;color:var(--ink-faint);padding-bottom:var(--sp-xxs)}
+.cal .d{aspect-ratio:.78;border-radius:var(--r-chip);background:var(--card);box-shadow:var(--shadow);font-size:var(--fs-xs);font-weight:700;padding:var(--sp-xxs) 0 0;position:relative;color:var(--ink-soft)}
 .cal .d.o{background:transparent;box-shadow:none;color:var(--ink-faint)}
 .cal .d.today{box-shadow:inset 0 0 0 2px var(--terracotta)}
-.cal .d svg{position:absolute;left:50%;bottom:3px;width:28px;height:28px;margin-left:-14px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);padding:10px 8px;text-align:center}
-.stat b{display:block;font-size:20px;font-weight:800}
-.stat span{font-size:11px;color:var(--ink-soft);font-weight:700;line-height:1.2;display:block}
-.sw{display:grid;grid-template-columns:repeat(4,1fr);background:var(--paper-deep);border-radius:16px;padding:4px;gap:4px}
-.sw div{border-radius:12px;padding:8px 2px;text-align:center;font-size:12px;font-weight:700;color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:4px}
+.cal .d svg{position:absolute;left:50%;bottom:3px;width:28px;height:28px;margin-left:calc(-1 * var(--sp-md))}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-sm)}
+.stat{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);padding:var(--sp-sm) var(--sp-sm);text-align:center}
+.stat b{display:block;font-size:var(--fs-lg);font-weight:800}
+.stat span{font-size:var(--fs-xs);color:var(--ink-soft);font-weight:700;line-height:1.2;display:block}
+.sw{display:grid;grid-template-columns:repeat(4,1fr);background:var(--paper-deep);border-radius:var(--r-card);padding:var(--sp-xs);gap:var(--sp-xs)}
+.sw div{border-radius:var(--r-chip);padding:var(--sp-sm) var(--sp-xxs);text-align:center;font-size:var(--fs-xs);font-weight:700;color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:var(--sp-xs)}
 .sw div svg{width:20px;height:20px}
 .sw .cur{background:var(--card);box-shadow:var(--shadow);color:var(--ink)}
 .sw .off{opacity:.38}
-.attr{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.attr{display:grid;grid-template-columns:auto 1fr;gap:var(--sp-xs) var(--sp-md);font-size:var(--fs-sm)}
 .attr dt{color:var(--ink-soft);font-weight:600}
 .attr dd{margin:0;font-weight:700}
-.sw-dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:6px;box-shadow:inset 0 0 0 1.5px rgba(63,54,48,.3)}
-.measure{font-size:13px}
-.measure div{display:flex;justify-content:space-between;padding:5px 0;border-top:1px dashed var(--rule)}
+.sw-dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:var(--sp-xs);box-shadow:inset 0 0 0 1.5px rgba(63,54,48,.3)}
+.measure{font-size:var(--fs-sm)}
+.measure div{display:flex;justify-content:space-between;padding:var(--sp-xs) 0;border-top:1px dashed var(--rule)}
 .measure div:first-child{border-top:0}
 .measure b{font-weight:800}
-.fit{font-size:13px;display:flex;gap:8px;align-items:flex-start;padding:5px 0}
-.fit i{flex:none;width:18px;height:18px;border-radius:50%;background:var(--mustard);color:#FFF8EE;font-style:normal;font-weight:800;font-size:11px;
-  display:flex;align-items:center;justify-content:center;margin-top:1px}
+.fit{font-size:var(--fs-sm);display:flex;gap:var(--sp-sm);align-items:flex-start;padding:var(--sp-xs) 0}
+.fit i{flex:none;width:18px;height:18px;border-radius:50%;background:var(--mustard);color:var(--on-accent);font-style:normal;font-weight:800;font-size:var(--fs-xs);
+  display:flex;align-items:center;justify-content:center;margin-top:var(--sp-xxs)}
 .fit i.ok{background:var(--sage)}
-.draftnote{font-size:12px;color:var(--terracotta);font-weight:700}
-.back{font-size:22px;font-weight:700;color:var(--ink-soft)}
+.draftnote{font-size:var(--fs-xs);color:var(--terracotta);font-weight:700}
+.back{font-size:var(--fs-section);font-weight:700;color:var(--ink-soft)}
 /* component sheet */
-.sheet{background:var(--paper);border-radius:28px;padding:22px;width:820px;max-width:calc(100vw - 32px);box-shadow:0 20px 40px rgba(63,54,48,.12)}
+.sheet{background:var(--paper);border-radius:var(--r-sheet);padding:var(--sp-xl);width:820px;max-width:calc(100vw - 32px);box-shadow:0 20px 40px rgba(63,54,48,.12)}
 .sheet h2{font-family:var(--hand);font-size:34px;margin:0 0 6px}
 .sheet .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:14px}
 .sheet .cell{background:rgba(255,255,255,.25);border:1px dashed var(--rule);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
@@ -179,19 +183,21 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
     <div data-component="WeatherStrip" class="weather"><b>Чт, 3 декабря</b><span class="dot"></span>Алматы<span class="dot"></span><b>−4°</b> снег</div>
 
     <div class="sect" data-component="SectionTitle"><h3>Образ на сегодня</h3><a href="#">другой</a></div>
-    <div class="card" data-component="PaperCard" style="padding:12px">
+    <div class="card" data-component="PaperCard" style="padding:var(--sp-md)">
       <div class="tape" data-component="Tape"></div>
       <div class="canvas" data-component="OutfitCanvas" style="height:182px">
-        <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:18px;top:14px;width:104px;height:104px;--c:var(--paper-deep)"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#EDE3D2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
+        <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:18px;top:14px;width:104px;height:104px;--c:var(--paper-deep)"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#E2CFB2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
         <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:126px;top:10px;width:84px;height:84px;--c:#F7F2E8"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
         <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:214px;top:22px;width:92px;height:92px;--c:#4E5B73"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
         <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:136px;top:112px;width:64px;height:64px;--c:#8B6A4E"><path d="M8 62 Q9 46 22 47 L34 51 Q43 54 45 63 L45 70 L8 70 Z" fill="#8B6A4E" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M53 62 Q54 46 67 47 L79 51 Q88 54 90 63 L90 70 L53 70 Z" fill="#8B6A4E" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/></svg>
-        <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:240px;top:118px;width:56px;height:56px;--c:var(--terracotta)"><path d="M20 20 H80 V34 H20 Z M58 34 H72 L76 82 H62 Z" fill="#C47A5C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/></svg>
+        <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:240px;top:118px;width:56px;height:56px;--c:var(--terracotta)"><path d="M20 20 H80 V34 H20 Z M58 34 H72 L76 82 H62 Z" fill="#B9614F" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/></svg>
       </div>
-      <ul class="why" data-component="WhyItFits" style="margin-top:8px">
+      <ul class="why" data-component="WhyItFits" style="margin-top:var(--sp-sm)">
         <li><span class="ok">✓</span><span><b>Строгость</b> — рубашка и брюки деловые, пальто на шаг проще: можно.</span></li>
-        <li><span class="ok">✓</span><span><b>Цвет</b> — бежевый, белый и тёмно-синий спокойные, терракотовый шарф один яркий.</span></li>
-        <li><span class="ok">✓</span><span><b>Погода</b> — шерсть и тёплая обувь, всё зимнее.</span></li>
+        <li><span class="ok">✓</span><span><b>Цвет</b> — бежевый, белый и тёмно-синий спокойные, красный шарф один яркий.</span></li>
+        <li><span class="ok">✓</span><span><b>Узор</b> — всё однотонное.</span></li>
+        <li><span class="ok">✓</span><span><b>Сезон</b> — все вещи зимние.</span></li>
+        <li><span class="ok">✓</span><span><b>Чистота</b> — всё чистое.</span></li>
       </ul>
     </div>
 
@@ -205,17 +211,17 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
 
     <div class="sect" data-component="SectionTitle"><h3>Недавно добавлены</h3><a href="#">все</a></div>
     <div class="row">
-      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--sage)"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" style="background:var(--s-clean)"></span></div>
-      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:#6F87A3"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#6F87A3" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" style="background:var(--s-wash)"></span></div>
-      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--plum)"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" style="background:var(--s-trip)"></span></div>
-      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:#F7F2E8"><path d="M30 18 L42 12 Q50 21 58 12 L70 18 L87 33 L77 45 L69 39 L69 88 L31 88 L31 39 L23 45 L13 33 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/></svg><span class="sdot" style="background:var(--s-clean)"></span></div>
-      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--mustard)"><path d="M24 40 H76 L80 86 H20 Z" fill="#D7A955" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M38 40 Q38 18 50 18 Q62 18 62 40" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" style="background:var(--s-clean)"></span></div>
+      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--sage)"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" data-component="StatusDot" style="background:var(--s-clean)"></span></div>
+      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:#6F87A3"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#6F87A3" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" data-component="StatusDot" style="background:var(--s-wash)"></span></div>
+      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--plum)"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" data-component="StatusDot" style="background:var(--s-trip)"></span></div>
+      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:#F7F2E8"><path d="M30 18 L42 12 Q50 21 58 12 L70 18 L87 33 L77 45 L69 39 L69 88 L31 88 L31 39 L23 45 L13 33 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/></svg><span class="sdot" data-component="StatusDot" style="background:var(--s-clean)"></span></div>
+      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--mustard)"><path d="M24 40 H76 L80 86 H20 Z" fill="#D7A955" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M38 40 Q38 18 50 18 Q62 18 62 40" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" data-component="StatusDot" style="background:var(--s-clean)"></span></div>
     </div>
   </div>
   <nav class="nav" data-component="BottomNav">
     <div class="on"><svg class="ic" viewBox="0 0 24 24"><path d="M4 11 L12 4 L20 11 V20 H4 Z"/></svg>Главная</div>
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M12 6 a2 2 0 1 1 2 2 L12 9.5 L3 17 H21 L12 9.5"/></svg>Шкаф</div>
-    <div><span class="add"><svg class="ic" viewBox="0 0 24 24" style="color:#FFF8EE"><path d="M12 5 V19 M5 12 H19"/></svg></span></div>
+    <div><span class="add"><svg class="ic" viewBox="0 0 24 24" style="color:var(--on-accent)"><path d="M12 5 V19 M5 12 H19"/></svg></span></div>
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M4 6 h16 v14 H4 Z M4 10 h16 M8 3 v4 M16 3 v4"/></svg>Календарь</div>
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M12 4 a3 3 0 1 1 0 .1 M6 21 q0 -8 6 -8 q6 0 6 8"/></svg>Я</div>
   </nav>
@@ -248,7 +254,7 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
     <div class="sect" data-component="SectionTitle"><h3>Подборки</h3><a href="#">изменить</a></div>
     <div class="coll">
       <div class="card" data-component="CollectionCard">
-        <div class="g"><div><svg class="cl" viewBox="0 0 100 100" style="--c:#F7F2E8"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><svg class="cl" viewBox="0 0 100 100" style="--c:#4E5B73"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><svg class="cl" viewBox="0 0 100 100" style="--c:var(--paper-deep)"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#EDE3D2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><span class="more">+14</span></div></div>
+        <div class="g"><div><svg class="cl" viewBox="0 0 100 100" style="--c:#F7F2E8"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><svg class="cl" viewBox="0 0 100 100" style="--c:#4E5B73"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><svg class="cl" viewBox="0 0 100 100" style="--c:var(--paper-deep)"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#E2CFB2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><span class="more">+14</span></div></div>
         <b>Офис</b><small>17 вещей</small>
       </div>
       <div class="card" data-component="CollectionCard">
@@ -256,7 +262,7 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
         <b>Выходные</b><small>23 вещи</small>
       </div>
       <div class="card" data-component="CollectionCard">
-        <div class="g"><div><svg class="cl" viewBox="0 0 100 100" style="--c:var(--plum)"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><svg class="cl" viewBox="0 0 100 100" style="--c:var(--mustard)"><path d="M24 40 H76 L80 86 H20 Z" fill="#D7A955" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M38 40 Q38 18 50 18 Q62 18 62 40" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><svg class="cl" viewBox="0 0 100 100" style="--c:var(--terracotta)"><path d="M35 18 L65 18 L80 86 Q50 92 20 86 Z" fill="#C47A5C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M35 25 H65" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><span class="more">+5</span></div></div>
+        <div class="g"><div><svg class="cl" viewBox="0 0 100 100" style="--c:var(--plum)"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><svg class="cl" viewBox="0 0 100 100" style="--c:var(--mustard)"><path d="M24 40 H76 L80 86 H20 Z" fill="#D7A955" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M38 40 Q38 18 50 18 Q62 18 62 40" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><svg class="cl" viewBox="0 0 100 100" style="--c:var(--terracotta)"><path d="M35 18 L65 18 L80 86 Q50 92 20 86 Z" fill="#B9614F" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M35 25 H65" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div><div><span class="more">+5</span></div></div>
         <b>Лето</b><small>8 вещей</small>
       </div>
       <div class="newc" data-component="NewCard"><span>+</span>Новая подборка</div>
@@ -265,7 +271,7 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
   <nav class="nav" data-component="BottomNav">
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M4 11 L12 4 L20 11 V20 H4 Z"/></svg>Главная</div>
     <div class="on"><svg class="ic" viewBox="0 0 24 24"><path d="M12 6 a2 2 0 1 1 2 2 L12 9.5 L3 17 H21 L12 9.5"/></svg>Шкаф</div>
-    <div><span class="add"><svg class="ic" viewBox="0 0 24 24" style="color:#FFF8EE"><path d="M12 5 V19 M5 12 H19"/></svg></span></div>
+    <div><span class="add"><svg class="ic" viewBox="0 0 24 24" style="color:var(--on-accent)"><path d="M12 5 V19 M5 12 H19"/></svg></span></div>
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M4 6 h16 v14 H4 Z M4 10 h16 M8 3 v4 M16 3 v4"/></svg>Календарь</div>
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M12 4 a3 3 0 1 1 0 .1 M6 21 q0 -8 6 -8 q6 0 6 8"/></svg>Я</div>
   </nav>
@@ -278,13 +284,13 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
 <div class="phone">
   <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
   <div class="content full">
-    <div style="display:flex;justify-content:space-between;align-items:center"><span class="back">‹</span><p class="title" style="font-size:30px;margin:0" data-component="ScreenTitle">Новый образ</p><button class="btn" data-component="Button" style="padding:7px 14px">Сохранить</button></div>
-    <div data-component="WeatherStrip" class="weather" style="margin:6px 0 10px"><b>Пт, 4 декабря</b><span class="dot"></span>Алматы<span class="dot"></span><b>−2°</b> облачно</div>
-    <div class="card" data-component="PaperCard" style="padding:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><span class="back">‹</span><p class="title" style="font-size:var(--fs-title);margin:0" data-component="ScreenTitle">Новый образ</p><button class="btn" data-component="Button" style="padding:var(--sp-sm) var(--sp-md)">Сохранить</button></div>
+    <div data-component="WeatherStrip" class="weather" style="margin:var(--sp-xs) 0 var(--sp-sm)"><b>Пт, 4 декабря</b><span class="dot"></span>Алматы<span class="dot"></span><b>−2°</b> облачно</div>
+    <div class="card" data-component="PaperCard" style="padding:var(--sp-sm)">
       <div class="tape r" data-component="Tape"></div>
       <div class="canvas" data-component="OutfitCanvas" style="height:250px">
         <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:30px;top:16px;width:118px;height:118px;--c:var(--sage)"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
-        <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:170px;top:30px;width:124px;height:124px;--c:#6F87A3;outline:1.5px dashed var(--terracotta);outline-offset:4px;border-radius:6px"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#6F87A3" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
+        <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:170px;top:30px;width:124px;height:124px;--c:#6F87A3;outline:1.5px dashed var(--terracotta);outline-offset:var(--sp-xs);border-radius:6px"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#6F87A3" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
         <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:54px;top:156px;width:80px;height:80px;--c:#F7F2E8"><path d="M8 62 Q9 46 22 47 L34 51 Q43 54 45 63 L45 70 L8 70 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M53 62 Q54 46 67 47 L79 51 Q88 54 90 63 L90 70 L53 70 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/></svg>
         <svg class="cl" viewBox="0 0 100 100" style="position:absolute;left:236px;top:168px;width:62px;height:62px;--c:var(--mustard)"><path d="M24 40 H76 L80 86 H20 Z" fill="#D7A955" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M38 40 Q38 18 50 18 Q62 18 62 40" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
       </div>
@@ -296,16 +302,18 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
       <ul class="why" data-component="WhyItFits">
         <li><span class="ok">✓</span><span><b>Строгость</b> — всё повседневное.</span></li>
         <li><span class="ok">✓</span><span><b>Цвет</b> — шалфейный и голубой рядом, белое и горчичная сумка их связывают.</span></li>
+        <li><span class="ok">✓</span><span><b>Узор</b> — всё однотонное.</span></li>
+        <li><span class="ok">✓</span><span><b>Сезон</b> — у всех есть зима.</span></li>
         <li><span class="no">✗</span><span><b>Чистота</b> — голубые джинсы в стирке: <u>взять тёмные брюки?</u></span></li>
       </ul>
     </div>
-    <div class="tabs" data-component="CategoryTabs" style="margin-top:12px"><div class="on">Все</div><div>Верх</div><div>Низ</div><div>Верхняя</div><div>Обувь</div><div>Аксессуары</div></div>
+    <div class="tabs" data-component="CategoryTabs" style="margin-top:var(--sp-md)"><div class="on">Все</div><div>Верх</div><div>Низ</div><div>Верхняя</div><div>Обувь</div><div>Аксессуары</div></div>
     <div class="strip" data-component="ItemStrip">
       <div class="it"><div class="thumb sq" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:#F7F2E8"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>Рубашка</div>
       <div class="it away"><div class="thumb sq" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:#6F87A3"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#6F87A3" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>в стирке</div>
       <div class="it"><div class="thumb sq" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:#4E5B73"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>Брюки</div>
-      <div class="it away"><div class="thumb sq" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--paper-deep)"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#EDE3D2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>в ремонте</div>
-      <div class="it"><div class="thumb sq" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--terracotta)"><path d="M35 18 L65 18 L80 86 Q50 92 20 86 Z" fill="#C47A5C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M35 25 H65" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>Юбка</div>
+      <div class="it away"><div class="thumb sq" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--paper-deep)"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#E2CFB2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>в ремонте</div>
+      <div class="it"><div class="thumb sq" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--terracotta)"><path d="M35 18 L65 18 L80 86 Q50 92 20 86 Z" fill="#B9614F" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M35 25 H65" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>Юбка</div>
     </div>
   </div>
 </div>
@@ -318,7 +326,7 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
   <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
   <div class="content">
     <div data-component="ScreenTitle" style="display:flex;justify-content:space-between;align-items:baseline"><p class="title">Декабрь</p><span class="weather">‹ 2026 ›</span></div>
-    <div class="cal" data-component="CalendarMonth" style="margin-top:10px"><div class="h">Пн</div><div class="h">Вт</div><div class="h">Ср</div><div class="h">Чт</div><div class="h">Пт</div><div class="h">Сб</div><div class="h">Вс</div><div class="d o">30</div><div class="d">1<svg class="cl" viewBox="0 0 100 100"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">2<svg class="cl" viewBox="0 0 100 100"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">3<svg class="cl" viewBox="0 0 100 100"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#EDE3D2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">4<svg class="cl" viewBox="0 0 100 100"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">5</div><div class="d">6</div><div class="d">7<svg class="cl" viewBox="0 0 100 100"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">8<svg class="cl" viewBox="0 0 100 100"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">9<svg class="cl" viewBox="0 0 100 100"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">10<svg class="cl" viewBox="0 0 100 100"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#C9B49A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">11<svg class="cl" viewBox="0 0 100 100"><path d="M30 18 L42 12 Q50 21 58 12 L70 18 L87 33 L77 45 L69 39 L69 88 L31 88 L31 39 L23 45 L13 33 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/></svg></div><div class="d">12</div><div class="d">13</div><div class="d">14<svg class="cl" viewBox="0 0 100 100"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#DCE3EA" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">15<svg class="cl" viewBox="0 0 100 100"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">16<svg class="cl" viewBox="0 0 100 100"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#EDE3D2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">17<svg class="cl" viewBox="0 0 100 100"><path d="M35 18 L65 18 L80 86 Q50 92 20 86 Z" fill="#C47A5C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M35 25 H65" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d today">18<svg class="cl" viewBox="0 0 100 100"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">19</div><div class="d">20</div><div class="d">21</div><div class="d">22</div><div class="d">23</div><div class="d">24</div><div class="d">25</div><div class="d">26</div><div class="d">27</div><div class="d">28</div><div class="d">29</div><div class="d">30</div><div class="d">31</div><div class="d o">1</div><div class="d o">2</div><div class="d o">3</div></div>
+    <div class="cal" data-component="CalendarMonth" style="margin-top:var(--sp-sm)"><div class="h">Пн</div><div class="h">Вт</div><div class="h">Ср</div><div class="h">Чт</div><div class="h">Пт</div><div class="h">Сб</div><div class="h">Вс</div><div class="d o">30</div><div class="d">1<svg class="cl" viewBox="0 0 100 100"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">2<svg class="cl" viewBox="0 0 100 100"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">3<svg class="cl" viewBox="0 0 100 100"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#E2CFB2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">4<svg class="cl" viewBox="0 0 100 100"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">5</div><div class="d">6</div><div class="d">7<svg class="cl" viewBox="0 0 100 100"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">8<svg class="cl" viewBox="0 0 100 100"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">9<svg class="cl" viewBox="0 0 100 100"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">10<svg class="cl" viewBox="0 0 100 100"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#E2CFB2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">11<svg class="cl" viewBox="0 0 100 100"><path d="M30 18 L42 12 Q50 21 58 12 L70 18 L87 33 L77 45 L69 39 L69 88 L31 88 L31 39 L23 45 L13 33 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/></svg></div><div class="d">12</div><div class="d">13</div><div class="d">14<svg class="cl" viewBox="0 0 100 100"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">15<svg class="cl" viewBox="0 0 100 100"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">16<svg class="cl" viewBox="0 0 100 100"><path d="M31 9 L44 7 L50 32 L56 7 L69 9 L86 25 L85 82 L75 82 L72 46 L72 95 L28 95 L28 46 L25 82 L15 82 L14 25 Z" fill="#E2CFB2" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 32 V95 M44 7 L39 30 M56 7 L61 30" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">17<svg class="cl" viewBox="0 0 100 100"><path d="M35 18 L65 18 L80 86 Q50 92 20 86 Z" fill="#B9614F" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M35 25 H65" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d today">18<svg class="cl" viewBox="0 0 100 100"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" opacity=".55"/></svg></div><div class="d">19</div><div class="d">20</div><div class="d">21</div><div class="d">22</div><div class="d">23</div><div class="d">24</div><div class="d">25</div><div class="d">26</div><div class="d">27</div><div class="d">28</div><div class="d">29</div><div class="d">30</div><div class="d">31</div><div class="d o">1</div><div class="d o">2</div><div class="d o">3</div></div>
 
     <div class="sect" data-component="SectionTitle"><h3>Итоги месяца</h3></div>
     <div class="stats">
@@ -326,15 +334,15 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
       <div class="stat" data-component="StatTile"><b style="display:flex;justify-content:center"><svg class="cl" viewBox="0 0 100 100" style="width:28px;height:28px;--c:#4E5B73"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#4E5B73" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></b><span>чаще всего:<br>тёмные брюки</span></div>
       <div class="stat" data-component="StatTile"><b>6</b><span>вещей не<br>надевались</span></div>
     </div>
-    <div class="card" data-component="PaperCard" style="margin-top:12px;display:flex;gap:12px;align-items:center">
-      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--plum)"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" style="background:var(--s-trip)"></span></div>
-      <div style="font-size:13.5px;line-height:1.35"><b>Сливовое платье</b> ни разу за месяц — оно в поездке с 28 ноября. <span class="badge b-trip"><i></i>в поездке</span></div>
+    <div class="card" data-component="PaperCard" style="margin-top:var(--sp-md);display:flex;gap:var(--sp-md);align-items:center">
+      <div class="thumb" data-component="ItemThumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--plum)"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" data-component="StatusDot" style="background:var(--s-trip)"></span></div>
+      <div style="font-size:var(--fs-sm);line-height:1.35"><b>Сливовое платье</b> ни разу за месяц — оно в поездке с 28 ноября. <span class="badge b-trip"><i></i>в поездке</span></div>
     </div>
   </div>
   <nav class="nav" data-component="BottomNav">
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M4 11 L12 4 L20 11 V20 H4 Z"/></svg>Главная</div>
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M12 6 a2 2 0 1 1 2 2 L12 9.5 L3 17 H21 L12 9.5"/></svg>Шкаф</div>
-    <div><span class="add"><svg class="ic" viewBox="0 0 24 24" style="color:#FFF8EE"><path d="M12 5 V19 M5 12 H19"/></svg></span></div>
+    <div><span class="add"><svg class="ic" viewBox="0 0 24 24" style="color:var(--on-accent)"><path d="M12 5 V19 M5 12 H19"/></svg></span></div>
     <div class="on"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6 h16 v14 H4 Z M4 10 h16 M8 3 v4 M16 3 v4"/></svg>Календарь</div>
     <div><svg class="ic" viewBox="0 0 24 24"><path d="M12 4 a3 3 0 1 1 0 .1 M6 21 q0 -8 6 -8 q6 0 6 8"/></svg>Я</div>
   </nav>
@@ -348,29 +356,29 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
   <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
   <div class="content full">
     <div style="display:flex;justify-content:space-between;align-items:center"><span class="back">‹</span><span class="badge b-wash" data-component="StatusBadge"><i></i>в стирке с 1 декабря</span></div>
-    <div class="card" data-component="PaperCard" style="margin-top:12px;display:flex;justify-content:center;padding:18px">
+    <div class="card" data-component="PaperCard" style="margin-top:var(--sp-md);display:flex;justify-content:center;padding:var(--sp-lg)">
       <div class="tape" data-component="Tape"></div>
       <svg class="cl" viewBox="0 0 100 100" style="width:170px;height:170px;--c:#6F87A3"><path d="M30 9 L70 9 L75 91 L56 91 L50 38 L44 91 L25 91 Z" fill="#6F87A3" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M30 17 H70" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>
     </div>
-    <div data-component="ScreenTitle"><p class="title" style="margin-top:12px">Голубые джинсы</p></div>
-    <div class="chips" style="margin:4px 0 12px">
+    <div data-component="ScreenTitle"><p class="title" style="margin-top:var(--sp-md)">Голубые джинсы</p></div>
+    <div class="chips" style="margin:var(--sp-xs) 0 var(--sp-md)">
       <span class="chip" data-component="Chip">Низ</span><span class="chip" data-component="Chip">Деним</span><span class="chip" data-component="Chip">Повседневное</span><span class="chip" data-component="Chip">Круглый год</span>
     </div>
 
-    <div class="sect" data-component="SectionTitle" style="margin-top:4px"><h3>Где она сейчас</h3></div>
+    <div class="sect" data-component="SectionTitle" style="margin-top:var(--sp-xs)"><h3>Где она сейчас</h3></div>
     <div class="sw" data-component="StatusSwitch">
       <div><svg class="ic" viewBox="0 0 24 24" style="color:var(--sage)"><path d="M5 13 l4 4 L19 7"/></svg>Чистое</div>
       <div class="cur"><svg class="ic" viewBox="0 0 24 24" style="color:var(--dusty-blue)"><path d="M5 3 h14 v18 H5 Z M5 7 h14 M12 14 m-4 0 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0"/></svg>В стирке</div>
       <div><svg class="ic" viewBox="0 0 24 24" style="color:var(--mustard)"><path d="M6 18 L16 8 M14 6 l4 4 M4 20 l2 -2"/></svg>В ремонт</div>
       <div class="off"><svg class="ic" viewBox="0 0 24 24" style="color:var(--terracotta)"><path d="M5 8 h14 v11 H5 Z M9 8 V5 h6 v3"/></svg>В поездку</div>
     </div>
-    <p style="font-size:12px;color:var(--ink-soft);margin:6px 2px 0">Из стирки — в шкаф или в ремонт. В поездку берём только чистое.</p>
+    <p style="font-size:var(--fs-xs);color:var(--ink-soft);margin:var(--sp-xs) var(--sp-xxs) 0">Из стирки — в шкаф или в ремонт. В поездку берём только чистое.</p>
 
     <div class="sect" data-component="SectionTitle"><h3>С чем носить</h3><a href="#">все 18</a></div>
-    <div class="card" data-component="PaperCard" style="padding:10px 12px">
+    <div class="card" data-component="PaperCard" style="padding:var(--sp-sm) var(--sp-md)">
       <ul class="why" data-component="WhyItFits">
-        <li><span class="ok">✓</span><span style="display:flex;gap:10px;align-items:center"><svg class="cl" viewBox="0 0 100 100" style="width:30px;height:30px;--c:var(--sage);flex:none"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span><b>Шалфейный джемпер</b> — оба повседневные, голубой и шалфейный дружат.</span></span></li>
-        <li><span class="no">✗</span><span style="display:flex;gap:10px;align-items:center"><svg class="cl" viewBox="0 0 100 100" style="width:30px;height:30px;--c:#F7F2E8;flex:none"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span><b>Белая рубашка</b> — деловая, джинсы на два шага проще.</span></span></li>
+        <li><span class="ok">✓</span><span style="display:flex;gap:var(--sp-sm);align-items:center"><svg class="cl" viewBox="0 0 100 100" style="width:30px;height:30px;--c:var(--sage);flex:none"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span><b>Шалфейный джемпер</b> — оба повседневные, голубой и шалфейный дружат.</span></span></li>
+        <li><span class="no">✗</span><span style="display:flex;gap:var(--sp-sm);align-items:center"><svg class="cl" viewBox="0 0 100 100" style="width:30px;height:30px;--c:#F7F2E8;flex:none"><path d="M33 13 L44 9 L50 19 L56 9 L67 13 L83 28 L88 72 L78 74 L72 40 L72 91 L28 91 L28 40 L22 74 L12 72 L17 28 Z" fill="#F7F2E8" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 19 V91 M44 9 L50 24 L56 9" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span><b>Белая рубашка</b> — деловая, джинсы на два шага проще.</span></span></li>
       </ul>
     </div>
   </div>
@@ -385,11 +393,11 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
   <div class="content full">
     <div style="display:flex;justify-content:space-between;align-items:center"><span class="back">‹</span><span class="draftnote">черновик · вид проверяет Aika</span></div>
     <div data-component="ScreenTitle"><p class="title">Примерка</p><p class="subtitle">Фигура по меркам, вещи — слоями</p></div>
-    <div class="card" data-component="PaperCard" style="padding:10px;display:flex;gap:10px">
+    <div class="card" data-component="PaperCard" style="padding:var(--sp-sm);display:flex;gap:var(--sp-sm)">
       <div class="canvas" data-component="PaperDoll" style="width:178px;height:360px;flex:none">
         <svg viewBox="0 0 178 360" width="178" height="360" style="position:absolute;inset:0">
           <!-- body: flat, faceless -->
-          <g fill="#EBD9C4" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round">
+          <g style="fill:var(--doll-skin)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round">
             <ellipse cx="89" cy="34" rx="18" ry="21"/>
             <path d="M82 54 h14 v8 h-14 Z"/>
             <path d="M58 66 Q89 58 120 66 L126 128 L118 170 L124 214 L114 330 L100 330 L92 222 L86 222 L78 330 L64 330 L54 214 L60 170 L52 128 Z"/>
@@ -403,12 +411,12 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
           <!-- paper-doll tabs -->
           <path d="M57 64 l-8 -6 l6 -4 Z M121 64 l8 -6 l-6 -4 Z" fill="#F7F2E8" stroke="var(--ink)" stroke-width="1.4"/>
           <!-- fit markers -->
-          <circle cx="132" cy="150" r="7" fill="#D7A955"/><text x="132" y="154" font-size="10" font-weight="800" text-anchor="middle" fill="#FFF8EE" font-family="Nunito">1</text>
-          <circle cx="62" cy="322" r="7" fill="#8DA48A"/><text x="62" y="326" font-size="10" font-weight="800" text-anchor="middle" fill="#FFF8EE" font-family="Nunito">2</text>
+          <circle cx="132" cy="150" r="7" fill="#D7A955"/><text x="132" y="154" font-size="10" font-weight="800" text-anchor="middle" style="fill:var(--on-accent)" font-family="Nunito">1</text>
+          <circle cx="62" cy="322" r="7" fill="#8DA48A"/><text x="62" y="326" font-size="10" font-weight="800" text-anchor="middle" style="fill:var(--on-accent)" font-family="Nunito">2</text>
         </svg>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-family:var(--hand);font-size:22px;font-weight:700">Мерки</div>
+        <div style="font-family:var(--hand);font-size:var(--fs-section);font-weight:700">Мерки</div>
         <div class="measure">
           <div data-component="MeasureRow"><span>Рост</span><b>168 см</b></div>
           <div data-component="MeasureRow"><span>Грудь</span><b>88 см</b></div>
@@ -417,15 +425,15 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
           <div data-component="MeasureRow"><span>Рука</span><b>58 см</b></div>
           <div data-component="MeasureRow"><span>Шаг</span><b>78 см</b></div>
         </div>
-        <p style="font-size:11px;color:var(--ink-faint);margin:6px 0 0">Придуманная фигура для макета.</p>
+        <p style="font-size:var(--fs-xs);color:var(--ink-faint);margin:var(--sp-xs) 0 0">Придуманная фигура для макета.</p>
       </div>
     </div>
     <div class="sect" data-component="SectionTitle"><h3>Как сидит</h3></div>
-    <div class="card" data-component="PaperCard" style="padding:8px 12px">
+    <div class="card" data-component="PaperCard" style="padding:var(--sp-sm) var(--sp-md)">
       <div class="fit" data-component="FitNote"><i>1</i><span><b>Рубашка</b>: рукав короче на 2 см, в груди свободно.</span></div>
       <div class="fit" data-component="FitNote"><i class="ok">2</i><span><b>Брюки</b>: по длине и в талии сидят.</span></div>
     </div>
-    <div class="tabs" data-component="CategoryTabs" style="margin-top:12px"><div class="on">Верх</div><div>Низ</div><div>Платья</div><div>Верхняя</div></div>
+    <div class="tabs" data-component="CategoryTabs" style="margin-top:var(--sp-md)"><div class="on">Верх</div><div>Низ</div><div>Платья</div><div>Верхняя</div></div>
   </div>
 </div>
 </section>
@@ -440,20 +448,22 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
     <span><i style="background:var(--ink)"></i>ink</span><span><i style="background:var(--ink-soft)"></i>ink-soft</span><span><i style="background:var(--terracotta)"></i>terracotta</span><span><i style="background:var(--sage)"></i>sage</span>
     <span><i style="background:var(--mustard)"></i>mustard</span><span><i style="background:var(--dusty-blue)"></i>dusty-blue</span><span><i style="background:var(--plum)"></i>plum</span><span><i style="background:var(--tape)"></i>tape</span>
   </div>
+  <h2 style="font-size:var(--fs-section);margin-top:var(--sp-lg)">Цвета вещей (по <code>Colour</code>)</h2>
+  <div class="tokens"><span><i style="background:#433A34"></i>чёрный</span><span><i style="background:#F7F2E8"></i>белый</span><span><i style="background:#B8B0A6"></i>серый</span><span><i style="background:#4E5B73"></i>т.-синий</span><span><i style="background:#E2CFB2"></i>бежевый</span><span><i style="background:#8B6A4E"></i>коричн.</span><span><i style="background:#B9614F"></i>красный</span><span><i style="background:#D9A3A0"></i>розовый</span><span><i style="background:#D98B4E"></i>оранж.</span><span><i style="background:#D7A955"></i>жёлтый</span><span><i style="background:#8DA48A"></i>зелёный</span><span><i style="background:#6F87A3"></i>голубой</span><span><i style="background:#9A7B8C"></i>сливовый</span><span><i style="background:#D9CFC0"></i>неизв.</span></div>
   <div class="grid">
     <div class="cell"><code>ScreenTitle · SectionTitle</code><p class="title" style="margin:0">Мой шкаф</p><div class="sect" style="margin:0"><h3>Подборки</h3><a href="#">все</a></div></div>
     <div class="cell"><code>WeatherStrip</code><div class="weather"><b>Чт, 3 декабря</b><span class="dot"></span>Алматы<span class="dot"></span><b>−4°</b> снег</div></div>
     <div class="cell"><code>PaperCard · Tape</code><div class="card" style="height:60px"><div class="tape"></div></div></div>
     <div class="cell"><code>StatusBadge (4)</code><div class="chips"><span class="badge b-clean"><i></i>чистое</span><span class="badge b-wash"><i></i>в стирке</span><span class="badge b-repair"><i></i>в ремонте</span><span class="badge b-trip"><i></i>в поездке</span></div></div>
     <div class="cell"><code>Chip</code><div class="chips"><span class="chip on">Все<small>64</small></span><span class="chip">Шерсть</span></div></div>
-    <div class="cell"><code>Button</code><div style="display:flex;gap:8px"><button class="btn">Сохранить</button><button class="btn quiet">Отмена</button></div></div>
-    <div class="cell"><code>ItemThumb · StatusDot</code><div class="row"><div class="thumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--sage)"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" style="background:var(--s-clean)"></span></div><div class="thumb sq"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--plum)"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" style="background:var(--s-trip)"></span></div></div></div>
+    <div class="cell"><code>Button</code><div style="display:flex;gap:var(--sp-sm)"><button class="btn">Сохранить</button><button class="btn quiet">Отмена</button></div></div>
+    <div class="cell"><code>ItemThumb · StatusDot</code><div class="row"><div class="thumb"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--sage)"><path d="M32 14 Q50 24 68 14 L84 26 L90 76 L79 78 L72 42 L72 88 L28 88 L28 42 L21 78 L10 76 L16 26 Z" fill="#8DA48A" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M28 82 H72 M22 72 H12 M78 72 H88" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" data-component="StatusDot" style="background:var(--s-clean)"></span></div><div class="thumb sq"><svg class="cl" viewBox="0 0 100 100" style="--c:var(--plum)"><path d="M41 7 L44 22 Q50 26 56 22 L59 7 L64 9 L63 32 L81 90 Q50 96 19 90 L37 32 L36 9 Z" fill="#9A7B8C" stroke="#3F3630" stroke-width="2.6" stroke-linejoin="round"/><path d="M37 40 H63" fill="none" stroke="#3F3630" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg><span class="sdot" data-component="StatusDot" style="background:var(--s-trip)"></span></div></div></div>
     <div class="cell"><code>WhyItFits</code><ul class="why"><li><span class="ok">✓</span><span><b>Цвет</b> — нейтральный с любым.</span></li><li><span class="no">✗</span><span><b>Узор</b> — два узора рядом.</span></li></ul></div>
-    <div class="cell"><code>HelperTile · RoundAction</code><div style="display:flex;gap:10px;align-items:center"><div class="tile" style="width:110px"><svg class="ic" viewBox="0 0 24 24" style="color:var(--mustard)"><path d="M5 8 h14 v11 H5 Z M9 8 V5 h6 v3 M5 13 h14"/></svg><span>Сборы<br>в поездку</span></div><div class="ract"><div><span class="c"><svg class="ic" viewBox="0 0 24 24" style="color:var(--plum)"><path d="M5 20 V12 M10 20 V6 M15 20 V10 M20 20 V14"/></svg></span>Носка</div></div></div></div>
-    <div class="cell"><code>StatusSwitch</code><div class="sw" style="font-size:11px"><div class="cur">Чистое</div><div>В стирку</div><div>В ремонт</div><div>В поездку</div></div></div>
+    <div class="cell"><code>HelperTile · RoundAction</code><div style="display:flex;gap:var(--sp-sm);align-items:center"><div class="tile" style="width:110px"><svg class="ic" viewBox="0 0 24 24" style="color:var(--mustard)"><path d="M5 8 h14 v11 H5 Z M9 8 V5 h6 v3 M5 13 h14"/></svg><span>Сборы<br>в поездку</span></div><div class="ract"><div><span class="c"><svg class="ic" viewBox="0 0 24 24" style="color:var(--plum)"><path d="M5 20 V12 M10 20 V6 M15 20 V10 M20 20 V14"/></svg></span>Носка</div></div></div></div>
+    <div class="cell"><code>StatusSwitch</code><div class="sw" style="font-size:var(--fs-xs)"><div class="cur">Чистое</div><div>В стирку</div><div>В ремонт</div><div>В поездку</div></div></div>
     <div class="cell"><code>CategoryTabs</code><div class="tabs"><div class="on">Все</div><div>Верх</div><div>Низ</div></div></div>
     <div class="cell"><code>StatTile · FitNote · MeasureRow</code><div class="stat" style="width:96px"><b>14</b><span>образов</span></div><div class="fit"><i>1</i><span>рукав короче на 2 см</span></div><div class="measure"><div><span>Рост</span><b>168 см</b></div></div></div>
-    <div class="cell"><code>CollectionCard · NewCard · OutfitCanvas · ItemStrip · CalendarMonth · BottomNav · PaperDoll</code><span style="font-size:13px;color:var(--ink-soft)">крупные — смотрите на экранах выше</span></div>
+    <div class="cell"><code>CollectionCard · NewCard · OutfitCanvas · ItemStrip · CalendarMonth · BottomNav · PaperDoll</code><span style="font-size:var(--fs-sm);color:var(--ink-soft)">крупные — смотрите на экранах выше</span></div>
   </div>
 </div>
 </section>

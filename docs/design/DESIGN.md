@@ -34,7 +34,25 @@ names in `client/src/ui/tokens.ts` (a task after Aika's «да»). A value chang
     "mustard": "#D7A955",
     "dusty-blue": "#7F98AA",
     "plum": "#9A7B8C",
-    "tape": "#E7C98E"
+    "tape": "#E7C98E",
+    "on-accent": "#FFF8EE",
+    "doll-skin": "#EBD9C4"
+  },
+  "item": {
+    "BLACK": "#433A34",
+    "WHITE": "#F7F2E8",
+    "GREY": "#B8B0A6",
+    "NAVY": "#4E5B73",
+    "BEIGE": "#E2CFB2",
+    "BROWN": "#8B6A4E",
+    "RED": "#B9614F",
+    "PINK": "#D9A3A0",
+    "ORANGE": "#D98B4E",
+    "YELLOW": "#D7A955",
+    "GREEN": "#8DA48A",
+    "BLUE": "#6F87A3",
+    "PURPLE": "#9A7B8C",
+    "UNKNOWN": "#D9CFC0"
   },
   "status": {
     "CLEAN": "sage",
@@ -45,9 +63,9 @@ names in `client/src/ui/tokens.ts` (a task after Aika's «да»). A value chang
   "font": {
     "heading": "Caveat, handwriting; 600; headings and section titles only",
     "body": "Nunito, rounded sans; 400 / 600 / 700",
-    "size": { "xs": 11, "sm": 13, "md": 15, "lg": 18, "title": 28, "hero": 34 }
+    "size": { "xs": 11, "sm": 13, "md": 15, "lg": 18, "section": 24, "title": 28, "hero": 34 }
   },
-  "space": { "xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 24, "xxl": 32 },
+  "space": { "xxs": 2, "xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 24, "xxl": 32 },
   "radius": { "chip": 12, "card": 18, "sheet": 24, "pill": 999 },
   "shadow": { "card": "0 1px 0 rgba(63,54,48,.06), 0 6px 16px rgba(63,54,48,.07)" },
   "line": { "hair": 1, "dashed": "1.5 dashed rule" }
@@ -58,7 +76,11 @@ Rules of use:
 - Background is always `paper`; content sits on `card`. Never pure white, never black: text is `ink`.
 - Handwriting (`heading`) only for screen titles and section titles, never for buttons, labels or numbers.
 - A status is always shown with its colour **and** its word (colour alone is not enough).
-- Accent colours are for items and statuses; at most one accent per control.
+- Accent colours are for items and statuses; at most one accent per control. Text on an accent fill is `on-accent`.
+- A drawn item takes its fill from `item` by the item's `Colour` (the API's enum); `UNKNOWN` is a neutral grey-beige.
+- Every size, gap, radius and colour in a screen is a token. Positions and sizes of drawings on a canvas are not.
+- The mockup page's own frame (phone bezel, page background, captions, the component sheet's grid) is not part of the
+  app and uses no tokens.
 - Clothes are flat drawings in item colours with an `ink` outline until photos exist; photos never leave the phone.
 
 ## Components

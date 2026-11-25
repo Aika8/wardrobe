@@ -468,8 +468,9 @@ The answer to the main complaint about wardrobe apps ("the outfits look random")
 `CLOSE_ENOUGH`, `STEPS_APART`, `NEUTRAL`, `FRIENDS`, `SAME_COLOUR`, `NOT_FRIENDS`, `UNKNOWN_COLOUR`, `ONE_PATTERN`,
 `TWO_PATTERNS`, `SHARED_SEASON`, `NO_SHARED_SEASON`, `ALL_CLEAN`, `NOT_CLEAN`), `items` (the ids the line is about)
 and the English `reason`. A rule's line is ✓ when every pair passes it, else ✗ naming the first failing pair in
-input order. The codes let the client say it in Russian without re-deciding anything (one rule in one place). If a
-rule class has to expose its code, add it there — do not compute it a second time.
+input order. The CLEAN line comes from `OutfitCheck`'s `NotClean` problems (✓ when there are none) — never a
+second cleanliness check. The codes let the client say it in Russian without re-deciding anything (one rule in one
+place). If a rule class has to expose its code, add it there — do not compute it a second time.
 
 ### WR-030 — REST: check an outfit and say why
 - status: todo

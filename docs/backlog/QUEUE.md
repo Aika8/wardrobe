@@ -417,20 +417,24 @@ The client does **not** know the transition table (one rule in one place). Test 
 must ignore its own file. Put a planted temporary file in `os.tmpdir()` to show the matcher catches each pattern
 (test the matcher function, not the real tree, for the positive cases).
 
-### WR-027 — The avatar screen: draw the dressed figure with plain views (вид проверяет Aika)
+### WR-027 — The avatar screen: the dressed doll (вид проверяет Aika)
 - status: waiting
 - waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
-- depends: WR-021, WR-024, WR-028
+- depends: WR-021, WR-024, WR-028, WR-033
 - size: S
 - paths: `client/src/avatar/**`, `client/src/screens/**`, `client/App.tsx`, `client/test/avatar.test.mjs`
 - verify: `cd client && npm test`
 - expect: green; the scaling logic is tested; the PR says «draft — вид проверяет Aika»
 
-`client/src/avatar/scale.ts`: `toScreen(answer, heightPx)` turns the server's `POST /avatar/dress` answer (mm) into
-rectangles and trapezoids in pixels (integer, proportional, origin top-left, keeps the drawing order). No geometry
-of fit here — the server computed it (one rule in one place). Screen `client/src/screens/Avatar.tsx` draws the
-figure and the layers with `View`s (absolute positions, colours from the item's colour, a plain outline for the
-body); one invented figure, the clean items of the current list. No new dependency (no SVG library). Describe the
+The doll must look real, not boxy (`docs/design/DESIGN.md`, «Clothes and the doll»). `client/src/avatar/fit.ts`:
+`bands(answer, heightPx)` maps the server's `POST /avatar/dress` landmarks (mm: shoulders, chest, waist, hips,
+crotch, knee, ankle) to pixel bands, and `place(point, bands)` moves a point of the doll template (the doll of
+`garments.py`, in `client/src/ui/garments.data.ts` from WR-033) piecewise-linearly between the template's
+landmarks and the figure's — so a wider waist widens the drawn waist and the clothes over it. Integer pixels, the
+drawing order of the answer kept. No fit geometry here — the server computed it (one rule in one place). Screen
+`client/src/screens/Avatar.tsx` draws `PaperDoll` with the clothes layered over it (`ClothingDrawing` of WR-033) and
+the numbered `FitNote` markers; one invented figure, the clean items of the current list. Tests: a template
+landmark maps exactly onto the figure's landmark; points between landmarks stay between; order is kept. Describe the
 look in words in the PR.
 
 ## UI kit (after Aika's «да» on the look)
@@ -451,6 +455,24 @@ React Native components in `client/src/ui/` (one file each, names as in the tabl
 and `StyleSheet`; no new dependency. Handwritten headings need fonts (`expo-font`): not in this task — use the
 system font and write in `DECISIONS.md` that the font waits for an ADR. Pure logic (e.g. status → colour token) in
 `client/src/ui/status.ts`, tested.
+
+### WR-033 — Real-looking clothes on the phone: ClothingDrawing (вид проверяет Aika)
+- status: waiting
+- waits: Aika accepts ADR-0003 (`react-native-svg`) and says «да» on the look
+- depends: WR-028
+- size: S
+- paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/test/garments.test.mjs`, `docs/adr/0003-draw-clothes-with-svg.md`
+- verify: `cd client && npm test`
+- expect: green; the test fails when `garments.data.ts` differs from what `docs/design/mockups/garments.py` draws
+
+Implement ADR-0003 and set its status to Accepted in the same PR. `cd client && npx expo install react-native-svg`.
+Generate `client/src/ui/garments.data.ts` from `python3 docs/design/mockups/garments.py --json` (SVG markup per
+garment kind with a `{colour}` placeholder, and the doll with `{shirt}` / `{trousers}`; do not change the script —
+it is Aika's). `ClothingDrawing({kind, colour, size})` fills the placeholder and renders the markup with
+`SvgXml` of `react-native-svg`; `PaperDoll` does the same for the doll. Garment kinds
+by `ItemType` + a default per type (TOP → shirt, BOTTOM → trousers, DRESS → dress, OUTERWEAR → coat, SHOES → shoes,
+ACCESSORY → bag); the mapping is in one place in `client/src/ui/garments.ts` and tested. `garments.test.mjs` runs
+`python3 ../docs/design/mockups/garments.py --json` and checks `garments.data.ts` holds exactly that data.
 
 ## Our difference: say why, keep statuses, no limits (intent 01, invariants 8 and 9)
 

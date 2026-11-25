@@ -27,7 +27,7 @@ free minutes.
 | Experience log, write-only | `docs/backlog/experience/*.md` — agents never read it | runs add; Aika reads |
 
 The merge gate refuses any agent PR that changes a file in the "Aika" rows, `Makefile`, `CLAUDE.md`, an existing
-test, an accepted ADR, or an approved design (`docs/design/approved/`) — see `PROTECTED`, `VISUAL`, `APPEND_ONLY` in `backlog.py`.
+test, an accepted ADR, or the design (`docs/design/`: theme, components, mockups) — see `PROTECTED`, `VISUAL`, `APPEND_ONLY` in `backlog.py`.
 
 ## Environment: nothing to configure on claude.ai
 

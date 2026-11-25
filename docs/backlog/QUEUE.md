@@ -14,6 +14,9 @@ Format of a task (the script parses it; `backlog.py lint` checks it):
 - `verify`: the command that proves the task; `expect`: what it prints or what must be true.
 - A title ending in «вид проверяет Aika» builds a draft of something people look at: its logic is tested, its look
   is Aika's to check after the week. The PR says «draft — вид проверяет Aika» and describes the look in words.
+  Screens are built only from the components and tokens of `docs/design/DESIGN.md` (theme «уютный блокнот»,
+  mockups in `docs/design/mockups/`). Screen tasks stay `waiting` until Aika says «да» to the mockups; she changes
+  their status by hand. Logic tasks never wait for the look.
 
 Rules for every task (the executor prompt repeats them): existing tests are never changed or deleted, new tests are
 new files; `domain/` stays plain Java (no Spring, Jackson, I/O, clock); sizes are integer millimetres; a field a
@@ -361,8 +364,9 @@ four-space indentation or the end of `components.schemas`; later tasks add other
 label. A test fixture with a second schema after `Item` shows those enums are ignored.
 
 ### WR-023 — The list screen: filter by status (вид проверяет Aika)
-- status: todo
-- depends: WR-022
+- status: waiting
+- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- depends: WR-022, WR-028
 - size: S
 - paths: `client/App.tsx`, `client/src/filter.ts`, `client/test/filter.test.mjs`
 - verify: `cd client && npm test`
@@ -374,8 +378,9 @@ list. Filtering is local (the list is small); the server's `?status=` is for lat
 draft: describe it in words in the PR.
 
 ### WR-024 — Item details screen (вид проверяет Aika)
-- status: todo
-- depends: WR-022
+- status: waiting
+- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- depends: WR-022, WR-028
 - size: S
 - paths: `client/App.tsx`, `client/src/details.ts`, `client/src/screens/**`, `client/test/details.test.mjs`
 - verify: `cd client && npm test`
@@ -386,8 +391,9 @@ seasons in calendar order. Tapping a row of the list opens a details view (`clie
 simple state in `App.tsx`, no navigation library — no new dependency). Shows the rows and the status.
 
 ### WR-025 — Change the status from the details screen (вид проверяет Aika)
-- status: todo
-- depends: WR-008, WR-024
+- status: waiting
+- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- depends: WR-008, WR-024, WR-028
 - size: S
 - paths: `client/src/api.ts`, `client/src/items.ts`, `client/src/screens/**`, `client/App.tsx`, `client/test/api.test.mjs`
 - verify: `cd client && npm test`
@@ -412,8 +418,9 @@ must ignore its own file. Put a planted temporary file in `os.tmpdir()` to show 
 (test the matcher function, not the real tree, for the positive cases).
 
 ### WR-027 — The avatar screen: draw the dressed figure with plain views (вид проверяет Aika)
-- status: todo
-- depends: WR-021, WR-024
+- status: waiting
+- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- depends: WR-021, WR-024, WR-028
 - size: S
 - paths: `client/src/avatar/**`, `client/src/screens/**`, `client/App.tsx`, `client/test/avatar.test.mjs`
 - verify: `cd client && npm test`
@@ -425,3 +432,80 @@ of fit here — the server computed it (one rule in one place). Screen `client/s
 figure and the layers with `View`s (absolute positions, colours from the item's colour, a plain outline for the
 body); one invented figure, the clean items of the current list. No new dependency (no SVG library). Describe the
 look in words in the PR.
+
+## UI kit (after Aika's «да» on the look)
+
+### WR-028 — Tokens and components of «уютный блокнот» as code (вид проверяет Aika)
+- status: waiting
+- waits: Aika's «да» on the look (`docs/design/mockups/mockups.html`, `docs/design/DESIGN.md`)
+- size: S
+- paths: `client/src/ui/**`, `client/test/ui-tokens.test.mjs`
+- verify: `cd client && npm test`
+- expect: green; the test fails when `client/src/ui/tokens.ts` differs from the JSON block of `docs/design/DESIGN.md`
+
+`client/src/ui/tokens.ts`: the JSON block of `docs/design/DESIGN.md` as a typed constant (same names, same values).
+`ui-tokens.test.mjs` reads `../docs/design/DESIGN.md`, takes the first ```json block, and compares it deep-equal with
+the exported tokens — so a token changes in DESIGN.md first. Then the simple components of the DESIGN.md table as
+React Native components in `client/src/ui/` (one file each, names as in the table): `ScreenTitle`, `SectionTitle`,
+`PaperCard` (+ `Tape`), `Chip`, `StatusBadge`, `StatusDot`, `Button`, `ItemThumb`, `WhyItFits`. Only `View`, `Text`
+and `StyleSheet`; no new dependency. Handwritten headings need fonts (`expo-font`): not in this task — use the
+system font and write in `DECISIONS.md` that the font waits for an ADR. Pure logic (e.g. status → colour token) in
+`client/src/ui/status.ts`, tested.
+
+## Our difference: say why, keep statuses, no limits (intent 01, invariants 8 and 9)
+
+### WR-029 — Explain an outfit rule by rule
+- status: todo
+- depends: WR-005, WR-006
+- size: S
+- paths: `domain/src/main/java/wardrobe/domain/match/**`, `domain/src/main/java/wardrobe/domain/outfit/**`, `domain/src/test/java/wardrobe/domain/outfit/ExplainTest.java`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.outfit.ExplainTest'`
+- expect: green; every rule gives exactly one line for an outfit, ✓ or ✗, never an empty reason
+
+The answer to the main complaint about wardrobe apps ("the outfits look random"): `Explain.outfit(Outfit)` →
+`List<WhyLine>`, one per rule of `Combination.standard()` plus one for cleanliness, in that fixed order. `WhyLine`
+(record): `rule` (FORMALITY, COLOUR, PATTERN, SEASON, CLEAN), `goes`, `code` (an enum per reason, e.g.
+`CLOSE_ENOUGH`, `STEPS_APART`, `NEUTRAL`, `FRIENDS`, `SAME_COLOUR`, `NOT_FRIENDS`, `UNKNOWN_COLOUR`, `ONE_PATTERN`,
+`TWO_PATTERNS`, `SHARED_SEASON`, `NO_SHARED_SEASON`, `ALL_CLEAN`, `NOT_CLEAN`), `items` (the ids the line is about)
+and the English `reason`. A rule's line is ✓ when every pair passes it, else ✗ naming the first failing pair in
+input order. The codes let the client say it in Russian without re-deciding anything (one rule in one place). If a
+rule class has to expose its code, add it there — do not compute it a second time.
+
+### WR-030 — REST: check an outfit and say why
+- status: todo
+- depends: WR-008, WR-029
+- size: S
+- paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/**`, `app/src/test/java/wardrobe/app/OutfitCheckApiTest.java`
+- verify: `./gradlew :app:test --tests 'wardrobe.app.OutfitCheckApiTest'`
+- expect: green; the answer has one `why` line per rule and the problems of `OutfitCheck`, valid against the contract
+
+`POST /outfits/check` with `{ "items": ["id", …] }` → `{ "ok": bool, "why": [WhyLine], "problems": [{code, message,
+items}] }`. Unknown id → 404 `Error`; empty list → 400. Contract first (`WhyLine.rule` and `code` as enums). CORS:
+POST from the local origins (if WR-021 has not added it yet, add it here with its preflight test). The controller only
+calls `Explain` and `OutfitCheck`.
+
+### WR-031 — The client says why in plain Russian
+- status: todo
+- depends: WR-022, WR-030
+- size: S
+- paths: `client/src/why.ts`, `client/test/why.test.mjs`
+- verify: `cd client && npm test`
+- expect: green; the test fails when a `WhyLine.code` of `api/openapi.yaml` has no Russian sentence
+
+`client/src/why.ts`: `whyText(line, itemsById)` → `{ mark: '✓' | '✗', title, text }` in Russian from one template
+per `code` (e.g. STEPS_APART → «{a} — деловая, {b} на {n} шага проще»), item names and Russian labels from
+`labels.ts`. It never decides whether things go together — it only words the server's answer. The test reads the
+`code` enum of `WhyLine` from `../api/openapi.yaml` (only that schema) and checks every code has a template; plus
+three worded examples.
+
+### WR-032 — No limit on items
+- status: todo
+- depends: WR-009
+- size: S
+- paths: `app/src/test/java/wardrobe/app/NoLimitApiTest.java`
+- verify: `./gradlew :app:test --tests 'wardrobe.app.NoLimitApiTest'`
+- expect: green; a catalogue of 2 000 items comes back whole from `GET /items` and from `GET /items?status=CLEAN`
+
+A test only (intent 01, invariant 9): a `@TestConfiguration` with a `@Primary` `ItemCatalog` of 2 000 invented items
+(generated in the test), `GET /items` returns all 2 000 and the clean filter returns exactly the clean ones. If the
+code has a cap anywhere, the test fails and the task parks with where the cap is — do not remove a cap without Aika.

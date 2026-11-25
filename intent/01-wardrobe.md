@@ -17,7 +17,14 @@ answer most mornings.
   logic (does this item fit these measurements, where its edges fall) under tests. No photos, no 3D.
 
 The look of the screens and of the avatar is checked by Aika by eye after 8 December 2026; cloud agents build it
-as a draft and mark it so.
+as a draft and mark it so. The theme is «уютный блокнот» (`docs/design/DESIGN.md`); screens are built only from its
+components.
+
+What sets it apart (from the reviews of a popular wardrobe app, where people complain that outfits look random,
+recognition is slow and wrong, and only 100 items are free):
+- every suggested pair or outfit says **why it fits**, rule by rule, and why not when it does not;
+- every item has a **status** (clean, in the wash, in repair, on a trip) and outfits use only clean items;
+- **no limit** on the number of items.
 
 ## Affected users and systems
 Aika (one user). Server: Java 25 + Spring Boot. Client: Expo. No other systems.
@@ -47,3 +54,5 @@ avatar, accounts and sync, persistence beyond memory.
    unknown — it is never guessed.
 6. Measurements are integers in millimetres; the avatar never uses floating-point for sizes it compares.
 7. No personal photo, face or real measurement of Aika is committed; fixtures use invented figures.
+8. A verdict on a pair or an outfit always comes with its reasons, one per rule; there is no verdict without one.
+9. There is no limit on the number of items.

@@ -56,7 +56,10 @@ after green CI and the independent review.
    and `docs/backlog/experience/`. The merge gate checks this in code and
    will not merge a PR that strays; so will it for: `.github/`, `Makefile`, any `CLAUDE.md`, `scripts/backlog/`,
    `scripts/cloud/`, `docs/backlog/` rules and queue, accepted ADRs, existing tests (add new test files instead),
-   and approved designs (`docs/design/approved/`).
+   and the design (`docs/design/`: theme, tokens, components, mockups — Aika's).
+   Screens are built **only** from the components of `docs/design/DESIGN.md` with its tokens. If a screen needs a
+   component that is not there, or another look of one, do not invent it: park (section 4) with the proposal
+   (what, why, which screen).
 4. Code rules (from `CLAUDE.md`): `domain/` is plain Java (no Spring, Jackson, I/O or clock; the ArchUnit test
    checks it); sizes and measurements are integer millimetres, never floating point; a field a model answer lacks
    stays unknown, never guessed; contract changes go to `api/openapi.yaml` first; a wardrobe rule is decided on the

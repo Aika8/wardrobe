@@ -174,3 +174,14 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   than height" check is unreachable with today's ranges, so it is a package-private guard tested directly.
   Not taken: a plain `IllegalArgumentException` (callers would parse the message for the field); collecting all bad
   fields at once (no caller needs it yet). Undo: `Measurements` and `InvalidMeasurement` in `domain/avatar`.
+- **WR-017, where the lines of a flat figure are** (`wardrobe.domain.avatar.Figure`, draft — вид проверяет Aika).
+  Neck at 130‰ and shoulder line at 180‰ of the height from the top of the head; chest, waist, hips at 250‰, 550‰,
+  850‰ of the torso (shoulder line to crotch) below the shoulder line; knee and ankle at 380‰ and 920‰ of the
+  inseam below the crotch (rough adult proportions). Shares of the torso and of the inseam, not of the height, so
+  the landmarks stay ordered for every valid `Measurements` (shortest torso: height 1300, inseam 1000). Half-width
+  of a girth = `girth * 100 / 314 / 2`, both divisions rounding down: the girth is read as a circle (π ≈ 3.14).
+  Source of error: a real torso is an ellipse wider than deep, so the circle gives a front width roughly 10–20 %
+  too narrow at chest and hips; rounding loses at most 1 mm. Shoulders are already a width: half of it. Not taken:
+  an ellipse with a fixed depth ratio (a second invented number to tune before Aika has seen the figure); fixed
+  shares of the height for chest/waist/hips (could put the hips below the crotch for a long inseam). Undo: the
+  constants and `halfWidthOfGirth` in `Figure`.

@@ -123,3 +123,9 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   endpoint). Undo: `spring.jackson` deserialization setting.
 - **WR-008, `ChangeStatus` wiring**: `StatusController` builds `new ChangeStatus(catalog)` itself. Not taken: a
   `@Bean` (domain stays free of Spring; a config class would be the only user). Undo: move it to a `@Configuration`.
+- **WR-009, empty or blank `?status=`** means no filter (every item), as Spring binds a blank enum parameter to
+  absent; `?status=clean` (other case) and `?status=CLEAN,IN_WASH` (several) are 400 `BAD_REQUEST`. Not taken: 400 for
+  a blank value (a custom converter for one parameter); several statuses at once (not asked). Undo: a check in
+  `ItemsController.items`.
+- **WR-009, where the filter lives**: a one-line equality filter in `ItemsController`, not a domain method — it is a
+  query, not a wardrobe rule. Undo: an `ItemCatalog.inStatus(...)` if a second caller appears.

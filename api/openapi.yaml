@@ -19,12 +19,55 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Item'
+  /items/{id}/status:
+    put:
+      operationId: changeStatus
+      summary: Move one item to another status
+      description: |
+        Allowed changes are the server's table (the item's `next`); the client shows `next` and never re-implements it.
+        A refused change leaves the item as it was.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, minLength: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusChange'
+      responses:
+        '200':
+          description: The item in its new status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: The body is missing, is not JSON, or its status is not one of the four
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No item has this id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: The item's current status may not change to the requested one
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Item:
       type: object
       additionalProperties: false
-      required: [id, name, type, colour, pattern, fabric, seasons, formality, status]
+      required: [id, name, type, colour, pattern, fabric, seasons, formality, status, next]
       properties:
         id: { type: string, minLength: 1 }
         name: { type: string, minLength: 1 }
@@ -44,3 +87,24 @@ components:
           type: string
           enum: [CLEAN, IN_WASH, IN_REPAIR, ON_TRIP]
           description: Only CLEAN items take part in outfits.
+        next:
+          type: array
+          uniqueItems: true
+          description: The statuses this item may change to now, in the order CLEAN, IN_WASH, IN_REPAIR, ON_TRIP.
+          items: { $ref: '#/components/schemas/ItemStatus' }
+    ItemStatus:
+      type: string
+      enum: [CLEAN, IN_WASH, IN_REPAIR, ON_TRIP]
+    StatusChange:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status: { $ref: '#/components/schemas/ItemStatus' }
+    Error:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code: { type: string, enum: [UNKNOWN_ITEM, ILLEGAL_STATUS_CHANGE, BAD_REQUEST] }
+        message: { type: string, minLength: 1, description: Plain English for a person; not for parsing. }

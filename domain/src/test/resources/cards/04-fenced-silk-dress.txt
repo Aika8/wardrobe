@@ -1,0 +1,13 @@
+Here is the card for the item in the photo.
+
+```
+type: dress
+colour: green
+pattern: floral
+fabric: silk
+seasons: summer
+formality: smart_casual
+name: Green floral silk dress
+```
+
+Tell me if anything looks wrong and I will correct it.

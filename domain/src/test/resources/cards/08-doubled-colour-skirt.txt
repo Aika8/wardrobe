@@ -1,0 +1,8 @@
+type: bottom
+colour: red
+pattern: dotted
+fabric: synthetic
+seasons: summer
+formality: casual
+colour: pink
+name: Dotted midi skirt

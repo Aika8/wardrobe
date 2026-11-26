@@ -1,0 +1,7 @@
+  type:   BOTTOM
+colour:beige
+  pattern: plain  
+fabric:  LINEN
+seasons: summer,spring
+formality:  business
+name:   Beige linen trousers  

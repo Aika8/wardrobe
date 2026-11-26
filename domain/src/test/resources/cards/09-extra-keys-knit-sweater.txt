@@ -1,0 +1,10 @@
+type: top
+colour: grey
+pattern: plain
+fabric: knit
+brand: Vorellin
+seasons: autumn, winter
+size: M
+formality: casual
+confidence: high
+name: Grey knit sweater

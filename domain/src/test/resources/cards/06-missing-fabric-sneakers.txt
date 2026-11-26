@@ -1,0 +1,6 @@
+type: shoes
+colour: white
+pattern: plain
+seasons: spring, summer, autumn
+formality: sport
+name: White running sneakers

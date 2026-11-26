@@ -135,3 +135,8 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
 - **WR-010, "clean" means `Item.availableForOutfit()`**, the domain's existing rule, not a status comparison in the
   controller. `MatchConfig` exposes `Combination.standard()` as a `CombinationRule` bean, so a test or a later rule
   set swaps it in one place. Undo: `wardrobe.app.MatchConfig`.
+- **WR-011, `.expected` seasons** are written `WINTER,AUTUMN` (enum order, comma, no space); "two values for one
+  key" is the same key on two lines with different values (fixture 08), not `colour: red, green` on one line. Not
+  taken: `, ` with a space (one more thing to trim when comparing); a one-line pair (seasons already use commas, so
+  the parser would read a comma two ways). Undo: a new fixture of the other shape in `cards/` (the files are
+  append-only) and a line in `docs/cards.md`.

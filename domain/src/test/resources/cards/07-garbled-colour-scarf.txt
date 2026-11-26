@@ -1,0 +1,7 @@
+type: accessory
+colour: blueish ?
+pattern: checked
+fabric: wool
+seasons: winter
+formality: casual
+name: Checked wool scarf

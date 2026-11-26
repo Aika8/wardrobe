@@ -7,7 +7,8 @@
     "start": "expo start",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.mjs && tsc --noEmit"
+    "test": "node --test test/*.test.mjs && tsc --noEmit",
+    "screenshot": "node scripts/screenshot.mjs"
   },
   "dependencies": {
     "expo": "~58.0.25",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
+    "playwright-core": "1.65.1",
     "typescript": "~6.0.3"
   }
 }

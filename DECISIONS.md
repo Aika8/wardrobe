@@ -185,3 +185,12 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   an ellipse with a fixed depth ratio (a second invented number to tune before Aika has seen the figure); fixed
   shares of the height for chest/waist/hips (could put the hips below the crotch for a long inseam). Undo: the
   constants and `halfWidthOfGirth` in `Figure`.
+- **WR-018, garment sizes and the fit check** (`wardrobe.domain.avatar.Fit`, `GarmentSize`, `FitNote`). Eases and
+  tolerances, starting values for Aika to tune, all as constants in `Fit`: minimum ease chest 40, waist 20, hips 30;
+  maximum ease 200 for every girth; sleeve (against the arm) and inseam tolerance ±30 mm. Exactly at a limit fits;
+  one millimetre past it gives the note. Parts checked per type: TOP chest, waist, sleeve; BOTTOM waist, hips,
+  inseam; DRESS and OUTERWEAR chest, waist, hips, sleeve; SHOES and ACCESSORY nothing. `length` is stored but gives
+  no note (the task names no length note and the body has no matching measure). A note names its kind and its part
+  (`FitNote(kind, part)`), so "too tight" says where. Absent fields are `OptionalInt.empty()`; a present value must
+  be positive. Not taken: nullable `Integer` fields (easy to unbox a null by mistake); a separate ease table class
+  (one table in one place is enough). Undo: the three files in `domain/avatar`.

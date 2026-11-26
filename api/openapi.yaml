@@ -9,7 +9,13 @@ paths:
   /items:
     get:
       operationId: listItems
-      summary: All items with their card and status
+      summary: All items with their card and status, optionally only those in one status
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Only items in this status. Absent, empty or blank means every item. Exact names only (`clean` is a 400).
+          schema: { $ref: '#/components/schemas/ItemStatus' }
       responses:
         '200':
           description: The items, in the catalogue's order
@@ -19,6 +25,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Item'
+        '400':
+          description: The status is not one of the four
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /items/{id}/status:
     put:
       operationId: changeStatus

@@ -144,3 +144,13 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   readable part — a partial list would be a guess. A key given twice alike (ignoring case) counts once; given twice
   differently it is unknown already here, so no run ever has "the first one wins" (WR-014 adds the doubts list).
   Not taken: keeping the readable seasons. Undo: `CardParser.seasons` and `CardParser.single`.
+- **WR-013, scope of the Russian word table** (`wardrobe.domain.card.RussianWords`, the only place Russian card
+  words live): for every enum word of `docs/cards.md`, one Russian word or phrase, matched exactly after trimming,
+  lower-casing and reading «ё» as «е». Colours in all four adjective forms (`синий/синяя/синее/синие`); `NAVY` is
+  `тёмно-синий`. Types: `верх, низ, платье, верхняя одежда, обувь, аксессуар`. Patterns: `однотонный, в полоску,
+  в клетку, цветочный, в горошек, с принтом`. Fabrics as nouns: `хлопок, лён, шерсть, шёлк, деним, кожа, трикотаж,
+  синтетика`. Seasons: `зима, весна, лето, осень`. Formality: `спортивный, повседневный, смарт-кэжуал, деловой,
+  официальный`. Not taken: stems or fuzzy matching (`хлопковый`, `синеватый` would be guesses — they stay unknown),
+  other case/gender forms of the non-colour words (the model is asked for one word; add a line when a real answer
+  needs it). English and Russian may mix in one `seasons` line. A key given twice as `blue` and `синий` is still
+  "two different values" → unknown (WR-012's raw comparison; WR-014 owns doubts). Undo: edit the map.

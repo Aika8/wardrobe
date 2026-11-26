@@ -1,0 +1,7 @@
+type: top
+colour: синий
+pattern: plain
+fabric: хлопок
+seasons: зима, весна
+formality: casual
+name: Синяя хлопковая рубашка

@@ -1,0 +1,7 @@
+type: outerwear
+colour: navy
+pattern: plain
+fabric: wool
+seasons: autumn, winter
+formality: smart_casual
+name: Navy wool coat

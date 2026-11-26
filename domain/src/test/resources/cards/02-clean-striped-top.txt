@@ -1,0 +1,7 @@
+Type: Top
+Colour: White
+Pattern: Striped
+Fabric: Cotton
+Seasons: Spring, Summer
+Formality: Casual
+Name: White striped T-shirt

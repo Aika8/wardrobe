@@ -17,11 +17,13 @@ import wardrobe.domain.Season;
 
 /**
  * Reads a model answer in the card format of {@code docs/cards.md} into a {@link CardDraft}: one {@code key: value}
- * per line, keys and values case-insensitive, whitespace trimmed, enum words in English.
+ * per line, keys and values case-insensitive, whitespace trimmed, enum words in English or in the Russian of
+ * {@link RussianWords}.
  *
  * <p>A value that is not a word of its list, a key that is missing, or a key given twice with different values
- * leaves the field unknown — never guessed, never "the first one wins" (intent 01, invariant 5). Lines without a
- * colon and keys outside the format are ignored. Plain Java: no JSON library, no I/O.
+ * leaves the field unknown — never guessed, never "the first one wins" (intent 01, invariant 5). Every line that
+ * is not {@code key: value} with a key of the format is skipped: prose around the card, Markdown code fences, keys
+ * we did not ask for ({@code brand:}, {@code size:}). Plain Java: no JSON library, no I/O.
  */
 public final class CardParser {
 
@@ -77,7 +79,10 @@ public final class CardParser {
         return alike ? Optional.of(first) : Optional.empty();
     }
 
-    /** The enum constant named by the word, ignoring case; {@code smart_casual} names {@code SMART_CASUAL}. */
+    /**
+     * The enum constant named by the word, ignoring case ({@code smart_casual} names {@code SMART_CASUAL}), or by its
+     * Russian word in {@link RussianWords}; a word in neither language is empty.
+     */
     private static <E extends Enum<E>> Optional<E> word(Class<E> type, String word) {
         String wanted = word.strip().toUpperCase(Locale.ROOT);
         for (E constant : type.getEnumConstants()) {
@@ -85,7 +90,7 @@ public final class CardParser {
                 return Optional.of(constant);
             }
         }
-        return Optional.empty();
+        return RussianWords.lookup(type, word);
     }
 
     /** Comma-separated seasons; if any word is not a season, the seasons are unknown (empty), not partly guessed. */

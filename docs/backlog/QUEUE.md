@@ -122,13 +122,15 @@ version 1 (write in `DECISIONS.md`). Order of the list: as above, pairs in input
 - status: todo
 - size: S
 - paths: `client/package.json`, `client/package-lock.json`, `client/scripts/screenshot.mjs`, `client/test/screenshot-args.test.mjs`, `docs/backlog/reports/screens/WR-035.png`
-- verify: `cd client && npm test`
-- expect: green; `npm run screenshot -- WR-035` writes `docs/backlog/reports/screens/WR-035.png` showing the item list
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
+- expect: green; `npm run screenshot -- WR-035` writes `docs/backlog/reports/screens/WR-035.png` showing the item list; the PNG shows the list, not the load error
 
 So screen tasks can look at what they built (the trial of learning-exchange showed that Chrome for Testing is at
 `$CHROME_PATH` in the cloud, npm installs `playwright-core`, and `npx expo export --platform web` builds). Add
 `playwright-core` as a **dev** dependency (no browser download: it uses `$CHROME_PATH`; locally, the Chrome the
-person has). `client/scripts/screenshot.mjs <id> [--route /path]`: builds the web export into a temp folder, serves
+person has). `client/scripts/screenshot.mjs <id> [--route /path]`: builds the web export into a temp folder
+(exported with `EXPO_PUBLIC_API_URL=http://localhost:<port in use>`, default 8091, so the page calls the server the
+script started), serves
 it on a free local port with Node's `http` module (no new server package), starts the server of this repo on port
 8091 if nothing answers `GET /items` there (`make dev PORT=8091`) and stops it at the end, opens the page at
 390 × 844 (phone width, device scale 2), waits for the list, saves `docs/backlog/reports/screens/<id>.png`, and
@@ -138,10 +140,9 @@ screenshot (no server there); say so in the script's header. Never commit anythi
 
 ### WR-028 — Tokens and components of «уютный блокнот» as code (вид проверяет Aika)
 - status: todo
-- depends: WR-035
 - size: S
-- paths: `client/src/ui/**`, `client/test/ui-tokens.test.mjs`, `docs/backlog/reports/screens/WR-028.png`
-- verify: `cd client && npm test`
+- paths: `client/src/ui/**`, `client/test/ui-tokens.test.mjs`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the test fails when `client/src/ui/tokens.ts` differs from the JSON block of `docs/design/DESIGN.md`
 
 `client/src/ui/tokens.ts`: the JSON block of `docs/design/DESIGN.md` as a typed constant (same names, same values).
@@ -154,14 +155,13 @@ and `StyleSheet`; no new dependency. Handwritten headings need fonts (`expo-font
 system font and write in `DECISIONS.md` that the font waits for an ADR. Pure logic (e.g. status → colour token) in
 `client/src/ui/status.ts`, tested.
 
-Screenshot (after WR-035): `cd client && npm run screenshot -- WR-028` writes `docs/backlog/reports/screens/WR-028.png`; read it, compare with the mockup of this screen in `docs/design/mockups/mockups.html`, commit the PNG and name it in the PR. The look is still Aika's to approve.
 
 ### WR-126 — A tiny router, a component sheet and a screenshot of any screen
 - status: todo
-- depends: WR-028, WR-035
+- depends: WR-023, WR-024, WR-025, WR-028, WR-035
 - size: S
-- paths: `client/App.tsx`, `client/src/nav.ts`, `client/src/screens/routes.tsx`, `client/src/screens/Sheet.tsx`, `client/src/screens/ItemList.tsx`, `client/scripts/screenshot.mjs`, `client/test/nav.test.mjs`
-- verify: `cd client && npm test`
+- paths: `client/App.tsx`, `client/src/nav.ts`, `client/src/screens/**`, `client/scripts/screenshot.mjs`, `client/test/nav.test.mjs`, `docs/backlog/reports/screens/WR-126.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; `nav.test.mjs` covers parse/format round trips, unknown routes, push/back/reset; `npm run screenshot -- WR-126 --route '/#/sheet'` waits for the sheet, not for the list
 
 The client will have about ten screens; no navigation library (no new dependency, ADR-0002). Build the smallest
@@ -174,19 +174,18 @@ router that lets every later screen task add **one line**.
    immutable array: `push(h, r)`, `back(h)` (never empties: at the root it returns `h` unchanged), `reset(h, r)` (a
    tab switch: `[r]`), `current(h)`. `type ScreenProps = { route: Route; go(r: Route): void; back(): void;
    reset(r: Route): void }`. `MAIN_ROUTES = ['home', 'wardrobe', 'calendar', 'me']` (the four places of `BottomNav`).
-2. `client/src/screens/routes.tsx`: `ROUTES: Record<string, (p: ScreenProps) => JSX.Element>` and `DEFAULT_ROUTE`.
+2. `client/src/screens/routes.tsx`: `ROUTES: Record<string, (p: ScreenProps) => React.JSX.Element>` and `DEFAULT_ROUTE`.
    Register `list` (the item list) and `sheet`; set `DEFAULT_ROUTE = { name: 'list' }` (the home task changes it).
    An unknown name renders the default route.
 3. Move the item list out of `App.tsx` into `client/src/screens/ItemList.tsx` **without changing its look or
-   logic**. If the details screen of WR-024/WR-025 or the avatar of WR-027 already exist (read `App.tsx` and
-   `client/src/screens/`), register them as `item` (param = item id) and `me`, replacing their state in `App.tsx`;
-   if WR-023's status chips exist, the `list` param is the initial status filter (`'#/list/IN_WASH'`). Never edit
-   their tests.
+   logic**. Register the `item` (ItemDetails of WR-024/WR-025, param = item id) and `list` (with the status filter
+   param of WR-023's chips: `'#/list/IN_WASH'`) routes, replacing their state in `App.tsx`. If the avatar of WR-027
+   already exists, register it as `me` the same way. Never edit their tests.
 4. `App.tsx`: holds the history in `useState`, renders `ROUTES[current.name]` on the `paper` background. On the
    web (guard `typeof window !== 'undefined' && window.location`) the first route comes from `location.hash`, every
    move writes the hash, and a `hashchange` listener resets to the parsed route (browser back works).
 5. `client/src/screens/Sheet.tsx` (route `sheet`): a scrollable page titled «Компоненты» that renders
-   `SHEET: { name: string; render: () => JSX.Element }[]`, each under its name in small `ink-soft` text. Start it
+   `SHEET: { name: string; render: () => React.JSX.Element }[]`, each under its name in small `ink-soft` text. Start it
    with the components of WR-028 (one sample each, invented texts). Later component tasks append one entry. It is a
    developer page; no link leads to it.
 6. Every screen's root `View` gets `testID="screen"` once its data has loaded (`ItemList` and `Sheet` too). Change
@@ -197,13 +196,14 @@ Convention (write it in `DECISIONS.md`): the «‹» back mark of the mockups is
 `ink-soft`, size `section`, calling `back()` — part of a screen header as drawn, not a new component.
 `nav.test.mjs` (new): round trips with spaces, «/» and Cyrillic in the param; null cases; push/back/reset; `back`
 at the root. Run `cd client && npm run screenshot -- WR-126 --route '/#/sheet'` once to see that the wait works, and
-describe what it shows in the PR; do not commit that PNG (this task is not a look task).
+describe what it shows in the PR; commit it as the first look at the WR-028 components (the component sheet
+`#/sheet`).
 
 ### WR-127 — The drawn icons of the mockups as data
 - status: todo
 - size: S
 - paths: `client/src/ui/icons.ts`, `client/test/icons.test.mjs`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the test fails when an icon in `icons.ts` differs from the same icon in `docs/design/mockups/mockups.html`
 
 `HelperTile`, `RoundAction`, `BottomNav` and `StatusSwitch` show small drawn line icons (24 × 24, stroke only). They
@@ -229,7 +229,7 @@ path and the colour, and escapes nothing it should not. Never edit the mockups (
 - status: todo
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/ItemCatalog.java`, `domain/src/main/java/wardrobe/domain/ChangeStatus.java`, `domain/src/main/java/wardrobe/domain/UnknownItem.java`, `domain/src/test/java/wardrobe/domain/ChangeStatusTest.java`, `domain/src/test/java/wardrobe/domain/FakeCatalog.java`, `app/src/main/java/wardrobe/app/catalog/InMemoryItemCatalog.java`, `app/src/test/java/wardrobe/app/catalog/**`
-- verify: `./gradlew test --tests 'wardrobe.domain.ChangeStatusTest' --tests 'wardrobe.app.catalog.*'`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.ChangeStatusTest' && ./gradlew :app:test --tests 'wardrobe.app.catalog.*'`
 - expect: green; an illegal change leaves the catalogue unchanged; concurrent changes of different items lose none
 
 Extend the port `ItemCatalog` with `Optional<Item> find(ItemId)` and `void replace(Item)` (replace an existing item
@@ -325,7 +325,7 @@ the test reads fixtures with `getResourceAsStream` and compares with the `.expec
 - depends: WR-012
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/card/**`, `domain/src/test/java/wardrobe/domain/card/CardParserTolerantTest.java`
-- verify: `./gradlew :domain:test --tests 'wardrobe.domain.card.*'`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.card.CardParserTolerantTest' && ./gradlew :domain:test --tests 'wardrobe.domain.card.*'`
 - expect: green on the fenced and the Russian fixtures, and the clean ones still pass
 
 Skip lines that are not `key: value` with a known key (prose, fences, `brand:`). Map Russian words to enum values
@@ -338,7 +338,7 @@ stays UNKNOWN — never the closest match.
 - depends: WR-013
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/card/**`, `domain/src/test/java/wardrobe/domain/card/CardParserDoubtsTest.java`
-- verify: `./gradlew :domain:test --tests 'wardrobe.domain.card.*'`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.card.CardParserDoubtsTest' && ./gradlew :domain:test --tests 'wardrobe.domain.card.*'`
 - expect: green on every fixture; each doubt names the key and the raw value; the earlier card tests pass unchanged
 
 Add `CardParser.read(String answer)` → `ParsedCard(CardDraft draft, List<Doubt> doubts)`; `parse` keeps its
@@ -458,7 +458,7 @@ the invented figures. Sizes travel in the request in version 1 (no storage of si
 - status: todo
 - size: S
 - paths: `client/src/labels.ts`, `client/test/labels.test.mjs`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the test fails if `api/openapi.yaml` has an enum value without a label
 
 `client/src/labels.ts`: one table per enum (type, colour, pattern, fabric, season, formality, status) → plain
@@ -475,7 +475,7 @@ label. A test fixture with a second schema after `Item` shows those enums are ig
 - depends: WR-022, WR-028, WR-035
 - size: S
 - paths: `client/App.tsx`, `client/src/filter.ts`, `client/test/filter.test.mjs`, `docs/backlog/reports/screens/WR-023.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the filter logic is tested; the PR says «draft — вид проверяет Aika»
 
 Pure logic in `client/src/filter.ts`: `filterByStatus(items, status | 'ALL')` and `countsByStatus(items)` (every
@@ -490,7 +490,7 @@ Screenshot (after WR-035): `cd client && npm run screenshot -- WR-023` writes `d
 - depends: WR-022, WR-028, WR-035
 - size: S
 - paths: `client/App.tsx`, `client/src/details.ts`, `client/src/screens/**`, `client/test/details.test.mjs`, `docs/backlog/reports/screens/WR-024.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; `describeItem` is tested for every field; the PR says «draft — вид проверяет Aika»
 
 `client/src/details.ts`: `describeItem(item)` → ordered `{label, value}` rows in Russian (from `labels.ts`),
@@ -504,7 +504,7 @@ Screenshot (after WR-035): `cd client && npm run screenshot -- WR-024` writes `d
 - depends: WR-008, WR-024, WR-028, WR-035
 - size: S
 - paths: `client/src/api.ts`, `client/src/items.ts`, `client/src/screens/**`, `client/App.tsx`, `client/test/api.test.mjs`, `docs/backlog/reports/screens/WR-025.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; buttons come only from the server's `next`; an error's `message` is shown as is
 
 `client/src/api.ts`: `changeStatus(baseUrl, id, status, fetchFn = fetch)` → the updated item, or throws with the
@@ -518,7 +518,7 @@ Screenshot (after WR-035): `cd client && npm run screenshot -- WR-025` writes `d
 - status: todo
 - size: S
 - paths: `client/test/no-secrets.test.mjs`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green now; the test fails when a file under `client/` (outside node_modules) contains a key-like string or an image of a person
 
 `no-secrets.test.mjs` walks `client/` (skipping `node_modules`, `.expo`, `dist`) and fails on: strings matching
@@ -532,7 +532,7 @@ must ignore its own file. Put a planted temporary file in `os.tmpdir()` to show 
 - depends: WR-021, WR-024, WR-028, WR-033, WR-035
 - size: S
 - paths: `client/src/avatar/**`, `client/src/screens/**`, `client/App.tsx`, `client/test/avatar.test.mjs`, `docs/backlog/reports/screens/WR-027.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the scaling logic is tested; the PR says «draft — вид проверяет Aika»
 
 The avatar is the drawn doll (Aika, 25 November 2026; a photo try-on is for after the holiday). The doll must look real, not boxy (`docs/design/DESIGN.md`, «Clothes and the doll»). Its template comes from
@@ -545,7 +545,8 @@ Version 1 draws on the doll only what the template has clothes for: a TOP as the
 of the template `doll` (other kinds are listed beside the doll with their fit notes, not drawn on it — write this
 in `DECISIONS.md`). FitNote markers sit at the end of the garment edge the note is about (sleeve end, hem), from
 the server's shapes. Integer pixels, the drawing order of the answer kept; no fit geometry here — the server
-computed it (one rule in one place). Screen `client/src/screens/Avatar.tsx`; one invented figure. Tests: a template
+computed it (one rule in one place). Screen `client/src/screens/Avatar.tsx`; one invented figure. If
+`client/src/screens/routes.tsx` exists, register the avatar as route `me` there instead of state in `App.tsx`. Tests: a template
 landmark maps exactly onto the figure's landmark; points between landmarks stay between; order is kept. Describe the
 look in words in the PR.
 
@@ -558,7 +559,7 @@ Screenshot (after WR-035): `cd client && npm run screenshot -- WR-027` writes `d
 - depends: WR-028, WR-035
 - size: S
 - paths: `client/package.json`, `client/package-lock.json`, `client/src/ui/garments.data.ts`, `client/src/ui/garments.ts`, `client/src/ui/ClothingDrawing.tsx`, `client/src/ui/PaperDoll.tsx`, `client/src/ui/ItemThumb.tsx`, `client/test/garments.test.mjs`, `docs/backlog/reports/screens/WR-033.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the test fails when `garments.data.ts` differs from what `docs/design/mockups/garments.py` draws
 
 Implement ADR-0003 (Accepted). `cd client && npx expo install react-native-svg`.
@@ -594,6 +595,8 @@ and the English `reason`. A rule's line is ✓ when every pair passes it, else �
 input order. The CLEAN line comes from `OutfitCheck`'s `NotClean` problems (✓ when there are none) — never a
 second cleanliness check. The codes let the client say it in Russian without re-deciding anything (one rule in one
 place). If a rule class has to expose its code, add it there — do not compute it a second time.
+The reason codes live in `wardrobe.domain.match` (an enum there); `outfit` uses them — never the other way round
+(no package cycle, WR-100).
 
 ### WR-030 — REST: check an outfit and say why
 - status: todo
@@ -613,7 +616,7 @@ calls `Explain` and `OutfitCheck`.
 - depends: WR-022, WR-030
 - size: S
 - paths: `client/src/why.ts`, `client/test/why.test.mjs`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the test fails when a `WhyLine.code` of `api/openapi.yaml` has no Russian sentence
 
 `client/src/why.ts`: `whyText(line, itemsById)` → `{ mark: '✓' | '✗', title, text }` in Russian from one template
@@ -763,6 +766,8 @@ take the outfit's items as `List<Item>` (so this task does not wait for WR-006's
   two items counts once. Any item with colour `UNKNOWN` → no, UNKNOWN_COLOUR, items = those ids (invariant 5).
   At most 2 → FEW_ACCENTS (reason names the colours, or says all are neutral); more → TOO_MANY_ACCENTS, items = the
   first item of each accent colour in input order, reason names the colours and the limit.
+  Public static `List<Colour> AccentRule.accents(List<Item>)` — distinct non-neutral colours in input order
+  (UNKNOWN excluded).
 - `CompleteRule`: an outfit needs a body (a TOP and a BOTTOM, or a DRESS) and SHOES. Missing ones are checked in
   the order MISSING_BODY (no TOP, BOTTOM or DRESS), MISSING_TOP (a BOTTOM, no TOP, no DRESS), MISSING_BOTTOM (a TOP,
   no BOTTOM, no DRESS), MISSING_SHOES; the code is the first that applies, the reason names everything missing
@@ -807,7 +812,7 @@ table in `DECISIONS.md` as Aika's to tune.
 - depends: WR-037
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/weather/**`, `domain/src/test/java/wardrobe/domain/weather/WeatherNeedsTest.java`, `domain/src/test/java/wardrobe/domain/weather/WeatherCheckTest.java`
-- verify: `./gradlew :domain:test --tests 'wardrobe.domain.weather.*'`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.weather.WeatherNeedsTest' && ./gradlew :domain:test --tests 'wardrobe.domain.weather.WeatherCheckTest'`
 - expect: green; every band boundary is tested on both sides and every code has a test
 
 No weather service, no API, no clock: the caller passes the weather in. New package `wardrobe.domain.weather`.
@@ -926,7 +931,7 @@ everything): the exact list of outfits for a 7-item catalogue; determinism; the 
 
 ### WR-047 — Rank outfits, with a reason for every point
 - status: todo
-- depends: WR-006
+- depends: WR-006, WR-039
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/suggest/Ranking.java`, `domain/src/main/java/wardrobe/domain/suggest/RankCriterion.java`, `domain/src/main/java/wardrobe/domain/suggest/Ranked.java`, `domain/src/main/java/wardrobe/domain/suggest/ScoreLine.java`, `domain/src/test/java/wardrobe/domain/suggest/RankingTest.java`
 - verify: `./gradlew :domain:test --tests 'wardrobe.domain.suggest.RankingTest'`
@@ -935,7 +940,7 @@ everything): the exact list of outfits for a 7-item catalogue; determinism; the 
 Ranking only orders outfits that already go (the rules decide goes / does not go); it never rejects one.
 - `RankCriterion` enum with a constructor argument `points`: SAME_FORMALITY(2) — all non-ACCESSORY items have the
   same formality; AT_MOST_ONE_ACCENT(1) — at most one distinct non-neutral colour over all items, and no `UNKNOWN`
-  colour; COMMON_SEASON(1) — one season shared by every item; ONE_STATEMENT_PATTERN(1) — exactly one item has a
+  colour (uses `AccentRule.accents` and AccentRule's UNKNOWN check of WR-039; no second count); COMMON_SEASON(1) — one season shared by every item; ONE_STATEMENT_PATTERN(1) — exactly one item has a
   pattern other than PLAIN, and no item's pattern is `UNKNOWN`. Names go into `api/openapi.yaml` (WR-049): do not
   rename.
 - `ScoreLine` (record): `RankCriterion criterion, boolean earned, int points, String reason` (points =
@@ -953,7 +958,7 @@ ways, the total, the stable order of ties, an empty list. Write the points in `D
 - depends: WR-007, WR-038
 - size: S
 - paths: `app/src/main/java/wardrobe/app/catalog/InMemoryItemCatalog.java`, `app/src/main/java/wardrobe/app/catalog/CatalogConfig.java`, `app/src/test/java/wardrobe/app/SampleProfileApiTest.java`
-- verify: `./gradlew :app:test --tests 'wardrobe.app.SampleProfileApiTest' --tests 'wardrobe.app.ItemsApiTest' --tests 'wardrobe.app.catalog.*'`
+- verify: `./gradlew :app:test --tests 'wardrobe.app.SampleProfileApiTest' && ./gradlew :app:test --tests 'wardrobe.app.ItemsApiTest' --tests 'wardrobe.app.catalog.*'`
 - expect: green; with profile `sample` `GET /items` returns the 60 sample items; without it nothing changes
 
 Read `InMemoryItemCatalog` as WR-007 left it, and `SampleWardrobe` (WR-038).
@@ -984,11 +989,11 @@ Only the contract and a test of it; the endpoints come in WR-052…WR-055 and WR
 Schemas: `Occasion` enum [OFFICE, WEEKEND, EVENING, SPORT]; `OccasionRange {occasion, min, max}` (formality enum);
 `Weather {celsius: integer −60…60, rain, snow}`; `WeatherNeeds {celsius, band: [FREEZING, COLD, MILD, WARM, HOT],
 seasons: [season] uniqueItems, outerwear: [REQUIRED, OPTIONAL, NOT_WANTED], snowShoes}`; `CheckName` enum
-[PREFILTER, ACCENTS, COMPLETE, ACCESSORIES, OCCASION, SEASON, OUTERWEAR, FABRIC, SHOES, REPEAT]; `CheckCode` enum
+[PREFILTER, ACCENTS, COMPLETE, ACCESSORIES, OCCASION, SEASON, OUTERWEAR, FABRIC, SHOES, REPEAT, PAIRS]; `CheckCode` enum
 [FEW_ACCENTS, TOO_MANY_ACCENTS, UNKNOWN_COLOUR, COMPLETE, MISSING_BODY, MISSING_TOP, MISSING_BOTTOM, MISSING_SHOES,
 FEW_ACCESSORIES, TOO_MANY_ACCESSORIES, FITS_OCCASION, TOO_CASUAL, TOO_FORMAL, SEASON_FITS, WRONG_SEASON,
 OUTERWEAR_OK, OUTERWEAR_MISSING, OUTERWEAR_NOT_WANTED, FABRIC_OK, TOO_HEAVY_FOR_HEAT, TOO_LIGHT_FOR_COLD,
-UNKNOWN_FABRIC, SHOES_OK, SHOES_NOT_FOR_SNOW, FRESH, REPEATS_OUTFIT, NOT_CLEAN, WRONG_FORMALITY]; `CheckLine {check,
+UNKNOWN_FABRIC, SHOES_OK, SHOES_NOT_FOR_SNOW, FRESH, REPEATS_OUTFIT, NOT_CLEAN, WRONG_FORMALITY, NO_OUTFIT]; `CheckLine {check,
 goes, code, items: [string], reason: minLength 1}`; `ScoreLine {criterion: [SAME_FORMALITY, AT_MOST_ONE_ACCENT,
 COMMON_SEASON, ONE_STATEMENT_PATTERN], earned, points ≥ 0, reason}`; `Suggestion {items: [Item] minItems 1, score
 ≥ 0, scoreLines, checks: [CheckLine], why: [WhyLine]}`; `Rejection {check, code, count ≥ 1}`; `SuggestResult
@@ -1011,7 +1016,7 @@ on Suggestion, celsius 61, Error with an unknown code) fail.
 
 ### WR-050 — Suggest outfits: generator, rules, occasion, weather, repeats, ranking in one place
 - status: todo
-- depends: WR-039, WR-040, WR-041, WR-042, WR-043, WR-046, WR-047
+- depends: WR-039, WR-040, WR-041, WR-042, WR-043, WR-046, WR-047, WR-049
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/suggest/Suggest.java`, `domain/src/main/java/wardrobe/domain/suggest/SuggestRequest.java`, `domain/src/main/java/wardrobe/domain/suggest/SuggestResult.java`, `domain/src/main/java/wardrobe/domain/suggest/Suggestion.java`, `domain/src/main/java/wardrobe/domain/suggest/CheckLine.java`, `domain/src/main/java/wardrobe/domain/suggest/Rejection.java`, `domain/src/test/java/wardrobe/domain/suggest/SuggestTest.java`, `domain/src/test/java/wardrobe/domain/suggest/SuggestItems.java`
 - verify: `./gradlew :domain:test --tests 'wardrobe.domain.suggest.SuggestTest'`
@@ -1028,7 +1033,8 @@ occasion`, `Optional<Weather> weather`, `Optional<RepeatContext> repeat` (WR-043
 `List<CheckLine> checks(Outfit, Optional<Occasion>, Optional<Weather>, Optional<RepeatContext>)`: in this order —
 `WholeRules.judgeAll`, then `OccasionCheck` (if an occasion), then `WeatherCheck` (if weather), then `RepeatCheck`
 (if a repeat context). `CheckLine` (record): `String check, boolean goes, String code, List<ItemId> items, String reason`
-— check and code are the enum names of the source verdicts (names as in `api/openapi.yaml`, WR-049).
+— check and code are the enum names of the source verdicts (names as in `api/openapi.yaml`, WR-049); check =
+`OCCASION` for the occasion check, `REPEAT` for the repeat check.
 
 `SuggestResult suggest(List<Item> catalogue, SuggestRequest r)`:
 1. Anchor: find it in the catalogue (absent → `IllegalArgumentException`); not clean → `ItemNotClean` (WR-046).
@@ -1038,7 +1044,10 @@ occasion`, `Optional<Weather> weather`, `Optional<RepeatContext> repeat` (WR-043
    filtered out → no suggestions, that one rejection, nothing else.
 3. `missing`: item types needed but absent from the pool, in `ItemType` order — SHOES if none; OUTERWEAR if
    required and none; when there is no body: TOP and/or BOTTOM (whichever is absent) and DRESS.
-4. `OutfitGenerator` with `CANDIDATES`, the anchor, `outerwearRequired` from the weather needs.
+4. `OutfitGenerator` with `CANDIDATES`, the anchor, `outerwearRequired` from the weather needs. Without an anchor,
+   run the generator once per clean TOP/DRESS of the pool as anchor (mains = their number), limit
+   `max(MAX_PER_MAIN, CANDIDATES / mains)`, the candidates concatenated in catalogue order. If the generator returns
+   no candidate and `missing` is empty → `Rejection("PAIRS", "NO_OUTFIT", 1)`.
 5. Keep candidates whose `checks(...)` all say yes; for each rejected one count its first failing line
    (check, code).
 6. `Ranking.rank`, then `Diversify.pick(…, r.limit(), MAX_PER_MAIN)`.
@@ -1047,7 +1056,8 @@ occasion`, `Optional<Weather> weather`, `Optional<RepeatContext> repeat` (WR-043
 List<ItemType> missing`; rejections by count descending, then check order, then code. `Suggestion` (record):
 `Outfit outfit, int score, List<ScoreLine> scoreLines, List<CheckLine> checks`. Tests (helper `SuggestItems` in its
 own new file): a small catalogue with an expected best outfit; an occasion and a weather that filter; a repeat
-skipped; anchor cases; each `missing` case; rejection counts; determinism.
+skipped; anchor cases; each `missing` case; rejection counts; no candidate with nothing missing →
+PAIRS/NO_OUTFIT; 3 tops that each complete an outfit, limit 3 → 3 different main pieces; determinism.
 
 ### WR-051 — Items that go into no outfit, and why
 - status: todo
@@ -1105,7 +1115,8 @@ contract only if it is wrong, and say so in the PR.
 
 `GET /outfits/suggestions` and `GET /items/{id}/outfits` (contract of WR-049). Both call
 `Suggest.standard().suggest(catalog.all(), request)` with no repeat context; the around-endpoint
-passes the id as anchor. `SuggestionViews` maps `SuggestResult` to the contract; a suggestion's `why` comes from
+passes the id as anchor. The around-endpoint first calls `catalog.find(id)` and throws `UnknownItem` (WR-007) when
+absent; only then calls `Suggest`. `SuggestionViews` maps `SuggestResult` to the contract; a suggestion's `why` comes from
 `Explain.outfit(outfit)` (WR-029) through the view WR-030 made for `WhyLine` — reuse it. The controller decides
 nothing itself (one rule in one place).
 
@@ -1123,7 +1134,7 @@ accepted by the contract: validate a `CheckLine` / `ScoreLine` built with each n
 
 ### WR-055 — REST: check an outfit for an occasion and the weather
 - status: todo
-- depends: WR-049, WR-050
+- depends: WR-048, WR-049, WR-050
 - size: S
 - paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/FitController.java`, `app/src/main/java/wardrobe/app/web/FitErrors.java`, `app/src/test/java/wardrobe/app/FitApiTest.java`
 - verify: `./gradlew :app:test --tests 'wardrobe.app.FitApiTest'`
@@ -1137,15 +1148,18 @@ reports no problems. The controller only calls the domain. CORS for POST exists 
 
 Errors with `Error`: an empty list, a malformed body, a bad occasion or weather → 400; an unknown id → 404. Add the
 handlers the existing advice lacks in `FitErrors` (`@RestControllerAdvice(assignableTypes = FitController.class)`).
-`FitApiTest` over real HTTP with bodies validated against the contract, using the default seed items (read
-`InMemoryItemCatalog`): a pair that goes, without occasion or weather; the same with OFFICE and −5 °C, where
-outerwear is missing (✗ line); an item in the wash (`ok` false); each error.
+`FitApiTest` over real HTTP with bodies validated against the contract. The test builds its catalogue as a
+`@TestConfiguration` with a `@Primary new InMemoryItemCatalog(items)` (WR-048) holding a complete outfit (top,
+bottom, shoes, coat) of invented items: the complete outfit without occasion or weather → `ok:true`; top, bottom
+and shoes with OFFICE and −5 °C, where outerwear is missing (✗ line); an item in the wash (`ok` false); each error.
+Note that a seed shirt + trousers pair gives `ok:false` with MISSING_SHOES (the COMPLETE check), so a pair alone
+never proves `ok:true`.
 
 ### WR-057 — REST: the outfit of the day
 - status: todo
 - depends: WR-054, WR-072, WR-077
 - size: S
-- paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/TodayController.java`, `app/src/test/java/wardrobe/app/TodayApiTest.java`
+- paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/TodayController.java`, `app/src/main/java/wardrobe/app/web/TodayErrors.java`, `app/src/test/java/wardrobe/app/TodayApiTest.java`
 - verify: `./gradlew :app:test --tests 'wardrobe.app.TodayApiTest'`
 - expect: green; at most 3 suggestions; an outfit logged as worn in the last 7 days is not suggested again
 
@@ -1153,16 +1167,16 @@ The home screen of the mockups: «Образ на сегодня» with the weat
 &snow=true` (contract of WR-049) → `SuggestResult` from `Suggest.standard().suggest(...)` with `limit =
 Suggest.TODAY_LIMIT` and a `RepeatContext` (WR-043) of `catalog.all()`, `wearLog.all()` (the `WearLog` bean,
 WR-072), today = `new Day(LocalDate.now(clock).toEpochDay())` with the `Clock` bean of WR-077, and
-`Suggest.DEFAULT_REPEAT_DAYS`. Map with `SuggestionViews` (WR-054) and reuse its error handling for the 400s
-(occasion and celsius required; extend `SuggestionErrors`' `assignableTypes` only if it is the simplest way, and
-say so in the PR). The controller decides nothing.
+`Suggest.DEFAULT_REPEAT_DAYS`. Map with `SuggestionViews` (WR-054). The 400s (occasion and celsius required) come from
+`TodayErrors`: a `@RestControllerAdvice` limited to `TodayController` mapping a missing or invalid parameter to 400
+`Error`. The controller decides nothing.
 
 `TodayApiTest`: a `@TestConfiguration` with a `@Primary ItemCatalog` (`new InMemoryItemCatalog(items)`, WR-048) of
 invented items where at least two outfits fit OFFICE at −4 °C with snow, and a `@Primary Clock` fixed on one day.
 Over real HTTP with schema validation: the first suggestion; then add a `WearEvent` of its item ids on yesterday's
 `Day` through the `WearLog` bean and ask again — it is not suggested; the same wear 8 days back — it may be
 suggested again; missing occasion → 400; a day nothing fits (HOT and only wool) → empty suggestions with
-rejections. `@DirtiesContext`.
+rejections. One scenario per test method, `@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)`.
 
 ### WR-059 — REST: items that go into no outfit
 - status: todo
@@ -1206,7 +1220,7 @@ No limit on items (invariant 9): one wardrobe of 2 000 random items answers `sug
 - depends: WR-038, WR-050
 - size: S
 - paths: `app/src/main/java/wardrobe/app/catalog/SampleWardrobe.java`, `app/src/test/java/wardrobe/app/catalog/SampleSuggestionsTest.java`
-- verify: `./gradlew :app:test --tests 'wardrobe.app.catalog.SampleSuggestionsTest' --tests 'wardrobe.app.catalog.SampleWardrobeTest'`
+- verify: `./gradlew :app:test --tests 'wardrobe.app.catalog.SampleSuggestionsTest' && ./gradlew :app:test --tests 'wardrobe.app.catalog.SampleWardrobeTest'`
 - expect: green; each of the 4 occasions × 5 weathers gets at least one suggestion from the sample wardrobe
 
 So a demo of the app with the `sample` profile never shows an empty "outfit of the day". `SampleSuggestionsTest`
@@ -1223,7 +1237,7 @@ items, the counts). List the items you changed and why in the PR.
 - status: todo
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/Day.java`, `domain/src/main/java/wardrobe/domain/wear/WearEvent.java`, `domain/src/main/java/wardrobe/domain/wear/WearLog.java`, `domain/src/main/java/wardrobe/domain/history/StatusChange.java`, `domain/src/main/java/wardrobe/domain/history/StatusHistory.java`, `domain/src/test/java/wardrobe/domain/DayTest.java`, `domain/src/test/java/wardrobe/domain/LogRecordsTest.java`
-- verify: `./gradlew :domain:test --tests 'wardrobe.domain.DayTest' --tests 'wardrobe.domain.LogRecordsTest'`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.DayTest' && ./gradlew :domain:test --tests 'wardrobe.domain.LogRecordsTest'`
 - expect: green; `Day` agrees with `java.time.LocalDate` on every day from 1900-01-01 to 2100-12-31; `./gradlew :app:test --tests 'wardrobe.app.ArchitectureTest'` stays green
 
 The wear log, the status history and trips need calendar days. **The domain may not use `java.time`**: the ArchUnit
@@ -1340,8 +1354,10 @@ maxTemp ≤ 50 (IAE naming the field). `TripNeeds.of(Trip)` → record `(Set<Sea
 Map<ItemType, Integer> counts)` (EnumSet / EnumMap, enum order).
 
 Seasons from temperatures (one table of bands): t ≤ 0 → WINTER; 1 ≤ t ≤ 15 → SPRING and AUTUMN; t ≥ 16 → SUMMER.
-The trip's seasons are the union over every whole degree from minTemp to maxTemp. `coldestSeasons` (the bands of
-minTemp alone) are `coldestSeasons` — outerwear must suit the coldest day.
+The trip's seasons are the union over every whole degree from minTemp to maxTemp. `coldestSeasons` = the seasons of
+minTemp's band alone. Outerwear must suit the coldest day. These trip bands are deliberately a separate table from
+WR-041's `WeatherBand` (decision of 26 November: trip counts and temperature bands are their own starting table). Do
+not reuse or change `WeatherBand`.
 
 Counts (starting table, write it in `DECISIONS.md` as Aika's to tune; constants in one place):
 - TOP: `days` without laundry; `min(days, 4)` with laundry.
@@ -1446,7 +1462,7 @@ less); ordering and ties; future-dated change; CLEAN works the same as the other
 - depends: WR-066, WR-007
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/ChangeStatus.java`, `domain/src/test/java/wardrobe/domain/ChangeStatusHistoryTest.java`, `domain/src/test/java/wardrobe/domain/FakeStatusHistory.java`
-- verify: `./gradlew :domain:test --tests 'wardrobe.domain.ChangeStatusHistoryTest' --tests 'wardrobe.domain.ChangeStatusTest'`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.ChangeStatusHistoryTest' && ./gradlew :domain:test --tests 'wardrobe.domain.ChangeStatusTest'`
 - expect: green; WR-007's `ChangeStatusTest` passes untouched; a refused change records nothing
 
 `ChangeStatus` (WR-007) is the one place where a status changes, so it is the one place that records history.
@@ -1479,8 +1495,8 @@ order. Memory only. Plain JUnit test, no Spring context: concurrency, snapshot, 
 - status: todo
 - depends: WR-008
 - size: S
-- paths: `app/src/main/java/wardrobe/app/StatusConfig.java`, `app/src/main/java/wardrobe/app/ClockConfig.java`, `app/src/main/java/wardrobe/app/web/Status*.java`, `app/src/test/java/wardrobe/app/StatusWiringTest.java`
-- verify: `./gradlew :app:test --tests 'wardrobe.app.StatusWiringTest' --tests 'wardrobe.app.StatusApiTest'`
+- paths: `app/src/main/java/wardrobe/app/StatusConfig.java`, `app/src/main/java/wardrobe/app/ClockConfig.java`, `app/src/main/java/wardrobe/app/web/*.java`, `app/src/test/java/wardrobe/app/StatusWiringTest.java`
+- verify: `./gradlew :app:test --tests 'wardrobe.app.StatusWiringTest' && ./gradlew :app:test --tests 'wardrobe.app.StatusApiTest'`
 - expect: green; the context holds exactly one `ChangeStatus` bean and one `Clock` in zone Asia/Almaty; WR-008's API test unchanged and green
 
 Wiring only, no behaviour change. Later tasks (status history, trip departures) need every status change in the app
@@ -1573,6 +1589,8 @@ decides nothing itself.
   `outfitExamples` the first three in catalogue order (nested loops in catalogue order). For OUTERWEAR and
   ACCESSORY `outfits` is empty (not part of a basic outfit in version 1 — write in `DECISIONS.md`).
 - No limit on items (invariant 9): count without building all outfits in memory at once.
+- Do not use `OutfitGenerator` (WR-046): it caps at 1000 outfits (invariant 9 needs an exact count) and adds
+  outerwear/accessory variants. Here basic outfits are counted, not generated. Write this in `DECISIONS.md`.
 
 Tests with a stub rule (goes unless both items are in a "clash" set) and with `Combination.standard()` (WR-005) on a
 small invented wardrobe whose counts you work out by hand in a comment.
@@ -1652,7 +1670,7 @@ period filter; validate bodies against the contract. Shared context: `@DirtiesCo
 
 ### WR-084 — REST: forgotten items and most worn per type
 - status: todo
-- depends: WR-072, WR-073, WR-077
+- depends: WR-072, WR-073, WR-077, WR-083
 - size: S
 - paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/WearHighlightsController.java`, `app/src/test/java/wardrobe/app/WearHighlightsApiTest.java`
 - verify: `./gradlew :app:test --tests 'wardrobe.app.WearHighlightsApiTest'`
@@ -1797,7 +1815,7 @@ from the seed and the rule in WR-069 and write them in the test with a comment �
 
 ### WR-092 — REST: should I buy this?
 - status: todo
-- depends: WR-080, WR-081
+- depends: WR-080, WR-081, WR-091
 - size: S
 - paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/ShouldBuyController.java`, `app/src/main/java/wardrobe/app/web/CorsConfig.java`, `app/src/test/java/wardrobe/app/ShouldBuyApiTest.java`, `app/src/test/java/wardrobe/app/ShouldBuyCorsTest.java`
 - verify: `./gradlew :app:test --tests 'wardrobe.app.ShouldBuyApiTest'`
@@ -1806,7 +1824,7 @@ from the seed and the rule in WR-069 and write them in the test with a comment �
 Contract first: `POST /buy/check` with a candidate card `{ "name"?, "type", "colour", "pattern", "fabric",
 "seasons", "formality" }` (enums as in `Item`; UNKNOWN colour/pattern/fabric → 400) → `{ "answer": BUY|THINK|SKIP,
 "reasons": [ { code, text } ], "similar": [Item], "pairs": [ { item: Item, reason } ], "outfits": integer|null,
-"outfitExamples": [[itemId]], "fills": [Gap] }`. Reuse the `Gap` schema if WR-091 added it (same shape otherwise).
+"outfitExamples": [[itemId]], "fills": [Gap] }`. Reuse WR-091's `Gap` schema.
 Nothing is stored; the candidate never joins the catalogue.
 
 The controller composes the domain and decides nothing: `Similar.to` (WR-068), `Opens.with(…,
@@ -1929,11 +1947,13 @@ classes that exist today (`ItemsController`), so they must not pass vacuously. I
 - status: todo
 - size: S
 - paths: `client/src/fixtures/items.ts`, `client/test/fixtures.test.mjs`
-- verify: `cd client && node --test test/fixtures.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/fixtures.test.mjs && npx tsc --noEmit`
 - expect: green; every fixture passes `parseItems`, every value is in the contract, every value of today's enums appears at least once
 
 Client logic tests and later view-models need a shared set of believable items. `client/src/fixtures/items.ts`
-exports `FIXTURE_ITEMS: readonly Item[]` (type `Item` from `client/src/items.ts`) and `fixtureById(id)`:
+exports `FIXTURE_ITEMS` and `fixtureById(id)`. Build the fixtures as `export const FIXTURE_ITEMS: readonly Item[] =
+parseItems([...raw objects...])` (`Item` and `parseItems` from `client/src/items.ts`), so a field added to `Item`
+later does not break them:
 24–30 invented items with Russian names in the spirit of the mockups («Белая рубашка», «Тёмно-синие брюки»,
 «Шалфейный джемпер», «Горчичная сумка»), ids in the style `white-shirt`, no brands, no people. Cover every status
 (at least 3 not clean), every type (at least two dresses and two accessories), every colour including `UNKNOWN`,
@@ -1951,7 +1971,7 @@ Node runs `.ts` by stripping types: use only erasable syntax (no `enum`, no name
 - status: todo
 - size: S
 - paths: `client/src/api/http.ts`, `client/src/api/items.ts`, `client/test/api-http.test.mjs`
-- verify: `cd client && node --test test/api-http.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/api-http.test.mjs && npx tsc --noEmit`
 - expect: green; success, the server's `Error`, a non-JSON error body, a network failure and 204 are each tested with a fake fetch
 
 The client will call many endpoints; each must read errors the same way. `client/src/api/http.ts` (no React):
@@ -1976,7 +1996,7 @@ rejects a broken item through `parseItems`.
 - status: todo
 - size: S
 - paths: `client/src/plural.ts`, `client/test/plural.test.mjs`
-- verify: `cd client && node --test test/plural.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/plural.test.mjs && npx tsc --noEmit`
 - expect: green; 0, 1, 2, 4, 5, 11–14, 21, 22, 25, 101, 111 and 1 000 000 give the right form
 
 The mockups show counts everywhere («64 вещи · без ограничений», «17 вещей», «8 вещей», «образов записано»).
@@ -1991,7 +2011,7 @@ for both word sets, and the throw.
 - status: todo
 - size: S
 - paths: `client/src/tabs.ts`, `client/test/tabs.test.mjs`
-- verify: `cd client && node --test test/tabs.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/tabs.test.mjs && npx tsc --noEmit`
 - expect: green; every `ItemType` of the contract has exactly one tab; counts and order tested
 
 The outfit builder (mockup «Конструктор образа») has `CategoryTabs`: «Все · Верх · Низ · Верхняя · Обувь ·
@@ -2012,7 +2032,7 @@ only in ALL; counts with an empty list are all zero; input order kept. Use `FIXT
 - status: todo
 - size: S
 - paths: `client/src/units.ts`, `client/test/units.test.mjs`
-- verify: `cd client && node --test test/units.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/units.test.mjs && npx tsc --noEmit`
 - expect: green; round trips for 0–3000 mm, every refused input tested; no floating-point arithmetic in units.ts
 
 The server speaks integer millimetres (intent 01, invariant 6); `MeasureRow` and fit notes show centimetres
@@ -2029,10 +2049,10 @@ source contains no `parseFloat`, `toFixed` or `Math.round` (read the file as tex
 
 ### WR-106 — Saved model answers for more kinds of garment, with the garment words they use
 - status: todo
-- depends: WR-011
+- depends: WR-011, WR-013
 - size: S
 - paths: `domain/src/test/resources/card-kinds/**`, `docs/cards.md`
-- verify: `cd domain/src/test/resources/card-kinds && n=0; for f in *.txt; do test -f "${f%.txt}.expected" || { echo "missing ${f%.txt}.expected"; exit 1; }; grep -q "$f" ../../../../../docs/cards.md || { echo "$f not in docs/cards.md"; exit 1; }; n=$((n+1)); done; echo "$n fixtures"`
+- verify: `cd domain/src/test/resources/card-kinds && n=0; for f in *.txt; do test -f "${f%.txt}.expected" || { echo "missing ${f%.txt}.expected"; exit 1; }; grep -q "$f" ../../../../../docs/cards.md || { echo "$f not in docs/cards.md"; exit 1; }; n=$((n+1)); done; test "$n" -ge 8 || exit 1; echo "$n fixtures"`
 - expect: prints `N fixtures` with N ≥ 8; every `.txt` has its `.expected` and is listed in `docs/cards.md`
 
 WR-011's fixtures use the enum words for `type`. A real model says "skirt", "hoodie", «ботинки». This task writes
@@ -2051,7 +2071,8 @@ coat, jacket, trench, raincoat, пальто, куртка, тренч, плащ
 words that stay unknown because they are ambiguous: jumpsuit, overalls, set, комбинезон, костюм (two items or one?).
 Then at least 8 fixtures: a skirt, a hoodie in Russian («худи»), ankle boots ("ankle boots" — two words; say in
 the table whether the last word decides), a scarf, a cardigan, a jumpsuit (type `?`, the doubt is the point), a
-trench coat with `type: Trench`, plural «джинсы». Invented items only, no brands. Each `.expected` is what a correct
+trench coat with `type: Trench`, plural «джинсы». In every key except `type` use only English enum words or words already in WR-013's table; the
+garment words are the only new vocabulary. Invented items only, no brands. Each `.expected` is what a correct
 parser with this table gives. Check every file twice against the table before pushing: they are append-only.
 
 ### WR-107 — Collections («подборки») in the domain
@@ -2138,14 +2159,14 @@ rule; the client never derives it from status") and to `ItemView` (`item.availab
 - status: todo
 - depends: WR-008
 - size: S
-- paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/*Advice*.java`, `app/src/main/java/wardrobe/app/web/*Error*.java`, `app/src/main/java/wardrobe/app/web/CorsConfig.java`, `app/src/test/java/wardrobe/app/BadInputApiTest.java`, `app/src/test/java/wardrobe/app/WriteCorsTest.java`
-- verify: `./gradlew :app:test --tests 'wardrobe.app.BadInputApiTest' --tests 'wardrobe.app.WriteCorsTest'`
+- paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/*.java`, `app/src/main/java/wardrobe/app/web/CorsConfig.java`, `app/src/test/java/wardrobe/app/BadInputApiTest.java`, `app/src/test/java/wardrobe/app/WriteCorsTest.java`
+- verify: `./gradlew :app:test --tests 'wardrobe.app.BadInputApiTest' && ./gradlew :app:test --tests 'wardrobe.app.WriteCorsTest'`
 - expect: green; malformed JSON, an unknown path and a wrong method each give the `Error` schema; POST and DELETE preflights are allowed
 
-Read WR-008's `@RestControllerAdvice` and extend **that** class (one place maps errors; no second advice). If its
-file name matches neither `*Advice*` nor `*Error*`, park with the name. Contract:
+Read WR-008's `@RestControllerAdvice` and extend **that** class (one place maps errors; no second advice). Contract:
 add `NOT_FOUND` and `METHOD_NOT_ALLOWED` to `Error.code`, and an optional `fields: [string]` (keys a request got
-wrong; later tasks fill it). Map: unreadable body (`HttpMessageNotReadableException`) → 400 `BAD_REQUEST` (if WR-008
+wrong; later tasks fill it); also add `List<String> fields` to WR-008's error record (left out of the JSON when
+empty). Map: unreadable body (`HttpMessageNotReadableException`) → 400 `BAD_REQUEST` (if WR-008
 already maps it, keep that); an unknown path (`NoResourceFoundException`) → 404 `NOT_FOUND`; a wrong method
 (`HttpRequestMethodNotSupportedException`) → 405 `METHOD_NOT_ALLOWED`; unsupported content type → 415 with
 `BAD_REQUEST`. Messages in plain English, never a stack trace or a class name. `BadInputApiTest`: `PUT
@@ -2161,7 +2182,7 @@ refused.
 - depends: WR-008, WR-102
 - size: S
 - paths: `client/src/errors.ts`, `client/test/errors.test.mjs`
-- verify: `cd client && node --test test/errors.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/errors.test.mjs && npx tsc --noEmit`
 - expect: green; no stale code in the table; an unknown code falls back to the server's message
 
 `client/src/errors.ts`: `errorText(e: ApiError)` (from `client/src/api/http.ts`, WR-102) → `{ title, detail }` in
@@ -2187,7 +2208,8 @@ Contract first: `GET /items` gets optional repeatable query parameters `type`, `
 `ItemQuery` (WR-097) and calls `filter` — it decides nothing itself. If WR-009 filtered by status in the controller,
 move that into the same `ItemQuery` (`statuses`) so all filters live in one place; `FilterApiTest` must stay green
 untouched. An unknown enum value or a `q` over 100 characters → 400 `BAD_REQUEST` naming the parameter (through
-WR-008's advice; put the parameter's name in `fields` if WR-111 has added it). `SearchApiTest` (real HTTP, bodies
+WR-008's advice when it already maps it, otherwise an `@ExceptionHandler` inside `ItemsController` building WR-008's
+error record; put the parameter's name in `fields` if WR-111 has added it). `SearchApiTest` (real HTTP, bodies
 validated against `Item`): `type=BOTTOM` gives only bottoms; `season=WINTER&type=OUTERWEAR`; `q=navy` finds "Navy
 trousers"; `q` with Cyrillic URL-encoded works; `colour=TEAL` → 400.
 
@@ -2196,7 +2218,7 @@ trousers"; `q` with Cyrillic URL-encoded works; `colour=TEAL` → 400.
 - depends: WR-014, WR-106
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/card/**`, `domain/src/test/java/wardrobe/domain/card/CardParserKindsTest.java`
-- verify: `./gradlew :domain:test --tests 'wardrobe.domain.card.*'`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.card.CardParserKindsTest' && ./gradlew :domain:test --tests 'wardrobe.domain.card.*'`
 - expect: green on every fixture in `card-kinds/` (draft and doubts) and the earlier card tests unchanged
 
 Implement the «Garment words» table of `docs/cards.md` (WR-106) in the parser: extend the **one** word table WR-013
@@ -2229,26 +2251,26 @@ one doubt per key; every body validated against the schemas.
 
 ### WR-116 — Add an item: a confirmed card gets an id and joins the catalogue
 - status: todo
-- depends: WR-007, WR-015, WR-096
+- depends: WR-007, WR-015, WR-096, WR-108
 - size: S
 - paths: `domain/src/main/java/wardrobe/domain/ItemCatalog.java`, `domain/src/main/java/wardrobe/domain/DuplicateItem.java`, `domain/src/main/java/wardrobe/domain/card/AddItem.java`, `domain/src/test/java/wardrobe/domain/card/AddItemTest.java`, `domain/src/test/java/wardrobe/domain/card/AddingCatalog.java`, `app/src/main/java/wardrobe/app/catalog/InMemoryItemCatalog.java`, `app/src/test/java/wardrobe/app/catalog/AddCatalogTest.java`
-- verify: `./gradlew test --tests 'wardrobe.domain.card.AddItemTest' --tests 'wardrobe.app.catalog.AddCatalogTest'`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.card.AddItemTest' && ./gradlew :app:test --tests 'wardrobe.app.catalog.AddCatalogTest'`
 - expect: green; an incomplete card is refused with its keys, a complete one is added CLEAN at the end with a fresh id
 
 One rule in one place: what makes a card complete is `ConfirmCard` (WR-015). Adding an item goes through it.
 - Port: `void add(Item)` on `ItemCatalog` as a **`default` method throwing `UnsupportedOperationException`** (test
   fakes of earlier tasks implement the interface and are never edited). An id already present (active or archived,
-  if WR-108 is merged) → `DuplicateItem` (new, in `wardrobe.domain`).
+  WR-108) → `DuplicateItem` (new, in `wardrobe.domain`).
 - `InMemoryItemCatalog.add`: appends at the end of `all()`, under the lock of WR-007. No cap (invariant 9).
 - Use case `AddItem(ItemCatalog)` in `wardrobe.domain.card`: `Item add(CardDraft draft, Corrections corrections)`:
   name = the corrected or drafted name (blank or unknown → let `ConfirmCard` refuse it); id =
-  `Slugs.next(name or "item", ids of all())`; `ConfirmCard.confirm(id, draft, corrections)` (throws `IncompleteCard`
-  untouched); `catalog.add`. On `DuplicateItem` (another request took the id between the two steps) recompute and
-  retry, at most 3 times, then rethrow.
+  `Slugs.next(name or "item", taken)`, taken = ids of `all()` plus ids of `archived()`; `ConfirmCard.confirm(id, draft, corrections)` (throws `IncompleteCard`
+  untouched); `catalog.add`. On `DuplicateItem` (another request took the id between the two steps) add the refused
+  id to taken and recompute (at most 3 times), then rethrow.
 Tests: `AddItemTest` with a new fake `AddingCatalog` (incomplete card → `IncompleteCard` and nothing added; two
 items named «Белая рубашка» → `belaya-rubashka` and `belaya-rubashka-2`; a fake that reports a duplicate once →
-retried); `AddCatalogTest`: added at the end, duplicate id refused (active or archived), 8 threads × 50 adds of
-items with distinct ids end with all 400 present, none lost. If WR-108 changed the same two files first, merge with its archive methods intact.
+retried; archive `belaya-rubashka`, then add «Белая рубашка» → `belaya-rubashka-2`); `AddCatalogTest`: added at the end, duplicate id refused (active or archived), 8 threads × 50 adds of
+items with distinct ids end with all 400 present, none lost. WR-108 changed the same two files first: keep its archive methods intact.
 
 ### WR-117 — Edit an item's card fields
 - status: todo
@@ -2284,8 +2306,8 @@ Contract first: `POST /items/{id}/archive` → 200 `Item`; `GET /archive` → ar
 order); `POST /archive/{id}/restore` → 200 `Item`. (`/archive` and not `/items/archived`, so no item id can clash with
 a path word.) Unknown id → 404 `UNKNOWN_ITEM` through WR-008's advice. There is no DELETE of an item in version 1
 (write in the contract description: items are archived, never deleted). New `ArchiveController` calls the port
-methods of WR-108. `ArchiveApiTest` (real HTTP; `@DirtiesContext` or items no other test asserts on, e.g. archive
-and restore `white-sneakers` within one test): bodies validated; the item keeps its status through archive and
+methods of WR-108. `ArchiveApiTest` (real HTTP; tests that change the shared catalogue use `@DirtiesContext`, not "restore in
+the same test"): bodies validated; the item keeps its status through archive and
 restore; archiving twice → 404 the second time.
 
 ### WR-119 — REST: list, open and create collections
@@ -2341,12 +2363,12 @@ person confirmed or typed (usually a draft from `POST /cards/parse` with correct
 `fields` = the keys `IncompleteCard` lists (add `fields` to `Error` if WR-111 has not). The controller turns the
 body into `Corrections` over an empty draft and calls `AddItem` (WR-116); handle `IncompleteCard` with an
 `@ExceptionHandler` inside `AddItemController`. `AddItemConfig` wires `AddItem`. `AddItemApiTest` (real HTTP, bodies
-validated): a complete card → 201 and the item is last in `GET /items`; the same name twice → two ids; missing
+validated; tests that change the shared catalogue use `@DirtiesContext`): a complete card → 201 and the item is last in `GET /items`; the same name twice → two ids; missing
 `fabric` and `colour: UNKNOWN` → 400 with both keys; an unknown enum word → 400 `BAD_REQUEST`.
 
 ### WR-122 — REST: edit an item's card
 - status: todo
-- depends: WR-117, WR-008
+- depends: WR-117, WR-008, WR-111, WR-121
 - size: S
 - paths: `api/openapi.yaml`, `app/src/main/java/wardrobe/app/web/ItemCardController.java`, `app/src/test/java/wardrobe/app/ItemCardApiTest.java`
 - verify: `./gradlew :app:test --tests 'wardrobe.app.ItemCardApiTest'`
@@ -2355,7 +2377,7 @@ validated): a complete card → 201 and the item is last in `GET /items`; the sa
 Contract first: `PUT /items/{id}/card` (operationId `editCard`) with `CardFields` — all seven card fields
 **required** (a full replacement of the card; status is not part of it: statuses change only through `PUT
 /items/{id}/status`). → 200 `Item`. Unknown id → 404 `UNKNOWN_ITEM` (WR-008's advice). A field set to `UNKNOWN` → 400
-`INCOMPLETE_CARD` with `fields` — if WR-121 has not added that code and `fields` yet, add them as it describes; map
+`INCOMPLETE_CARD` with `fields`; map
 `IncompleteCard` with an `@ExceptionHandler` inside `ItemCardController`. The controller calls `EditCard` (WR-117)
 only. PUT is already allowed by CORS (WR-008). `ItemCardApiTest` (real HTTP, bodies validated; edit an item no other
 test asserts on and restore it at the end, or use `@DirtiesContext`): change the colour of `beige-coat` → status
@@ -2367,7 +2389,7 @@ IN_REPAIR kept, id kept; `colour: UNKNOWN` → 400 and the item unchanged in `GE
 - depends: WR-022, WR-102, WR-115
 - size: S
 - paths: `client/src/api/cards.ts`, `client/src/cardDraft.ts`, `client/test/card-draft.test.mjs`
-- verify: `cd client && node --test test/card-draft.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/card-draft.test.mjs && npx tsc --noEmit`
 - expect: green; every field, every doubt kind and the empty answer are worded; no wardrobe rule in the client
 
 The «add an item» flow will show what was read from a model answer and what the person must fill in.
@@ -2387,7 +2409,7 @@ one garbled, empty).
 - depends: WR-102, WR-103, WR-119
 - size: S
 - paths: `client/src/api/collections.ts`, `client/src/collections.ts`, `client/test/collections.test.mjs`
-- verify: `cd client && node --test test/collections.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/collections.test.mjs && npx tsc --noEmit`
 - expect: green; API functions tested with a fake fetch; the card view tested for 0, 1, 4, 5 and 23 items
 
 `client/src/api/collections.ts`: `listCollections`, `getCollection`, `createCollection` (as in the contract of
@@ -2404,7 +2426,7 @@ length of `preview`. Tests: the counts in `expect`; «+N» matches the mockup nu
 - depends: WR-102, WR-109, WR-118, WR-121, WR-122
 - size: S
 - paths: `client/src/api/items.ts`, `client/test/api-items.test.mjs`
-- verify: `cd client && node --test test/api-items.test.mjs && npx tsc --noEmit`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/api-items.test.mjs && npx tsc --noEmit`
 - expect: green; each function's method, path and body checked with a fake fetch; errors arrive as `ApiError` with `fields`
 
 Extend `client/src/api/items.ts` (WR-102 created it with `listItems`): `getItem(baseUrl, id)` (`GET /items/{id}`),
@@ -2425,7 +2447,7 @@ Tests (new file): method, URL and JSON body of every function; an id with a spac
 - depends: WR-028, WR-035, WR-126
 - size: S
 - paths: `client/src/dates.ts`, `client/src/weather.ts`, `client/src/ui/WeatherStrip.tsx`, `client/src/screens/Sheet.tsx`, `client/test/dates.test.mjs`, `docs/backlog/reports/screens/WR-128.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; dates agree with JavaScript's `Date` (UTC) for every day of 2000–2040; the PR says «draft — вид проверяет Aika»
 
 `WeatherStrip` (DESIGN.md): «Чт, 3 декабря · Алматы · −4° снег» (mockups: home and builder).
@@ -2459,7 +2481,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-035, WR-126
 - size: S
 - paths: `client/src/ui/StatTile.tsx`, `client/src/ui/statTile.ts`, `client/src/screens/Sheet.tsx`, `client/test/stat-tile.test.mjs`, `docs/backlog/reports/screens/WR-129.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the label splitting is tested; the PR says «draft — вид проверяет Aika»
 
 `StatTile` (DESIGN.md: number + label on a `PaperCard`; mockup «Календарь образов», «Итоги месяца»: «14 / образов
@@ -2481,7 +2503,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-035, WR-126
 - size: S
 - paths: `client/src/ui/CategoryTabs.tsx`, `client/src/ui/categoryTabs.ts`, `client/src/screens/Sheet.tsx`, `client/test/category-tabs.test.mjs`, `docs/backlog/reports/screens/WR-130.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the tab model is tested; the PR says «draft — вид проверяет Aika»
 
 `CategoryTabs` (DESIGN.md: text tabs with an underline in `terracotta`; used in the builder «Все · Верх · Низ ·
@@ -2506,7 +2528,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-035, WR-126
 - size: S
 - paths: `client/src/ui/NewCard.tsx`, `client/src/screens/Sheet.tsx`, `client/test/new-card.test.mjs`, `docs/backlog/reports/screens/WR-131.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the PR says «draft — вид проверяет Aika»
 
 `NewCard` (DESIGN.md: dashed card with «+» and a label; mockup «Шкаф»: «+ Новая подборка» beside the collection
@@ -2528,7 +2550,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-033, WR-035, WR-126, WR-127
 - size: S
 - paths: `client/src/ui/HelperTile.tsx`, `client/src/ui/helperTile.ts`, `client/src/screens/Sheet.tsx`, `client/test/helper-tile.test.mjs`, `docs/backlog/reports/screens/WR-132.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; label and counter logic tested; the PR says «draft — вид проверяет Aika»
 
 `HelperTile` (DESIGN.md: square tile, drawn icon, two-line label, optional counter; mockup «Главная»: «Собрать
@@ -2553,7 +2575,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-033, WR-035, WR-126, WR-127
 - size: S
 - paths: `client/src/ui/RoundAction.tsx`, `client/src/screens/Sheet.tsx`, `client/test/round-action.test.mjs`, `docs/backlog/reports/screens/WR-133.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the PR says «draft — вид проверяет Aika»
 
 `RoundAction` (DESIGN.md: round button with a drawn icon and a word under it; mockup «Шкаф»: «Носка», «Хочу»,
@@ -2573,10 +2595,10 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 
 ### WR-134 — StatusSwitch: only the moves the server allows (вид проверяет Aika)
 - status: todo
-- depends: WR-028, WR-033, WR-035, WR-126, WR-127
+- depends: WR-025, WR-028, WR-033, WR-035, WR-126, WR-127
 - size: S
-- paths: `client/src/ui/StatusSwitch.tsx`, `client/src/ui/statusSwitch.ts`, `client/src/screens/Sheet.tsx`, `client/test/status-switch.test.mjs`, `docs/backlog/reports/screens/WR-134.png`
-- verify: `cd client && npm test`
+- paths: `client/src/ui/StatusSwitch.tsx`, `client/src/ui/statusSwitch.ts`, `client/src/screens/Sheet.tsx`, `client/src/screens/ItemDetails.tsx`, `client/test/status-switch.test.mjs`, `docs/backlog/reports/screens/WR-134.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; every status × every `next` subset gives the right cells; the PR says «draft — вид проверяет Aika»
 
 `StatusSwitch` (DESIGN.md: four-way control of an item's status; only the moves the server allows are active;
@@ -2586,9 +2608,9 @@ transition table: the allowed moves are the item's `next` from the server (WR-00
 `client/src/ui/statusSwitch.ts` (pure): `switchCells(status, next)` → four cells in the order CLEAN, IN_WASH,
 IN_REPAIR, ON_TRIP: `{ status, label, icon, state: 'current' | 'move' | 'off' }` — current when it is the item's
 status (label = `STATUS_LABEL` of `client/src/items.ts` with a capital first letter: «В стирке»); move when it is in
-`next` (label = the move word: «Чистое», «В стирку», «В ремонт», «В поездку»); otherwise off (move word). Before
-writing the move words, grep `client/src` for «В стирку»: if WR-025 already has them, move that table here and
-import it there (one table). Icons: `clean`, `wash`, `repair`, `trip` of WR-127. A `next` holding the current status
+`next` (label = the move word: «Чистое», «В стирку», «В ремонт», «В поездку»); otherwise off (move word). The
+move-words table moves from WR-025's code to this component (`statusSwitch.ts`) and is imported there
+(`ItemDetails.tsx`; one table). Icons: `clean`, `wash`, `repair`, `trip` of WR-127. A `next` holding the current status
 or an unknown status throws.
 
 `client/src/ui/StatusSwitch.tsx`: props `{ status, next, onMove(status), busy? }`; the `.sw` look: a `paper-deep`
@@ -2608,7 +2630,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-033, WR-035, WR-126, WR-127
 - size: S
 - paths: `client/src/ui/BottomNav.tsx`, `client/src/ui/bottomNav.ts`, `client/App.tsx`, `client/src/screens/Sheet.tsx`, `client/test/bottom-nav.test.mjs`, `docs/backlog/reports/screens/WR-135.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the place model is tested; the bar shows on the main routes only; the PR says «draft — вид проверяет Aika»
 
 `BottomNav` (DESIGN.md: five places, the middle one a raised round «+»; mockups «Главная», «Шкаф», «Календарь»:
@@ -2641,7 +2663,7 @@ Append a sample bar (active «Шкаф») to `SHEET`. Screenshot: `cd client && 
 - depends: WR-028, WR-033, WR-035, WR-126
 - size: S
 - paths: `client/src/ui/OutfitCanvas.tsx`, `client/src/ui/flatLay.ts`, `client/src/screens/Sheet.tsx`, `client/test/flat-lay.test.mjs`, `docs/backlog/reports/screens/WR-136.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the layout is deterministic, inside the sheet, integer pixels; the PR says «draft — вид проверяет Aika»
 
 `OutfitCanvas` (DESIGN.md: ruled paper sheet where items lie as a flat lay; mockups «Главная» (coat, shirt,
@@ -2674,7 +2696,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-033, WR-035, WR-126
 - size: S
 - paths: `client/src/ui/CalendarMonth.tsx`, `client/src/ui/calendarMonth.ts`, `client/src/screens/Sheet.tsx`, `client/test/calendar-month.test.mjs`, `docs/backlog/reports/screens/WR-137.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the cell model is tested; the PR says «draft — вид проверяет Aika»
 
 `CalendarMonth` (DESIGN.md: month grid; a day holds the thumb of that day's outfit; mockup «Календарь образов»).
@@ -2705,7 +2727,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-033, WR-035, WR-124, WR-126
 - size: S
 - paths: `client/src/ui/CollectionCard.tsx`, `client/src/screens/Sheet.tsx`, `client/test/collection-card.test.mjs`, `docs/backlog/reports/screens/WR-138.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the PR says «draft — вид проверяет Aika»
 
 `CollectionCard` (DESIGN.md: 2×2 collage of `ItemThumb`s, «+N», name, count; mockup «Шкаф»: «Офис · 17 вещей ·
@@ -2729,10 +2751,10 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 
 ### WR-139 — ItemStrip: items that cannot be worn are faded, by the server's word (вид проверяет Aika)
 - status: todo
-- depends: WR-025, WR-028, WR-033, WR-035, WR-110, WR-126
+- depends: WR-025, WR-028, WR-033, WR-035, WR-110, WR-126, WR-101
 - size: S
-- paths: `client/src/items.ts`, `client/src/ui/ItemStrip.tsx`, `client/src/ui/itemStrip.ts`, `client/src/screens/Sheet.tsx`, `client/test/item-strip.test.mjs`, `docs/backlog/reports/screens/WR-139.png`
-- verify: `cd client && npm test`
+- paths: `client/src/items.ts`, `client/src/fixtures/items.ts`, `client/src/ui/ItemStrip.tsx`, `client/src/ui/itemStrip.ts`, `client/src/screens/Sheet.tsx`, `client/test/item-strip.test.mjs`, `docs/backlog/reports/screens/WR-139.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; `wearable` is read from the server and drives the fading; the PR says «draft — вид проверяет Aika»
 
 `ItemStrip` (DESIGN.md: horizontal row of `ItemThumb`s; items not clean are faded with their status word; mockup
@@ -2742,7 +2764,8 @@ writes `status === 'CLEAN'` for it.
 
 1. `client/src/items.ts`: `Item` gets `wearable: boolean | null`; `parseItems` reads it when present (not a boolean
    → throw, like the other fields) and sets `null` when absent (older server). Keep everything WR-025 added
-   (`next`). `client/test/items.test.mjs` must stay green untouched.
+   (`next`). `client/test/items.test.mjs` must stay green untouched. In `client/src/fixtures/items.ts` (WR-101)
+   give every fixture a `wearable` matching the server rule for its status.
 2. `client/src/ui/itemStrip.ts` (pure): `stripEntries(items)` → `{ id, item, caption, faded }`: `faded` =
    `wearable === false`; caption = the status word (`STATUS_LABEL`) when faded, otherwise the item's name; with
    `wearable === null` nothing is faded (we do not guess the rule). Input order kept.
@@ -2764,7 +2787,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-022, WR-030, WR-049, WR-102, WR-103
 - size: S
 - paths: `client/src/api/outfits.ts`, `client/src/checks.ts`, `client/test/outfits-client.test.mjs`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; every `CheckCode` and `CheckName` of `api/openapi.yaml` has Russian text; every call checked with a fake fetch
 
 The home and builder screens show the server's suggestions and verdicts; invariant 8 — every answer says why, the
@@ -2792,10 +2815,10 @@ as an empty list. Erasable TypeScript only.
 
 ### WR-141 — Client: the wear log and wear statistics
 - status: todo
-- depends: WR-082, WR-083, WR-084, WR-086, WR-102, WR-103
+- depends: WR-082, WR-083, WR-084, WR-086, WR-102, WR-103, WR-129
 - size: S
 - paths: `client/src/api/wear.ts`, `client/src/wearText.ts`, `client/test/wear-client.test.mjs`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; every call checked with a fake fetch; `null` values stay `null`; money and counts worded in Russian
 
 The calendar and statistics screens read the wear log (WR-082) and the statistics (WR-083, WR-084, WR-086). Read
@@ -2807,8 +2830,8 @@ their schemas in `api/openapi.yaml` first (`WearEvent`, `ItemWear`, the answers 
    baseUrl, {from?, to?})`, `costPerWear(baseUrl, {to?})` — each with `fetchFn = fetch` last; dates as ISO strings
    (`YYYY-MM-DD`), passed through unchanged; `lastWorn`, `daysSinceLastWorn`, `tenge`, `perWear` keep `null`
    (unknown is never 0 — invariant 5).
-2. `client/src/wearText.ts` (pure): `tengeText(n)` → «3 333 ₸» (groups of three with U+202F, no
-   `toLocaleString`, integers only, throws otherwise); `timesText(n)` → «1 раз», «2 раза», «5 раз» (with `plural` of
+2. `client/src/wearText.ts` (pure): `tengeText(n)` → «3 333 ₸» (groups of three with U+202F: use `numberText` of
+   `client/src/ui/statTile.ts` (WR-129) for thousands grouping, no `toLocaleString`, integers only, throws otherwise); `timesText(n)` → «1 раз», «2 раза», «5 раз» (with `plural` of
    WR-103); `sinceText(days)` → «сегодня», «вчера», «12 дней назад», `null` → «ни разу»; `perWearText(row)` →
    «3 333 ₸ за носку», «цена не указана» (no price), «ещё не носили» (never worn). No statistic is computed here:
    the numbers are the server's.
@@ -2821,7 +2844,7 @@ texts for 0, 1, 2, 5, 11, 21, 1 000, 1 234 567 and the throws.
 - depends: WR-023, WR-028, WR-031, WR-033, WR-035, WR-057, WR-102, WR-126, WR-128, WR-132, WR-136, WR-140
 - size: S
 - paths: `client/src/screens/Home.tsx`, `client/src/home.ts`, `client/src/screens/routes.tsx`, `client/test/home.test.mjs`, `docs/backlog/reports/screens/WR-142.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; greeting, occasion default and recent items tested; the PR says «draft — вид проверяет Aika»
 
 Mockup «1 · Главная». Route `home`; set `DEFAULT_ROUTE` to it in `client/src/screens/routes.tsx`. Built only from
@@ -2854,7 +2877,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-023, WR-028, WR-033, WR-035, WR-102, WR-103, WR-124, WR-126, WR-131, WR-133, WR-138
 - size: S
 - paths: `client/src/screens/Wardrobe.tsx`, `client/src/wardrobe.ts`, `client/src/screens/routes.tsx`, `client/test/wardrobe.test.mjs`, `docs/backlog/reports/screens/WR-143.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the subtitle and the status chips are tested; the PR says «draft — вид проверяет Aika»
 
 Mockup «2 · Шкаф». Route `wardrobe`. Built only from DESIGN.md components with its tokens; RN core only; no new
@@ -2884,7 +2907,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-031, WR-033, WR-035, WR-055, WR-104, WR-126, WR-128, WR-130, WR-136, WR-139, WR-140, WR-141
 - size: S
 - paths: `client/src/screens/Builder.tsx`, `client/src/builder.ts`, `client/src/screens/routes.tsx`, `client/test/builder.test.mjs`, `docs/backlog/reports/screens/WR-144.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; choosing, the fit request and the reason lines are tested; the PR says «draft — вид проверяет Aika»
 
 Mockup «3 · Конструктор образа». Route `builder`, optional param = an item id chosen at the start. Built only from
@@ -2914,10 +2937,10 @@ Aika» and describes the look in words.
 
 ### WR-145 — Calendar of outfits with the month's totals (вид проверяет Aika)
 - status: todo
-- depends: WR-028, WR-033, WR-035, WR-126, WR-128, WR-129, WR-137, WR-141
+- depends: WR-028, WR-033, WR-035, WR-126, WR-128, WR-129, WR-137, WR-139, WR-141
 - size: S
 - paths: `client/src/screens/Calendar.tsx`, `client/src/calendarScreen.ts`, `client/src/screens/routes.tsx`, `client/test/calendar-screen.test.mjs`, `docs/backlog/reports/screens/WR-145.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; day thumbs and month totals are tested; the PR says «draft — вид проверяет Aika»
 
 Mockup «4 · Календарь образов». Route `calendar`, optional param `YYYY-MM` (default: this month by the device
@@ -2949,7 +2972,7 @@ and describes the look in words (the log is empty on a fresh server: say so).
 - depends: WR-010, WR-024, WR-025, WR-028, WR-031, WR-033, WR-035, WR-087, WR-109, WR-126, WR-128, WR-134, WR-140
 - size: S
 - paths: `client/src/screens/ItemDetails.tsx`, `client/src/itemCard.ts`, `client/src/api/itemCard.ts`, `client/src/api/items.ts`, `client/test/item-card.test.mjs`, `docs/backlog/reports/screens/WR-146.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; chips, the badge text and the hint from `next` are tested; the PR says «draft — вид проверяет Aika»
 
 Mockup «5 · Карточка вещи — статусы». Route `item` (param = id), the screen of WR-024/WR-025, reworked to the
@@ -2983,7 +3006,7 @@ and describes the look in words.
 - depends: WR-022, WR-028, WR-033, WR-035, WR-126, WR-128, WR-129, WR-141
 - size: S
 - paths: `client/src/screens/WearStats.tsx`, `client/src/wearScreen.ts`, `client/src/screens/routes.tsx`, `client/test/wear-screen.test.mjs`, `docs/backlog/reports/screens/WR-147.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the period and the rows are tested; the PR says «draft — вид проверяет Aika»
 
 There is no mockup of this screen: build it only from DESIGN.md components with its tokens, in the manner of the
@@ -3013,7 +3036,7 @@ and name it in the PR. The PR says «draft — вид проверяет Aika» 
 - depends: WR-022, WR-028, WR-033, WR-035, WR-089, WR-090, WR-102, WR-103, WR-126
 - size: S
 - paths: `client/src/screens/Trip.tsx`, `client/src/trip.ts`, `client/src/api/trips.ts`, `client/src/screens/routes.tsx`, `client/test/trip.test.mjs`, `docs/backlog/reports/screens/WR-148.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the calls, the presets and the shortage texts are tested; the PR says «draft — вид проверяет Aika»
 
 There is no mockup of this screen: build it only from DESIGN.md components with its tokens (no new look; no text
@@ -3046,7 +3069,7 @@ The PR says «draft — вид проверяет Aika» and describes the look 
 - depends: WR-022, WR-028, WR-033, WR-035, WR-092, WR-102, WR-103, WR-126
 - size: S
 - paths: `client/src/screens/ShouldBuy.tsx`, `client/src/buy.ts`, `client/src/api/buy.ts`, `client/src/screens/routes.tsx`, `client/test/buy.test.mjs`, `docs/backlog/reports/screens/WR-149.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; every reason code and answer of the contract has Russian text; the PR says «draft — вид проверяет Aika»
 
 There is no mockup of this screen: build it only from DESIGN.md components with its tokens (no text field —
@@ -3080,7 +3103,7 @@ The PR says «draft — вид проверяет Aika» and describes the look 
 - depends: WR-021, WR-027, WR-028, WR-035, WR-105, WR-126
 - size: S
 - paths: `client/src/ui/MeasureRow.tsx`, `client/src/ui/FitNote.tsx`, `client/src/ui/fitNotes.ts`, `client/src/screens/Avatar.tsx`, `client/src/screens/Sheet.tsx`, `client/test/fit-notes.test.mjs`, `docs/backlog/reports/screens/WR-150.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; every fit-note code of the contract has Russian text; centimetres only from `units.ts`; the PR says «draft — вид проверяет Aika»
 
 Mockup «6 · Кукла для примерки»: beside the doll «Мерки» (Рост 168 см, Грудь 88 см …) and under it «Как сидит»
@@ -3115,10 +3138,10 @@ describes the look in words.
 
 ### WR-151 — TextField (вид проверяет Aika)
 - status: todo
-- depends: WR-028, WR-035, WR-126
+- depends: WR-028, WR-035, WR-126, WR-129
 - size: S
 - paths: `client/src/ui/TextField.tsx`, `client/src/ui/textField.ts`, `client/src/screens/Sheet.tsx`, `client/test/text-field.test.mjs`, `docs/backlog/reports/screens/WR-151.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the length note and the colour-literal check are tested; the PR says «draft — вид проверяет Aika»
 
 `TextField` (DESIGN.md component table, added 26 November: one-line input on `card`, radius `chip`, label above in
@@ -3134,8 +3157,8 @@ by the screen — this component decides nothing); multiline: at least 6 lines t
 inside. Tokens only.
 
 `client/src/ui/textField.ts` (pure; erasable TypeScript; imports with `.ts`): `lengthNote(value, max)` → `null`
-until the text reaches 90 % of `max`, then «9 500 / 10 000» (groups of three with U+202F; reuse `numberText` of
-`client/src/ui/statTile.ts` if WR-129 is merged — do not write a second grouping); no `max` → `null`. The component
+until the text reaches 90 % of `max`, then «9 500 / 10 000» (groups of three with U+202F: use `numberText` of
+`client/src/ui/statTile.ts` (WR-129) for thousands grouping — do not write a second grouping); no `max` → `null`. The component
 shows the note right-aligned under the field when not null.
 
 `text-field.test.mjs` (new): `lengthNote` at 0, 89 %, 90 %, 100 %, no max; reads `TextField.tsx` as text and checks
@@ -3151,8 +3174,8 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - status: todo
 - depends: WR-022, WR-028, WR-033, WR-035, WR-112, WR-123, WR-125, WR-126, WR-142, WR-151
 - size: S
-- paths: `client/src/screens/AddItem.tsx`, `client/src/addItem.ts`, `client/src/screens/routes.tsx`, `client/src/screens/Home.tsx`, `client/test/add-item.test.mjs`, `docs/backlog/reports/screens/WR-152.png`
-- verify: `cd client && npm test`
+- paths: `client/src/screens/AddItem.tsx`, `client/src/addItem.ts`, `client/src/errors.ts`, `client/src/screens/routes.tsx`, `client/src/screens/Home.tsx`, `client/test/add-item.test.mjs`, `docs/backlog/reports/screens/WR-152.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the request body and the field errors are tested; nothing about completeness is decided in the client; the PR says «draft — вид проверяет Aika»
 
 Version 1 has no model calls: the person pastes the text a model answered and confirms the card with corrections
@@ -3166,12 +3189,12 @@ draft's name; for the other keys a wrapping row of `Chip`s with the values of th
 multi-select; the drafted value selected; `UNKNOWN` never offered as a choice — choosing nothing leaves it unknown);
 the row's `doubt` sentence under it in `terracotta` while the person has not chosen. `Button` «Добавить» → `addItem`
 of WR-125 with `addBody(result, chosen)`; 201 → `reset` to `{name:'item', param: newId}`. A 400 `INCOMPLETE_CARD`
-marks the listed `fields` with the sentence of `client/src/errors.ts` (WR-112) for that code; other errors show the
+marks the listed `fields` with the sentence of `client/src/errors.ts` (WR-112) for that code (add the `INCOMPLETE_CARD` entry if missing); other errors show the
 server's message on top. The client never pre-checks completeness: the server's `ConfirmCard` decides (one rule in
 one place) — «Добавить» is always active once something was parsed.
 
-Entry point: on the home screen (WR-142) the section «Недавно добавлены» gets a second link «добавить» → `add`
-(the central «+» keeps opening the builder — decided 26 November; write it in `DECISIONS.md`).
+Entry point: on the home screen (WR-142) a quiet `Button` «Добавить вещь» under the «Недавно добавлены» row → `add`
+(no second link in its `SectionTitle`; the central «+» keeps opening the builder — decided 26 November; write it in `DECISIONS.md`).
 
 `client/src/addItem.ts` (pure): `addBody(result, chosen)` → `NewItem`: for each key the person's choice if any,
 else the draft's value when it is known, else the key is left out (never `UNKNOWN` invented, never a guess);
@@ -3188,8 +3211,8 @@ words (the empty form; describe the parsed state from running it by hand with an
 - status: todo
 - depends: WR-028, WR-035, WR-112, WR-124, WR-126, WR-143, WR-151
 - size: S
-- paths: `client/src/screens/NewCollection.tsx`, `client/src/newCollection.ts`, `client/src/screens/Wardrobe.tsx`, `client/src/screens/routes.tsx`, `client/test/new-collection.test.mjs`, `docs/backlog/reports/screens/WR-153.png`
-- verify: `cd client && npm test`
+- paths: `client/src/screens/NewCollection.tsx`, `client/src/newCollection.ts`, `client/src/errors.ts`, `client/src/screens/Wardrobe.tsx`, `client/src/screens/routes.tsx`, `client/test/new-collection.test.mjs`, `docs/backlog/reports/screens/WR-153.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the trimmed name and the error mapping are tested; the PR says «draft — вид проверяет Aika»
 
 The wardrobe screen (WR-143) shows `NewCard` «Новая подборка» without an action. Give it `onPress` → `go({name:
@@ -3199,7 +3222,7 @@ Route `collection-new`: «‹» back; `ScreenTitle` «Новая подборк�
 «Например, Офис»); `Button` «Создать» → `createCollection` of WR-124 with `trimmedName(text)`; success → `back()`
 (the wardrobe reloads its collections when it is shown again — check how WR-143 loads them; if it loads only once,
 reload on focus by re-running its load when the route becomes current, without changing its look). Errors: 409
-`DUPLICATE_NAME` and 400 `BAD_REQUEST` are shown under the field as the sentence of `client/src/errors.ts` (WR-112);
+`DUPLICATE_NAME` and 400 `BAD_REQUEST` are shown under the field as the sentence of `client/src/errors.ts` (WR-112; add `DUPLICATE_NAME` if missing);
 the server decides what a valid or duplicate name is (`CollectionBook`, WR-107) — the client only trims.
 
 `client/src/newCollection.ts` (pure): `trimmedName(text)` (outer spaces removed, inner runs of spaces collapsed;
@@ -3216,7 +3239,7 @@ The PR says «draft — вид проверяет Aika» and describes the look 
 - depends: WR-028, WR-033, WR-035, WR-103, WR-124, WR-126, WR-143, WR-153
 - size: S
 - paths: `client/src/screens/Collection.tsx`, `client/src/collectionScreen.ts`, `client/src/screens/Wardrobe.tsx`, `client/src/screens/routes.tsx`, `client/test/collection-screen.test.mjs`, `docs/backlog/reports/screens/WR-154.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; the grid rows and the subtitle are tested; the PR says «draft — вид проверяет Aika»
 
 `CollectionCard`s on the wardrobe screen (WR-143) go nowhere yet. Give them `onPress` → `go({name:'collection',
@@ -3240,10 +3263,10 @@ words.
 
 ### WR-155 — «Хочу» opens «Нужно ли?» (вид проверяет Aika)
 - status: todo
-- depends: WR-028, WR-035, WR-143, WR-149, WR-153
+- depends: WR-028, WR-035, WR-143, WR-147, WR-148, WR-149, WR-153, WR-154
 - size: S
 - paths: `client/src/screens/Wardrobe.tsx`, `client/src/wardrobe.ts`, `client/test/wardrobe-actions.test.mjs`, `docs/backlog/reports/screens/WR-155.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; every round action of the wardrobe opens a registered route; the PR says «draft — вид проверяет Aika»
 
 Decided on 26 November: «Хочу» on the wardrobe screen has no wish list behind it; a wish is a thing one is thinking
@@ -3265,7 +3288,7 @@ commit the PNG and name it in the PR. The PR says «draft — вид прове�
 - depends: WR-028, WR-035, WR-130, WR-139, WR-150
 - size: S
 - paths: `client/src/screens/Avatar.tsx`, `client/src/avatar/tryOn.ts`, `client/test/try-on.test.mjs`, `docs/backlog/reports/screens/WR-156.png`
-- verify: `cd client && npm test`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
 - expect: green; choosing per tab is tested; impossible outfits are the server's answer; the PR says «draft — вид проверяет Aika»
 
 Mockup «6 · Кукла для примерки»: under the fit notes, `CategoryTabs` «Верх · Низ · Платья · Верхняя». Let the person
@@ -3281,11 +3304,12 @@ order of tabs kept. Whether a dress goes with a top, or an outfit is possible at
 `client/src/screens/Avatar.tsx`: add `CategoryTabs` (WR-130) with `TRY_TABS` under «Как сидит», and an `ItemStrip`
 (WR-139) of `itemsForTab(items of GET /items, tab)`; a tap calls `choose` and asks `POST /avatar/dress` again with the
 same invented figure and the chosen items (reuse WR-027's call and its scaling; the doll, `MeasureRow`s and
-`FitNote`s of WR-150 update from the new answer). A 409 shows the server's problems in `ink-soft` and keeps the last
-good drawing. WR-027's and WR-150's tests stay untouched.
+`FitNote`s of WR-150 update from the new answer). Send sizes only for the items WR-027 invented sizes for; a chosen item without
+a size gets the FitNote line «размер не указан» (not ok), never «сидит.». A 409 shows the server's problems in
+`ink-soft` and keeps the last good drawing. WR-027's and WR-150's tests stay untouched.
 
 Test (new file): each tab's items; replace within a tab; remove; two tabs chosen keep tab order; an unknown type is
-in no tab.
+in no tab; a chosen item without a size gets «размер не указан» (not ok), never «сидит.».
 
 Screenshot: `cd client && npm run screenshot -- WR-156 --route '/#/me'` writes
 `docs/backlog/reports/screens/WR-156.png`; read it, compare with «6 · Кукла для примерки» in
@@ -3294,11 +3318,11 @@ describes the look in words.
 
 ### WR-157 — «У тебя уже есть N похожих» after adding an item
 - status: todo
-- depends: WR-068, WR-102, WR-103, WR-109, WR-121
+- depends: WR-068, WR-109, WR-121
 - size: S
-- paths: `api/openapi.yaml`, `domain/src/main/java/wardrobe/domain/buy/Candidate.java`, `domain/src/main/java/wardrobe/domain/buy/OwnedLike.java`, `domain/src/test/java/wardrobe/domain/buy/OwnedLikeTest.java`, `app/src/main/java/wardrobe/app/web/SimilarController.java`, `app/src/test/java/wardrobe/app/SimilarApiTest.java`, `client/src/api/similar.ts`, `client/src/screens/AddItem.tsx`, `client/test/similar.test.mjs`
-- verify: `./gradlew test --tests 'wardrobe.domain.buy.OwnedLikeTest' --tests 'wardrobe.app.SimilarApiTest' && cd client && npm test`
-- expect: green; the count comes from `Similar.to` (WR-068) only; the item itself is never counted; the client words the server's number
+- paths: `api/openapi.yaml`, `domain/src/main/java/wardrobe/domain/buy/Candidate.java`, `domain/src/main/java/wardrobe/domain/buy/OwnedLike.java`, `domain/src/test/java/wardrobe/domain/buy/OwnedLikeTest.java`, `app/src/main/java/wardrobe/app/web/SimilarController.java`, `app/src/test/java/wardrobe/app/SimilarApiTest.java`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.buy.OwnedLikeTest' && ./gradlew :app:test --tests 'wardrobe.app.SimilarApiTest'`
+- expect: green; the count comes from `Similar.to` (WR-068) only; the item itself is never counted
 
 The problem behind the app: things are bought three times. What counts as «similar» is decided once, by fragment
 B's `Similar.to` (WR-068: same type, same colour family, same formality) — reuse it, never a second rule.
@@ -3319,11 +3343,28 @@ endpoint the client calls right after adding (write this in `DECISIONS.md`).
    `catalog.all()` and maps items with `ItemView.of`; mind the route order next to `/items/{id}` (WR-109).
    `SimilarApiTest` (real HTTP, bodies validated against the contract) on the seed catalogue: work the expected
    count out from the seed and the rule of WR-068 and write the reasoning in a comment; 404.
-3. Client: `client/src/api/similar.ts` — `getSimilar(baseUrl, id, fetchFn = fetch)` through `request` of WR-102,
-   items parsed with `parseItems`; `similarText(answer)` → `null` when `known` is false or `count` is 0, else «У тебя
-   уже есть 2 похожие вещи» (`plural` of WR-103: «1 похожая вещь», «2 похожие вещи», «5 похожих вещей») — words only.
-   If WR-152 is merged (`client/src/screens/AddItem.tsx` exists), after a successful add show this sentence in
-   `ink-soft` on the item card's route change (pass it as a one-time note, or show it on the add screen for a moment
-   before moving on — choose the simplest and describe it in the PR; the look is Aika's to check). If WR-152 is not
-   merged, do not create `AddItem.tsx`: only the client logic lands. `similar.test.mjs` (new): the call with a fake
-   fetch; the texts for 0, 1, 2, 5, 11, 21 and `known: false`.
+The client part (the sentence on the add screen) is WR-158.
+
+### WR-158 — The add screen says how many similar items you already have (вид проверяет Aika)
+- status: todo
+- depends: WR-157, WR-152, WR-035
+- size: S
+- paths: `client/src/api/similar.ts`, `client/src/screens/AddItem.tsx`, `client/test/similar.test.mjs`, `docs/backlog/reports/screens/WR-158.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
+- expect: green; the client words the server's number and decides nothing about similarity; the PR says «draft — вид проверяет Aika»
+
+The server counts similar items you already own (`GET /items/{id}/similar`, WR-157; the rule is WR-068's
+`Similar.to`) — the client only words the answer.
+1. `client/src/api/similar.ts` — `getSimilar(baseUrl, id, fetchFn = fetch)` through `request` of WR-102, items
+   parsed with `parseItems`; `similarText(answer)` → `null` when `known` is false or `count` is 0, else «У тебя уже
+   есть N похожих вещей» with the plural of WR-103 («У тебя уже есть 1 похожая вещь», «… 2 похожие вещи», «… 5
+   похожих вещей») — words only.
+2. `client/src/screens/AddItem.tsx` (WR-152): after a successful add, call `getSimilar` for the new id and show the
+   sentence in `ink-soft` (pass it to the item card's route as a one-time note, or show it on the add screen for a
+   moment before moving on — choose the simplest and describe it in the PR). `known: false` → no sentence; a failed
+   call shows nothing either and never undoes the add. WR-152's tests stay untouched.
+`similar.test.mjs` (new): the call with a fake fetch; the texts for 0, 1, 2, 5, 11, 21 and `known: false`.
+Screenshot: `cd client && npm run screenshot -- WR-158 --route '/#/add'` writes
+`docs/backlog/reports/screens/WR-158.png`; read it, check it against DESIGN.md, commit the PNG and name it in the PR.
+The PR says «draft — вид проверяет Aika» and describes the look in words (the sentence appears only after an add:
+describe it from running the add by hand with an invented answer).

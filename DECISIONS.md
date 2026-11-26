@@ -194,3 +194,10 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   (`FitNote(kind, part)`), so "too tight" says where. Absent fields are `OptionalInt.empty()`; a present value must
   be positive. Not taken: nullable `Integer` fields (easy to unbox a null by mistake); a separate ease table class
   (one table in one place is enough). Undo: the three files in `domain/avatar`.
+- **WR-019, drawing order on the avatar** (`wardrobe.domain.avatar.Layers`). `OutfitCheck.check` needs a
+  combination rule, but the two refusing problems (`TwoOfAKind`, `DressWithSeparates`) do not depend on it, so
+  `Layers` passes a private rule that lets every pair go and keeps only those two kinds; the outfit check stays the
+  one place that decides them. An empty outfit is not refused: it gives an empty order (nothing to draw). TOP and
+  DRESS share one layer (an outfit never has both). Not taken: `Layers.order(Outfit, CombinationRule)` (the task
+  names one argument, and a clash is drawn anyway); refusing an empty outfit (the avatar can stand undressed).
+  Undo: `Layers.java`.

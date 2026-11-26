@@ -39,7 +39,7 @@ a small, checkable item into a proposal.
 
 ## 3. Write
 
-At most 8 proposals of `size: S`, most valuable first (the intake takes at most 5 a day, in order), each in the
+At most 8 proposals of `size: S`, most valuable first (the intake takes every proposal that passes its filter, in order), each in the
 format of `PROPOSALS.md` with narrow `paths`, a `verify` command, `expect`, and `why` pointing at file:line.
 Everything larger, every question for Aika and every contradiction you cannot turn into a small task goes under
 `## For Aika` as bullets: the finding, 2–3 options, your recommendation.

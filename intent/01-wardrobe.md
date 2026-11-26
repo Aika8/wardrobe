@@ -36,8 +36,14 @@ Aika (one user). Server: Java 25 + Spring Boot. Client: Expo. No other systems.
 - No real brands anywhere (names, logos, fixtures).
 
 ## Out of scope (version 1)
-Photos and background removal, model calls, outfit generation by weather, "what to buy", try-on on a photo, 3D
-avatar, accounts and sync, persistence beyond memory.
+Photos and background removal (researched in WR-034; Aika decides), model calls, a weather service (weather is
+passed in by the person or the client as plain values), choosing what to buy for the person (the «стоит ли
+покупать» check of an item she describes herself is in scope), try-on on a photo, 3D avatar, accounts and sync,
+persistence beyond memory.
+
+In scope since 26 November 2026 (Aika's list for the week): the wear log and statistics, statuses over time, trip
+packing, the «стоит ли покупать» check, outfit suggestions by occasion and by weather given as values, and the
+screens of the approved mockups.
 
 ## Open questions (for Aika, not for agents)
 - A set of 20–30 photos of real items as a test set, or an open dataset — decided when model calls start.

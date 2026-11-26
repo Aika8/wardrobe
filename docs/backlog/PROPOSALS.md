@@ -6,7 +6,7 @@ on a branch `claude/proposals-<role>-<YYYY-MM-DD>`, and opens a PR. Automerge me
 adds only that one file. (One file per run instead of one shared file: two runs a day appending to the same file
 would conflict.)
 
-Once a day the intake workflow (code, `scripts/backlog/backlog.py intake`) moves **at most 5** proposals of that
+After every merge sweep and once a day, code (`scripts/backlog/backlog.py intake`) moves **every** proposal of that
 day into `QUEUE.md`, as tasks `AUTO-<YYYYMMDD>-<n>`. A proposal is taken only if all of these hold:
 
 - `size: S` — one run can do it (≤ ~60 minutes, one PR, a few files);

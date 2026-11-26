@@ -140,3 +140,7 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   taken: `, ` with a space (one more thing to trim when comparing); a one-line pair (seasons already use commas, so
   the parser would read a comma two ways). Undo: a new fixture of the other shape in `cards/` (the files are
   append-only) and a line in `docs/cards.md`.
+- **WR-012, seasons with one unreadable word** (`winter, monsoon`) are unknown as a whole (empty set), not the
+  readable part — a partial list would be a guess. A key given twice alike (ignoring case) counts once; given twice
+  differently it is unknown already here, so no run ever has "the first one wins" (WR-014 adds the doubts list).
+  Not taken: keeping the readable seasons. Undo: `CardParser.seasons` and `CardParser.single`.

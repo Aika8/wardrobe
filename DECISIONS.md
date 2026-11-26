@@ -90,3 +90,12 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   items) or every pair (noisier). Undo: change the loop in `OutfitCheck.check`.
 - **WR-006, messages** of `OutfitProblem` are English plain words naming items by `name()`, like the rules'
   reasons; the client's Russian copy is not decided here. Undo: change `message()`.
+- **WR-035, `playwright-core` version**: pinned exactly (`1.65.1`, installed with `--ignore-scripts`, so nothing
+  downloads a browser), dev dependency only. Not taken: a caret range (a minor bump can change the CDP protocol the
+  local Chrome speaks). Undo: edit the version in `client/package.json`.
+- **WR-035, "waits for the list"**: the screenshot is taken once a status label (`чистое`, `в стирке`, …) shows; if
+  the load-error text shows instead, the script fails without writing a PNG. Not taken: a `testID` on the list (would
+  touch `App.tsx`, outside the task's paths). Undo: change the `waitForFunction` in `client/scripts/screenshot.mjs`.
+- **WR-035, server log**: when the script starts `make dev PORT=8091` itself, its output goes to a temp log whose last
+  25 lines are printed if the server dies before answering. Not taken: inheriting stdout (floods the output). Undo:
+  `stdio` in `startServerIfNeeded`.

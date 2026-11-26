@@ -162,3 +162,9 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   became `CardParser.field`, which also records the doubt. Not taken: `List<String>` for raw (one shape for all
   three reasons is simpler to show); unreadable seasons word-by-word (the whole line is one doubt, like the whole
   line is unknown). Undo: `Doubt`, `CardParser.field`.
+- **WR-015, UNKNOWN colour/pattern/fabric and confirming.** Not confirmed as such in version 1: `ConfirmCard`
+  throws `IncompleteCard` listing them, like a missing type or name, because the combination rules cannot judge an
+  unknown colour, pattern or fabric. A correction of `UNKNOWN`, or a blank name, counts as "not set" (`Corrections`
+  drops it), so the draft value is kept; an empty seasons correction keeps the draft's seasons. Keys in
+  `IncompleteCard` come in the key order of `docs/cards.md`; names are trimmed. Not taken: an `allowUnknown` flag
+  (no caller needs it yet). Undo: the `UNKNOWN` checks in `ConfirmCard.confirm`.

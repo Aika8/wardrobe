@@ -99,3 +99,15 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
 - **WR-035, server log**: when the script starts `make dev PORT=8091` itself, its output goes to a temp log whose last
   25 lines are printed if the server dies before answering. Not taken: inheriting stdout (floods the output). Undo:
   `stdio` in `startServerIfNeeded`.
+- **WR-028, fonts**: the handwritten `heading` (Caveat) and the `body` font (Nunito) need `expo-font`, a new dependency
+  that waits for an ADR. Until then `ScreenTitle` and `SectionTitle` use the system font in bold, and no component
+  sets `fontFamily`. Not taken: bundling fonts now (new dependency without an ADR). Undo: set `fontFamily` in
+  `client/src/ui/ScreenTitle.tsx`, `SectionTitle.tsx` once the ADR lands.
+- **WR-028, values the token block lacks**: the badge fill is the status colour at 20 % (`BADGE_FILL_ALPHA` in
+  `client/src/ui/status.ts`; the mockup uses 18–22 %); the 1.5 px outline of a selected `Chip` and a quiet `Button`
+  follows the mockup's CSS; `Tape` keeps the mockup's size (84 × 20), offset and turn as part of the drawing and drops
+  its paper stripes (a gradient needs more than `View`); `Button` text is `md` (the mockup's 14 px is no token).
+  Not taken: new tokens (DESIGN.md is Aika's). Undo: the constants in those files.
+- **WR-028, pressing with only View and Text**: `Button` and `Chip` take presses through the View responder props
+  (`client/src/ui/press.ts`), since the task allows only `View`, `Text` and `StyleSheet`. Not taken: `Pressable`
+  (outside the allowed set). Undo: swap `pressProps` for `Pressable` in those two files.

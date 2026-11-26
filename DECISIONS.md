@@ -111,3 +111,15 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
 - **WR-028, pressing with only View and Text**: `Button` and `Chip` take presses through the View responder props
   (`client/src/ui/press.ts`), since the task allows only `View`, `Text` and `StyleSheet`. Not taken: `Pressable`
   (outside the allowed set). Undo: swap `pressProps` for `Pressable` in those two files.
+- **WR-008, 409 message names the item by id**: the message is `IllegalStatusChange`'s own ("item green-dress
+  cannot go from ON_TRIP to IN_REPAIR"), so the wording lives in the domain only. Not taken: a second message built in
+  `ApiErrors` with the item's display name (two places for one sentence; the exception carries no name). Undo:
+  `ApiErrors.illegalStatusChange`.
+- **WR-008, same status (CLEAN → CLEAN) is a 409**, as the domain table says ("staying is not a change"). Not taken:
+  200 as a no-op (would be a second rule in the web layer). Undo: a check in `StatusController.change`.
+- **WR-008, 400 cases**: an unknown status name, `null`, a missing `status`, a body that is not JSON, an empty body and
+  a blank id all answer `BAD_REQUEST`. Extra properties in the body are ignored (Spring's default), although the
+  schema says `additionalProperties: false`. Not taken: turning on strict JSON reading app-wide (changes every future
+  endpoint). Undo: `spring.jackson` deserialization setting.
+- **WR-008, `ChangeStatus` wiring**: `StatusController` builds `new ChangeStatus(catalog)` itself. Not taken: a
+  `@Bean` (domain stays free of Spring; a config class would be the only user). Undo: move it to a `@Configuration`.

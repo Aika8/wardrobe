@@ -168,3 +168,9 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   drops it), so the draft value is kept; an empty seasons correction keeps the draft's seasons. Keys in
   `IncompleteCard` come in the key order of `docs/cards.md`; names are trimmed. Not taken: an `allowUnknown` flag
   (no caller needs it yet). Undo: the `UNKNOWN` checks in `ConfirmCard.confirm`.
+- WR-016: how is an out-of-range measurement rejected "with the field's name"? Choice: `InvalidMeasurement`
+  (extends `IllegalArgumentException`) with `field()` equal to the record component's name (`"waist"`), message
+  `"<field>: <value> mm is outside <min>–<max> mm"`. Ranges are inclusive at both ends. The "arm/inseam shorter
+  than height" check is unreachable with today's ranges, so it is a package-private guard tested directly.
+  Not taken: a plain `IllegalArgumentException` (callers would parse the message for the field); collecting all bad
+  fields at once (no caller needs it yet). Undo: `Measurements` and `InvalidMeasurement` in `domain/avatar`.

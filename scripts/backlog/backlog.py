@@ -568,9 +568,48 @@ def intake(day: str, root: Path = ROOT) -> tuple[list[str], list[str]]:
     return accepted, rejected
 
 
+# ---------------------------------------------------------------- attribution
+
+ATTRIBUTION_LINE = re.compile(r"^\s*_?Generated (by|with) \[?Claude Code.*$|^\s*Co-Authored-By:\s*Claude\b.*$", re.I)
+
+
+def scrub_attribution(text: str) -> str:
+    """Remove the AI-attribution footer the cloud's GitHub proxy appends (and a '---' rule right above it).
+    CLAUDE.md: no AI attribution in commits or PRs."""
+    lines = (text or "").split("\n")
+    out: list[str] = []
+    for line in lines:
+        if ATTRIBUTION_LINE.match(line):
+            while out and out[-1].strip() in ("", "---"):
+                out.pop()
+            continue
+        out.append(line)
+    return "\n".join(out).rstrip() + ("\n" if text and text.endswith("\n") else "")
+
+
+def scrub_event(event_path: str, dry_run: bool = False) -> int:
+    """GitHub Actions: clean the body of the PR or comment that fired the workflow, with GITHUB_TOKEN (not the proxy)."""
+    ev = json.loads(Path(event_path).read_text())
+    repo = repo_slug()
+    if "comment" in ev:
+        target, path = ev["comment"], f"repos/{repo}/issues/comments/{ev['comment']['id']}"
+    elif "pull_request" in ev:
+        target, path = ev["pull_request"], f"repos/{repo}/pulls/{ev['pull_request']['number']}"
+    else:
+        return 0
+    body = target.get("body") or ""
+    clean = scrub_attribution(body)
+    if clean == body:
+        print("no attribution"); return 0
+    print("removing attribution")
+    if not dry_run:
+        gh(path, method="PATCH", fields={"body": clean})
+    return 0
+
+
 # ---------------------------------------------------------------- automerge (GitHub Actions)
 
-AUX_CHECKS = {"merge", "reset-review", "intake", "guard"}
+AUX_CHECKS = {"merge", "reset-review", "intake", "guard", "scrub"}
 
 
 def ci_state(runs: list[dict]) -> str:
@@ -703,8 +742,10 @@ def automerge_one(repo: str, pr: dict, tasks: list[Task], dry_run: bool, say) ->
     say("all gates passed: merging")
     if dry_run:
         return False
+    # The squash message is set here, so GitHub adds no Co-authored-by trailers of its own.
     gh(f"repos/{repo}/pulls/{n}/merge", method="PUT",
-       fields={"merge_method": "squash", "sha": sha, "commit_title": f"{pr['title']} (#{n})"})
+       fields={"merge_method": "squash", "sha": sha, "commit_title": f"{pr['title']} (#{n})",
+               "commit_message": scrub_attribution(pr.get("body") or "") or pr["title"]})
     # Merges made with GITHUB_TOKEN start no workflow: run CI on main explicitly.
     gh(f"repos/{repo}/actions/workflows/ci.yml/dispatches", method="POST", fields={"ref": "main"})
     return True
@@ -803,6 +844,8 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("prod-changes", help="reviewer: changed files that are not tests or docs (for the vacuum check)")
     s.add_argument("--base", default="origin/main")
     sub.add_parser("review-queue", help="reviewer: which PR to review in this run")
+    s = sub.add_parser("scrub", help="Actions: remove the AI-attribution footer from the PR/comment of an event")
+    s.add_argument("--event", default=os.environ.get("GITHUB_EVENT_PATH", "")); s.add_argument("--dry-run", action="store_true")
     a = ap.parse_args(argv)
 
     if a.cmd == "paused":
@@ -812,6 +855,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if a.cmd == "automerge":
         return automerge(a.dry_run)
+    if a.cmd == "scrub":
+        return scrub_event(a.event, a.dry_run)
     if a.cmd == "intake":
         acc, rej = intake(a.date)
         print("\n".join([f"accepted: {x}" for x in acc] + [f"left for Aika: {x}" for x in rej]) or "nothing")

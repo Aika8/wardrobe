@@ -32,3 +32,8 @@ Small behaviour choices, one bullet each, newest section last. Costly-to-reverse
   from the task: BLUE–YELLOW, BLUE–ORANGE, BLUE–PINK, GREEN–PINK, PURPLE–YELLOW, RED–PINK; any other pair of
   different non-neutral colours does not go. Not taken: a colour-wheel formula (harder for Aika to read and edit).
   Undo: edit the set and the same list in `ColourRuleTest` (it pins every pair of different non-neutral colours).
+- **WR-005, rule names in a "goes" verdict** (`Combination.name`): the task fixes the reason "goes: formality,
+  colour, pattern, season" but rules carry no name. Choice: the class name without "Rule", lower case
+  (`FormalityRule` → "formality"); a nested combination → "combination"; a lambda → "rule N". Not taken: a `name()`
+  on `CombinationRule` (outside the task's paths) or a name map in the constructor (the task asks for a plain
+  `List<CombinationRule>`). Undo: change `Combination.name`.

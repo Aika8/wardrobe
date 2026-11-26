@@ -154,3 +154,11 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   other case/gender forms of the non-colour words (the model is asked for one word; add a line when a real answer
   needs it). English and Russian may mix in one `seasons` line. A key given twice as `blue` and `синий` is still
   "two different values" → unknown (WR-012's raw comparison; WR-014 owns doubts). Undo: edit the map.
+- **WR-014, shape of a doubt.** `Doubt(key, raw, why)` with `key` the lower-case card key and `raw` the trimmed text
+  the answer gave; for `MISSING` `raw` is empty; for `CONFLICTING` it is every given value in answer order joined
+  by ` | ` (a comma would clash with `seasons`). A key present with an empty value (`name:`) is `MISSING`, not
+  `UNREADABLE` — there is nothing to read. `blue` and `синий` for one key stay `CONFLICTING` (raw text compared,
+  as in WR-012/013), not merged by meaning. Doubts come in the key order of `docs/cards.md`. `CardParser.single`
+  became `CardParser.field`, which also records the doubt. Not taken: `List<String>` for raw (one shape for all
+  three reasons is simpler to show); unreadable seasons word-by-word (the whole line is one doubt, like the whole
+  line is unknown). Undo: `Doubt`, `CardParser.field`.

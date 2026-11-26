@@ -83,3 +83,10 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   (`FormalityRule` → "formality"); a nested combination → "combination"; a lambda → "rule N". Not taken: a `name()`
   on `CombinationRule` (outside the task's paths) or a name map in the constructor (the task asks for a plain
   `List<CombinationRule>`). Undo: change `Combination.name`.
+- **WR-006, an outfit with no BOTTOM and no DRESS** (`OutfitCheck`): not a problem in version 1, as the task
+  says (a top and shoes, or only accessories, pass). Undo: add a problem kind in `OutfitProblem` and a check.
+- **WR-006, three or more of one type** (`OutfitCheck`): each extra item is reported as `TwoOfAKind(type, first,
+  extra)`, in input order, so three shoes give two problems. Not taken: one problem per type (the record holds two
+  items) or every pair (noisier). Undo: change the loop in `OutfitCheck.check`.
+- **WR-006, messages** of `OutfitProblem` are English plain words naming items by `name()`, like the rules'
+  reasons; the client's Russian copy is not decided here. Undo: change `message()`.

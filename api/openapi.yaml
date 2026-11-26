@@ -74,6 +74,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /items/{id}/matches:
+    get:
+      operationId: itemMatches
+      summary: Which clean items go with this item and which do not, each with the rules' reason
+      description: |
+        Both lists hold the CLEAN items other than the item itself, in the catalogue's order. The item itself may be in
+        any status. Verdicts and reasons are the server's combination rules; the client shows them and never
+        re-implements them.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, minLength: 1 }
+      responses:
+        '200':
+          description: The item and its verdicts against every other clean item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Matches'
+        '400':
+          description: The id is blank
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No item has this id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Item:
@@ -113,6 +145,28 @@ components:
       required: [status]
       properties:
         status: { $ref: '#/components/schemas/ItemStatus' }
+    Match:
+      type: object
+      additionalProperties: false
+      required: [item, reason]
+      properties:
+        item: { $ref: '#/components/schemas/Item' }
+        reason:
+          type: string
+          minLength: 1
+          description: Plain English for a person; when several rules refuse, every reason, joined with "; ".
+    Matches:
+      type: object
+      additionalProperties: false
+      required: [item, goes, doesNot]
+      properties:
+        item: { $ref: '#/components/schemas/Item' }
+        goes:
+          type: array
+          items: { $ref: '#/components/schemas/Match' }
+        doesNot:
+          type: array
+          items: { $ref: '#/components/schemas/Match' }
     Error:
       type: object
       additionalProperties: false

@@ -129,3 +129,9 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   `ItemsController.items`.
 - **WR-009, where the filter lives**: a one-line equality filter in `ItemsController`, not a domain method — it is a
   query, not a wardrobe rule. Undo: an `ItemCatalog.inStatus(...)` if a second caller appears.
+- **WR-010, blank id on `/items/{id}/matches`** answers 400 `BAD_REQUEST`, as `PUT /items/{id}/status` does; the
+  contract lists that 400. Not taken: 404 (a blank id cannot name an item, and `ItemId` refuses it). Undo: the check
+  in `MatchesController.matches` and the `'400'` response in `api/openapi.yaml`.
+- **WR-010, "clean" means `Item.availableForOutfit()`**, the domain's existing rule, not a status comparison in the
+  controller. `MatchConfig` exposes `Combination.standard()` as a `CombinationRule` bean, so a test or a later rule
+  set swaps it in one place. Undo: `wardrobe.app.MatchConfig`.

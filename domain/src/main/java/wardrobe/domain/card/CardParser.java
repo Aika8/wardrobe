@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import wardrobe.domain.Colour;
 import wardrobe.domain.Fabric;
 import wardrobe.domain.Formality;
@@ -21,7 +22,8 @@ import wardrobe.domain.Season;
  * {@link RussianWords}.
  *
  * <p>A value that is not a word of its list, a key that is missing, or a key given twice with different values
- * leaves the field unknown — never guessed, never "the first one wins" (intent 01, invariant 5). Every line that
+ * leaves the field unknown — never guessed, never "the first one wins" (intent 01, invariant 5); {@link #read} says
+ * which and why, as {@link Doubt}s (WR-014). Every line that
  * is not {@code key: value} with a key of the format is skipped: prose around the card, Markdown code fences, keys
  * we did not ask for ({@code brand:}, {@code size:}). Plain Java: no JSON library, no I/O.
  */
@@ -41,15 +43,25 @@ public final class CardParser {
 
     /** The card the answer describes; fields the answer does not give clearly stay unknown. */
     public static CardDraft parse(String answer) {
+        return read(answer).draft();
+    }
+
+    /**
+     * The card the answer describes and, for each field left unknown, a {@link Doubt} naming the key, the raw value
+     * and why: {@code MISSING} (no line or no value), {@code UNREADABLE} (not a word of the list) or
+     * {@code CONFLICTING} (given twice differently). Doubts come in the key order of {@code docs/cards.md}.
+     */
+    public static ParsedCard read(String answer) {
         Map<String, List<String>> values = valuesByKey(answer == null ? "" : answer);
-        return new CardDraft(
-                single(values, NAME).filter(name -> !name.isEmpty()),
-                single(values, TYPE).flatMap(word -> word(ItemType.class, word)),
-                single(values, COLOUR).flatMap(word -> word(Colour.class, word)).orElse(Colour.UNKNOWN),
-                single(values, PATTERN).flatMap(word -> word(Pattern.class, word)).orElse(Pattern.UNKNOWN),
-                single(values, FABRIC).flatMap(word -> word(Fabric.class, word)).orElse(Fabric.UNKNOWN),
-                single(values, SEASONS).map(CardParser::seasons).orElse(Set.of()),
-                single(values, FORMALITY).flatMap(word -> word(Formality.class, word)));
+        List<Doubt> doubts = new ArrayList<>();
+        Optional<ItemType> type = field(values, TYPE, word -> word(ItemType.class, word), doubts);
+        Colour colour = field(values, COLOUR, word -> word(Colour.class, word), doubts).orElse(Colour.UNKNOWN);
+        Pattern pattern = field(values, PATTERN, word -> word(Pattern.class, word), doubts).orElse(Pattern.UNKNOWN);
+        Fabric fabric = field(values, FABRIC, word -> word(Fabric.class, word), doubts).orElse(Fabric.UNKNOWN);
+        Set<Season> seasons = field(values, SEASONS, CardParser::seasons, doubts).orElse(Set.of());
+        Optional<Formality> formality = field(values, FORMALITY, word -> word(Formality.class, word), doubts);
+        Optional<String> name = field(values, NAME, Optional::of, doubts);
+        return new ParsedCard(new CardDraft(name, type, colour, pattern, fabric, seasons, formality), doubts);
     }
 
     /** Every trimmed value per known key, in the order the answer gives them. */
@@ -68,15 +80,31 @@ public final class CardParser {
         return values;
     }
 
-    /** The key's value if the answer gives it once, or several times alike (ignoring case); else empty. */
-    private static Optional<String> single(Map<String, List<String>> values, String key) {
+    /**
+     * The key's value read by {@code reader}, if the answer gives it once (or several times alike, ignoring case)
+     * and the reader understands it; otherwise empty, with the reason added to {@code doubts}.
+     */
+    private static <T> Optional<T> field(Map<String, List<String>> values, String key,
+            Function<String, Optional<T>> reader, List<Doubt> doubts) {
         List<String> given = values.getOrDefault(key, List.of());
         if (given.isEmpty()) {
+            doubts.add(new Doubt(key, "", Doubt.Why.MISSING));
             return Optional.empty();
         }
         String first = given.getFirst();
-        boolean alike = given.stream().allMatch(value -> value.equalsIgnoreCase(first));
-        return alike ? Optional.of(first) : Optional.empty();
+        if (!given.stream().allMatch(value -> value.equalsIgnoreCase(first))) {
+            doubts.add(new Doubt(key, String.join(Doubt.SEPARATOR, given), Doubt.Why.CONFLICTING));
+            return Optional.empty();
+        }
+        if (first.isEmpty()) {
+            doubts.add(new Doubt(key, "", Doubt.Why.MISSING));
+            return Optional.empty();
+        }
+        Optional<T> read = reader.apply(first);
+        if (read.isEmpty()) {
+            doubts.add(new Doubt(key, first, Doubt.Why.UNREADABLE));
+        }
+        return read;
     }
 
     /**
@@ -94,15 +122,15 @@ public final class CardParser {
     }
 
     /** Comma-separated seasons; if any word is not a season, the seasons are unknown (empty), not partly guessed. */
-    private static Set<Season> seasons(String value) {
+    private static Optional<Set<Season>> seasons(String value) {
         EnumSet<Season> seasons = EnumSet.noneOf(Season.class);
         for (String part : value.split(",")) {
             Optional<Season> season = word(Season.class, part);
             if (season.isEmpty()) {
-                return Set.of();
+                return Optional.empty();
             }
             seasons.add(season.get());
         }
-        return seasons;
+        return Optional.of(seasons);
     }
 }

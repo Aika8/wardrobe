@@ -73,6 +73,12 @@ body{margin:0;background:#E9E1D3;font-family:var(--body);color:var(--ink);}
 .b-repair{background:rgba(215,169,85,.22)} .b-repair i{background:var(--s-repair)}
 .b-trip{background:rgba(196,122,92,.18)} .b-trip i{background:var(--s-trip)}
 .chips{display:flex;gap:var(--sp-sm);flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:var(--sp-xs)}
+.field label{font-size:var(--fs-sm);font-weight:600;color:var(--ink-soft)}
+.field .in{background:var(--card);border-radius:var(--r-chip);box-shadow:inset 0 0 0 1.5px var(--rule);padding:var(--sp-sm) var(--sp-md);font-size:var(--fs-md);color:var(--ink)}
+.field .in.ph{color:var(--ink-faint)}
+.field .in.multi{min-height:64px;font-size:var(--fs-sm)}
+.field .err{font-size:var(--fs-xs);color:var(--terracotta);font-weight:700}
 .chip{border-radius:var(--r-chip);padding:var(--sp-xs) var(--sp-md);font-size:var(--fs-sm);font-weight:600;background:var(--card);box-shadow:var(--shadow);white-space:nowrap}
 .chip.on{box-shadow:inset 0 0 0 1.5px var(--ink);background:var(--paper-deep)}
 .chip small{color:var(--ink-soft);font-weight:700;margin-left:var(--sp-xxs)}
@@ -444,6 +450,7 @@ svg.ic *{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;str
     <div class="cell"><code>HelperTile · RoundAction</code><div style="display:flex;gap:var(--sp-sm);align-items:center"><div class="tile" style="width:110px"><svg class="ic" viewBox="0 0 24 24" style="color:var(--mustard)"><path d="M5 8 h14 v11 H5 Z M9 8 V5 h6 v3 M5 13 h14"/></svg><span>Сборы<br>в поездку</span></div><div class="ract"><div><span class="c"><svg class="ic" viewBox="0 0 24 24" style="color:var(--plum)"><path d="M5 20 V12 M10 20 V6 M15 20 V10 M20 20 V14"/></svg></span>Носка</div></div></div></div>
     <div class="cell"><code>StatusSwitch</code><div class="sw" style="font-size:var(--fs-xs)"><div class="cur">Чистое</div><div>В стирку</div><div>В ремонт</div><div>В поездку</div></div></div>
     <div class="cell"><code>CategoryTabs</code><div class="tabs"><div class="on">Все</div><div>Верх</div><div>Низ</div></div></div>
+    <div class="cell"><code>TextField</code><div class="field" data-component="TextField"><label>Название</label><div class="in">Голубые джинсы</div></div><div class="field" data-component="TextField"><label>Ответ модели</label><div class="in multi ph">Вставь сохранённый ответ…</div><span class="err">Не вижу тип вещи — выбери его</span></div></div>
     <div class="cell"><code>StatTile · FitNote · MeasureRow</code><div class="stat" style="width:96px"><b>14</b><span>образов</span></div><div class="fit"><i>1</i><span>рукав короче на 2 см</span></div><div class="measure"><div><span>Рост</span><b>168 см</b></div></div></div>
     <div class="cell"><code>CollectionCard · NewCard · OutfitCanvas · ItemStrip · CalendarMonth · BottomNav · PaperDoll</code><span style="font-size:var(--fs-sm);color:var(--ink-soft)">крупные — смотрите на экранах выше</span></div>
   </div>

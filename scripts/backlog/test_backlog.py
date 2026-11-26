@@ -238,20 +238,21 @@ class IntakeTest(unittest.TestCase):
     def proposal(self, title, size="S", paths="`clients/web/src/x.ts`", verify="`cd clients/web && npm test`"):
         return f"### {title}\n- size: {size}\n- paths: {paths}\n- verify: {verify}\n- expect: green\n\nWhy and what.\n\n"
 
-    def test_cap_of_five_and_filters(self):
+    def test_filters_and_no_daily_cap(self):
         good = "".join(self.proposal(f"Good {i}") for i in range(7))
         bad = self.proposal("Big", size="M") + self.proposal("CI", paths="`.github/workflows/ci.yml`") + \
             self.proposal("No cmd", verify="run the tests") + self.proposal("First")
         (self.root / "docs/backlog/proposals/2026-12-03-analyst.md").write_text(bad)
         (self.root / "docs/backlog/proposals/2026-12-03-user.md").write_text(good)
         acc, rej = b.intake("2026-12-03", self.root)
-        self.assertEqual(len(acc), 5)
+        self.assertEqual(len(acc), 7)   # Aika, 26 November: no daily cap — every good proposal enters
         text = "\n".join(rej)
-        for why in ["not size S", "protected", "no command", "same title", "daily cap"]:
+        for why in ["not size S", "protected", "no command", "same title"]:
             self.assertIn(why, text)
+        self.assertNotIn("daily cap", text)
         tasks = b.parse_tasks((self.root / "docs/backlog/QUEUE.md").read_text())
         self.assertEqual(b.lint(tasks), [])
-        self.assertEqual(tasks[-1].id, "AUTO-20261203-5")
+        self.assertEqual(tasks[-1].id, "AUTO-20261203-7")
         # idempotent: a second run the same day adds nothing
         acc2, _ = b.intake("2026-12-03", self.root)
         self.assertEqual(acc2, [])

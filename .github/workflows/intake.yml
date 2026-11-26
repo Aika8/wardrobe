@@ -1,5 +1,5 @@
-# Intake for the cloud backlog run (docs/backlog/README.md): once a day, code — not an agent — moves at most five
-# small, checkable proposals of the day from docs/backlog/proposals/ into docs/backlog/QUEUE.md. Everything else
+# Intake for the cloud backlog run (docs/backlog/README.md): once a day, code — not an agent — moves every
+# small, checkable proposal of the day from docs/backlog/proposals/ into docs/backlog/QUEUE.md. Everything else
 # waits for Aika (docs/backlog/intake-log.md says why). Rules: scripts/backlog/backlog.py, `intake`.
 name: intake
 

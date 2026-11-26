@@ -118,6 +118,7 @@ and Aika decides. Each component in the mockups has a `data-component="…"` att
 | `PaperDoll` | faceless figure with natural proportions from measurements; clothes drawn over it in layers, following the body | avatar |
 | `FitNote` | one line about fit: «рукав короче на 2 см» with a small marker on the doll | avatar |
 | `MeasureRow` | a measurement name and value in centimetres for the person (mm inside) | avatar |
+| `TextField` | one-line input on `card`, radius `chip`, label above in `ink-soft`, placeholder `ink-faint`, error below in `terracotta`; a multiline variant for pasting a saved model answer (added 26 November 2026, decided without Aika — see `DECISIONS.md`) | add item, new collection |
 
 ## Clothes and the doll
 

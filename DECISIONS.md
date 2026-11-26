@@ -24,6 +24,52 @@ Small behaviour choices, one bullet each, newest section last. Costly-to-reverse
   automerge's safety sweep every 3 hours. **Later:** one shared library for the backlog rules used by all three
   projects (learning-exchange, signal-bot, wardrobe), so a fix lands once — its own task after the week.
 
+## The week's queue: decided without Aika (26 November 2026)
+
+Aika: «меня ничего не должно ждать» — every open question of the queue was decided by the recommended option (or the
+one easiest to undo). Each line: the choice — what was not taken — how to undo.
+
+- **Scope** (intent 01): wear log, statuses over time, trips, the «стоит ли покупать» check of an item the person
+  describes, suggestions by occasion and by weather given as values, and the approved screens are in scope; a weather
+  service and choosing purchases for the person are not. Undo: edit «Out of scope» in intent 01.
+- **Daily intake cap removed**: every proposal that passes the filter becomes a task at once (automerge's sweep also
+  runs intake). Not taken: the cap of 5. Undo: restore `MAX_INTAKE_PER_DAY` in `backlog.py` and its test.
+- **Dates in the domain** are `wardrobe.domain.Day` (epoch day, WR-066), not `java.time`. Not taken: allowing
+  `LocalDate` in the ArchUnit rule. Undo: allow it and replace `Day` (one type).
+- **"Today"** is the server clock in Asia/Almaty (WR-077); requests may pass a date. Not taken: the phone always
+  sends its date. Undo: change the `Clock` bean.
+- **Wearing does not change the status** (WR-071 only logs). Not taken: auto-wash after N wears; the client asking
+  «в стирку?». Undo: a rule in `LogWear`.
+- **Logs start empty in memory** (wear, status history, prices); everything is lost on restart. Not taken: a demo
+  seed; persistence (needs an ADR — after the holiday). Undo: seed or an ADR.
+- **Starting tables are the tasks' values**, to be tuned by Aika: occasion ranges (OFFICE SMART_CASUAL–BUSINESS,
+  WEEKEND CASUAL–SMART_CASUAL, EVENING SMART_CASUAL–FORMAL, SPORT SPORT–CASUAL; four occasions), weather bands
+  (≤0, 1–10, 11–18, 19–25, ≥26 °C), at most 2 accent colours and 3 accessories, ranking points, trip counts and
+  temperature bands, colour families, «стоит ли покупать» thresholds. Undo: the constants named in each task.
+- **Patterned accessory**: `PatternRule` stays as is (two patterned items never pair, accessories included). Not
+  taken: an accessory exemption. Undo: a new outfit rule (later).
+- **Fabric weight** is used only against the weather, not as a pair rule. Undo: add a pair rule.
+- **A dress** sits under «Верх» in the builder's tabs. Not taken: a sixth tab «Платья» (changes the look). Undo:
+  `client` tab table (WR-104).
+- **Archive instead of delete** (WR-108, WR-118). Not taken: a real delete. Undo: add a delete endpoint.
+- **«Похожие уже есть»** on adding an item reuses the similar-items rule of «стоит ли покупать» (WR-068, WR-157):
+  one rule, a warning, never a refusal.
+- **A confirmed item may not keep an UNKNOWN colour, pattern or fabric** (as WR-015 recommends). Undo: allow it in
+  `ConfirmCard`.
+- **Item ids are readable slugs** from the name (WR-096). Not taken: random ids. Costly to change once real items
+  exist — revisit before that.
+- **Weather on the phone** is picked by the person from presets on `WeatherStrip`. Not taken: a weather service
+  (may need an account — after the holiday). Undo: replace the presets with a call.
+- **`TextField` added to the component set** (DESIGN.md and the component sheet), so the add-item screen and naming
+  a collection can be built (WR-151…). Not taken: chips only. Undo: drop the component and those tasks.
+- **The central «+»** opens the outfit builder until the add-item screen lands. **«Хочу»** opens «Нужно ли?».
+  **«Сохранить»** in the builder logs the outfit as worn today. **The builder's tool row** is left out. **No name**
+  in the greeting. The doll gets **CategoryTabs** to choose what to try on (WR-156).
+
+### After the holiday (not in the queue: needs money, keys, accounts or Aika herself)
+- A weather service; a photo try-on avatar (paid model or GPU); adopting a background-removal option (after the
+  WR-034 report); persistence (ADR); the shared backlog library for the three projects.
+
 ## Backlog run (December 2026)
 
 <!-- Agents: one bullet per decision taken without Aika — task id, question, choice, options not taken and why. -->

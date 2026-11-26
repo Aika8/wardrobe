@@ -13,7 +13,7 @@ Commands
   paused                       exit 0 when docs/backlog/PAUSE exists (agents stop), 1 otherwise
   check-paths --branch B (--base REF | --files FILE)
                                exit 0 when the PR's changed files are allowed for its branch, 1 with reasons
-  intake [--date YYYY-MM-DD]   move at most 5 small, checkable proposals of that day into QUEUE.md
+  intake [--date YYYY-MM-DD]   move every small, checkable proposal of that day into QUEUE.md (no daily cap)
   automerge [--dry-run]        merge every open agent PR that passed all gates (GitHub Actions only)
   plan                         the executor's move for this run: PAUSED | PARK | FIX | REBASE | CI-RED |
                                WIP-LIMIT | NOTHING | NEW <task>
@@ -40,7 +40,6 @@ PROPOSALS_DIR = Path("docs/backlog/proposals")
 INTAKE_LOG = Path("docs/backlog/intake-log.md")
 DEFAULT_REPO = "Aika8/wardrobe"
 MAX_DESCRIPTION_CHARS = 6000  # ≈ 1500 tokens
-MAX_INTAKE_PER_DAY = 5
 MAX_OPEN_AGENT_PRS = 3
 
 # Nobody but Aika changes these (an agent PR touching one is not merged, whatever its task says).
@@ -536,8 +535,6 @@ def intake(day: str, root: Path = ROOT) -> tuple[list[str], list[str]]:
             if src in taken_sources:
                 continue
             probs = proposal_problems(p, tasks)
-            if not probs and already_today + len(accepted) >= MAX_INTAKE_PER_DAY:
-                probs = [f"daily cap of {MAX_INTAKE_PER_DAY} reached"]
             if probs:
                 rejected.append(f"{src} «{p.title}»: {'; '.join(probs)}")
                 continue
@@ -555,8 +552,8 @@ def intake(day: str, root: Path = ROOT) -> tuple[list[str], list[str]]:
     if new_text:
         body = queue_file.read_text(encoding="utf-8").rstrip("\n") + "\n"
         if "## Added by intake" not in body:
-            body += "\n## Added by intake\n\nAppended by `scripts/backlog/backlog.py intake`, at most "\
-                    f"{MAX_INTAKE_PER_DAY} a day.\n"
+            body += "\n## Added by intake\n\nAppended by `scripts/backlog/backlog.py intake`: every proposal that "\
+                    "passes the filter (small, checked by a command, allowed paths).\n"
         queue_file.write_text(body + new_text, encoding="utf-8")
     if accepted or rejected:
         log = root / INTAKE_LOG

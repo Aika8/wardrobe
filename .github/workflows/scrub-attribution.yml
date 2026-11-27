@@ -8,6 +8,8 @@ on:
     types: [opened, edited, reopened]
   issue_comment:
     types: [created, edited]
+  issues:
+    types: [opened, edited]
 
 permissions:
   contents: read
@@ -16,7 +18,7 @@ permissions:
 
 jobs:
   scrub:
-    if: contains(github.event.pull_request.body, 'Claude Code') || contains(github.event.comment.body, 'Claude Code')
+    if: contains(github.event.pull_request.body, 'Claude Code') || contains(github.event.comment.body, 'Claude Code') || contains(github.event.issue.body, 'Claude Code')
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:

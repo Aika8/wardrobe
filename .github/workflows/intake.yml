@@ -1,9 +1,13 @@
-# Intake for the cloud backlog run (docs/backlog/README.md): once a day, code — not an agent — moves every
-# small, checkable proposal of the day from docs/backlog/proposals/ into docs/backlog/QUEUE.md. Everything else
-# waits for Aika (docs/backlog/intake-log.md says why). Rules: scripts/backlog/backlog.py, `intake`.
+# Intake for the cloud backlog run (docs/backlog/README.md): code — not an agent — moves small, checkable items into
+# docs/backlog/QUEUE.md: the day's proposals (docs/backlog/proposals/), tech-debt notes (docs/backlog/tech-debt/) and
+# open `tech-debt` issues, all in the proposal format; `kind: bug` is picked first. No daily cap. What is not a small
+# checkable task is logged in docs/backlog/intake-log.md. Also run inside every automerge sweep, when a tech-debt
+# issue is opened or edited, and by cron as a fallback. Rules: scripts/backlog/backlog.py, `intake`.
 name: intake
 
 on:
+  issues:
+    types: [opened, edited, labeled]
   schedule:
     - cron: '55 21 * * *'   # 21:55 UTC = 02:55 Almaty, after the analyst and user runs of the day
   workflow_dispatch:
@@ -14,14 +18,16 @@ on:
 
 permissions:
   contents: write
-
-concurrency:
-  group: intake
-  cancel-in-progress: false
+  issues: write
 
 jobs:
   intake:
+    if: github.event_name != 'issues' || contains(github.event.issue.labels.*.name, 'tech-debt')
     runs-on: ubuntu-latest
+    # Job-level, so an unrelated issue event (skipped by the `if`) never replaces a pending run that matters.
+    concurrency:
+      group: intake
+      cancel-in-progress: false
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@v4
@@ -35,10 +41,12 @@ jobs:
         if: steps.pause.outputs.paused != 'true'
         env:
           DAY: ${{ inputs.date }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           # Yesterday too: a proposals PR merged after this time yesterday is not lost.
           if [ -n "$DAY" ]; then days="$DAY"; else days="$(date -u -d yesterday +%F) $(date -u +%F)"; fi
-          for d in $days; do python3 scripts/backlog/backlog.py intake --date "$d"; done
+          : > /tmp/accepted.txt
+          for d in $days; do python3 scripts/backlog/backlog.py intake --date "$d" --issues --accepted-out /tmp/accepted.txt; done
           python3 scripts/backlog/backlog.py lint
       - name: Commit to main
         if: steps.pause.outputs.paused != 'true'
@@ -49,7 +57,12 @@ jobs:
           if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
           git commit -m "backlog: intake of proposals ($(date -u +%F))"
           for i in 1 2 3; do   # automerge may have moved main since the checkout
-            git push origin HEAD:main && exit 0
+            if git push origin HEAD:main; then pushed=1; break; fi
             git pull --rebase origin main || exit 1
           done
-          exit 1
+          [ "${pushed:-}" = 1 ] || exit 1
+      - name: Close the tech-debt issues that became tasks
+        if: steps.pause.outputs.paused != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/backlog/backlog.py close-issues

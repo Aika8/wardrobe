@@ -6,8 +6,11 @@ on a branch `claude/proposals-<role>-<YYYY-MM-DD>`, and opens a PR. Automerge me
 adds only that one file. (One file per run instead of one shared file: two runs a day appending to the same file
 would conflict.)
 
-After every merge sweep and once a day, code (`scripts/backlog/backlog.py intake`) moves **every** proposal of that
-day into `QUEUE.md`, as tasks `AUTO-<YYYYMMDD>-<n>`. A proposal is taken only if all of these hold:
+Code (`scripts/backlog/backlog.py intake`) moves **every** item that passes the filter into `QUEUE.md`, as tasks
+`AUTO-<YYYYMMDD>-<n>`, from three sources in this one format: the day's proposals, every tech-debt note in
+`docs/backlog/tech-debt/` and every open GitHub issue labelled `tech-debt` (by the owner or a collaborator). It runs
+inside every automerge sweep, when a tech-debt issue is opened or edited, and by cron as a fallback. `kind: bug`
+makes the task `priority: bug`: it is picked before any other ready task. An item is taken only if all of these hold:
 
 - `size: S` — one run can do it (≤ ~60 minutes, one PR, a few files);
 - `paths`: narrow globs in backticks, none protected (CI, Makefile, CLAUDE.md, backlog rules) and none visual

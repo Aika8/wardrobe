@@ -75,7 +75,9 @@ jobs:
           for d in "$(date -u -d yesterday +%F)" "$(date -u +%F)"; do python3 scripts/backlog/backlog.py intake --date "$d" --issues; done
           python3 scripts/backlog/backlog.py lint
           git add docs/backlog/QUEUE.md docs/backlog/intake-log.md 2>/dev/null || true
-          if git diff --cached --quiet; then echo "nothing to take in"; exit 0; fi
+          if git diff --cached --quiet; then
+            echo "nothing to take in"; python3 scripts/backlog/backlog.py close-issues || true; exit 0
+          fi
           git -c user.name="backlog-intake" -c user.email="backlog-intake@users.noreply.github.com" \
             commit -q -m "backlog: intake of proposals ($(date -u +%F))"
           for i in 1 2 3; do

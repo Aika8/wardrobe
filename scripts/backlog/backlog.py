@@ -596,7 +596,7 @@ def intake(day: str, root: Path = ROOT, issues: list[dict] | None = None) -> tup
         log = root / INTAKE_LOG
         prev = log.read_text(encoding="utf-8") if log.exists() else "# Intake log\n"
         lines = [f"- accepted: {a}\n" for a in accepted] + \
-                [f"- left out (the summary re-proposes it; was «left for Aika»): {r}\n" for r in rejected]
+                [f"- not taken (not a small checkable task; the summary re-proposes it): {r}\n" for r in rejected]
         new_lines = [l for l in lines if l not in prev]
         if new_lines:
             head = f"\n## {day}\n" if f"\n## {day}\n" not in prev else ""

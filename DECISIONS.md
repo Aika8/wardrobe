@@ -268,3 +268,13 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   `paper`, 16 px margins). Opening is plain state in `App.tsx` (`openId`), no navigation library. Undo: `App.tsx`.
 - **WR-024, screenshot of the details**: `npm run screenshot` only shows the list and cannot tap, so the PNG was
   taken with a throwaway copy of the script that taps the last row of the list first (not committed). Undo: nothing.
+- **WR-025, the status buttons**: one quiet `Button` per status in the item's `next`, in the server's order, under a
+  `SectionTitle` «Где она сейчас» (the mockup's words); the move words («Чистое», «В стирку», «В ремонт», «В поездку»)
+  are `MOVE_LABEL` in `client/src/items.ts` until WR-134 moves them into `StatusSwitch`. While a change is on its way
+  the buttons do nothing; a refused change shows the server's `message` as is (English, the contract's plain text),
+  in `terracotta` under the buttons, and is cleared on the next move or on leaving the screen. Not taken: translating
+  server messages (would re-implement the rule's wording on the client). Undo: `ItemDetails.tsx`, `App.tsx`.
+- **WR-025, `next` missing**: an item without `next` (an older server) gets `next: []` and no buttons; a `next` that is
+  not a list of known statuses is refused like any other broken field. Undo: `parseItem` in `client/src/items.ts`.
+- **WR-025, screenshot**: as WR-024, a throwaway copy of the screenshot script that taps the first item «в стирке»
+  (not committed); the server was started first with `make dev PORT=8091`. Undo: nothing.

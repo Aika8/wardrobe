@@ -312,6 +312,22 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   screen task. `DOLL_LANDMARKS` and `DOLL_BOX` are exported for it. Undo: `client/src/ui/PaperDoll.tsx`.
 - **WR-033, ItemThumb status**: the corner status uses the existing `StatusDot` without its word (no new look of the
   dot). Undo: `client/src/ui/ItemThumb.tsx`.
+- **WR-027, what the doll wears**: version 1 draws on the doll only a TOP (as the template's shirt) and a BOTTOM (as
+  its trousers); DRESS, OUTERWEAR, SHOES and ACCESSORY are listed under «Как сидит» with their fit notes and «на кукле
+  не нарисовано». The template's own shirt and trousers keep their cut: their hem and sleeve do not move to the
+  server's `shape` yet; the shape places only the fit markers. Not taken: stretching the template garments to the shape
+  (more geometry in the client, worth a task of its own). Undo: `drawnAs` in `client/src/avatar/fit.ts`.
+- **WR-027, fitting the template**: the template says `head_top`/`chin` where the figure says `head`/`neck`; they are
+  paired. Widths: the template's half-widths at its shoulder, chest, waist and hip lines are read off its own body
+  outline (not typed); above the chin the width stays as drawn, below the hips it follows the hips. Every figure is
+  drawn at the same height (head and floor where the template has them). Undo: `bands` in `client/src/avatar/fit.ts`.
+- **WR-027, fit markers**: sleeve note at the sleeve end, left, at the garment's top half-width; length note at the
+  hem, right, at its bottom half-width; girth note at the body's side on that line, right. One number per layer (its
+  row in «Как сидит»); a layer without notes has no marker and a sage number. Undo: `markerAt` in `fit.ts`.
+- **WR-027, outfit and figure**: route `me` (param: item ids, comma-separated) dresses the one invented figure of the
+  mockup (168 cm; shoulders 38 cm added, the mockup has none) in the named items, else in the first top and bottom of
+  the wardrobe, clean ones first. No sizes are sent (version 1 keeps none), so the notes say «замечаний нет (размер не
+  указан)». Undo: `client/src/avatar/outfit.ts`.
 - **WR-030, `POST /outfits/check`** (`wardrobe.app.web.OutfitCheckController`). `ok` is "`OutfitCheck` found no
   problem"; `why` is `Explain`'s five lines as they are (`rule`, `goes`, `code`, `items` as ids, `reason`). A problem
   is `{code, message, items}`: `code` is the kind (`NOT_CLEAN`, `TWO_OF_A_KIND`, `DRESS_WITH_SEPARATES`, `CLASH`),

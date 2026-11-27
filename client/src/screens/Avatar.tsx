@@ -28,10 +28,19 @@ export function Avatar({ route, back }: ScreenProps) {
   useEffect(() => {
     setState(null);
     setError(null);
+    // An answer for an earlier param that arrives after the param changed is dropped (AUTO-20261126-4).
+    let live = true;
     loadItems()
       .then(async (items) => ({ items, answer: await dress(API_URL, outfitRequest(items, route.param)) }))
-      .then(setState)
-      .catch((e: unknown) => setError(messageOf(e)));
+      .then((s) => {
+        if (live) setState(s);
+      })
+      .catch((e: unknown) => {
+        if (live) setError(messageOf(e));
+      });
+    return () => {
+      live = false;
+    };
   }, [route.param]);
 
   const colours = useMemo(

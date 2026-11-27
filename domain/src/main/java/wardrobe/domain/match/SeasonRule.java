@@ -16,9 +16,9 @@ public final class SeasonRule implements CombinationRule {
         EnumSet<Season> shared = EnumSet.copyOf(a.seasons());
         shared.retainAll(b.seasons());
         if (!shared.isEmpty()) {
-            return Verdict.yes("both are worn in " + shared.iterator().next());
+            return Verdict.yes(ReasonCode.SHARED_SEASON, "both are worn in " + shared.iterator().next());
         }
-        return Verdict.no("seasons " + inOrder(a.seasons()) + " and " + inOrder(b.seasons()) + " do not overlap");
+        return Verdict.no(ReasonCode.NO_SHARED_SEASON, "seasons " + inOrder(a.seasons()) + " and " + inOrder(b.seasons()) + " do not overlap");
     }
 
     private static String inOrder(Set<Season> seasons) {

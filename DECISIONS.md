@@ -291,6 +291,16 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
 - **WR-126, hash sync**: a screen is remounted only when the route's name changes (`key={route.name}`), so a chip tap
   does not reload the list; a `hashchange` whose route equals the current one is ignored (our own hash writes).
   Undo: `App.tsx`.
+- **WR-029, how a rule's code reaches `Explain`**: `Verdict` got a third component `code` (`ReasonCode`, in
+  `wardrobe.domain.match`); each standard rule sets it where it already decides, so nothing is decided twice. The old
+  `Verdict.yes(String)` / `no(String)` and the two-argument constructor stay and give `UNCODED` (lambdas, the
+  composite). Not taken: a `code(a, b)` method per rule (a second computation). Undo: drop the component.
+- **WR-029, codes the task did not list**: `SAME_ITEM` (colour and pattern let an item go with itself), `NO_PAIRS`
+  (an outfit of 0 or 1 items: every rule line is ✓ with it), `UNCODED` (see above). Undo: rename in `ReasonCode`.
+- **WR-029, a ✓ line** is about every item of the outfit; its code is the first pair's code (input order) and its
+  reason the pairs' distinct reasons joined with "; ". A ✗ line names the first failing pair. The CLEAN ✗ line names
+  every item `OutfitCheck` reports as `NotClean`, reasons joined with "; ". Not taken: a ✓ line naming only the first
+  pair (the line would claim to be about two items while vouching for all). Undo: `Explain.ruleLine`/`cleanLine`.
 - **WR-033, unknown item type**: an item whose `type` the contract does not know gets no garment drawing — its
   `ItemThumb` card stays empty with the item's name as accessibility label (`garmentKind` returns null; nothing is
   guessed). Options not taken: a default drawing (a guess), an error. Undo: `client/src/ui/garments.ts`.

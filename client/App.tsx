@@ -1,11 +1,12 @@
 // The item list screen (draft — вид проверяет Aika). Logic lives in src/items.ts and src/filter.ts.
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { API_URL } from './src/config.ts';
 import { filterByStatus, filterChips, type StatusFilter } from './src/filter.ts';
 import { type Item, parseItems, sortForList, STATUS_LABEL } from './src/items.ts';
 import { Chip } from './src/ui/Chip.tsx';
+import { Screen } from './src/ui/Screen.tsx';
 import { tokens } from './src/ui/tokens.ts';
 
 export default function App() {
@@ -24,7 +25,7 @@ export default function App() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <Screen>
       <Text style={styles.title}>Гардероб</Text>
       {error && <Text style={styles.error}>Не удалось загрузить вещи: {error}</Text>}
       {!error && !items && <ActivityIndicator />}
@@ -54,12 +55,11 @@ export default function App() {
         />
       )}
       <StatusBar style="auto" />
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: 16 },
   title: { fontSize: 24, fontWeight: '600', marginBottom: 12 },
   error: { color: '#b00020' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.space.sm, marginBottom: tokens.space.md },

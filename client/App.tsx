@@ -3,9 +3,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { changeStatus } from './src/api.ts';
 import { API_URL } from './src/config.ts';
 import { filterByStatus, filterChips, type StatusFilter } from './src/filter.ts';
-import { type Item, parseItems, sortForList, STATUS_LABEL } from './src/items.ts';
+import { type Item, type ItemStatus, parseItems, sortForList, STATUS_LABEL } from './src/items.ts';
 import { ItemDetails } from './src/screens/ItemDetails.tsx';
 import { Chip } from './src/ui/Chip.tsx';
 import { pressProps } from './src/ui/press.ts';
@@ -17,6 +18,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<StatusFilter>('ALL');
   const [openId, setOpenId] = useState<string | null>(null);
+  const [moving, setMoving] = useState(false);
+  const [moveError, setMoveError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${API_URL}/items`)
@@ -28,11 +31,31 @@ export default function App() {
       .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)));
   }, []);
 
+  const show = (id: string | null) => {
+    setOpenId(id);
+    setMoveError(null);
+  };
+
+  const move = (id: string, status: ItemStatus) => {
+    setMoving(true);
+    setMoveError(null);
+    changeStatus(API_URL, id, status)
+      .then((updated) => setItems((all) => all && sortForList(all.map((i) => (i.id === updated.id ? updated : i)))))
+      .catch((e: unknown) => setMoveError(e instanceof Error ? e.message : String(e)))
+      .finally(() => setMoving(false));
+  };
+
   const open = items?.find((i) => i.id === openId);
   if (open) {
     return (
       <Screen>
-        <ItemDetails item={open} onBack={() => setOpenId(null)} />
+        <ItemDetails
+          item={open}
+          onBack={() => show(null)}
+          onMove={(status) => move(open.id, status)}
+          busy={moving}
+          error={moveError}
+        />
         <StatusBar style="auto" />
       </Screen>
     );
@@ -61,7 +84,7 @@ export default function App() {
           data={filterByStatus(items, filter)}
           keyExtractor={(i) => i.id}
           renderItem={({ item }) => (
-            <View style={styles.row} {...pressProps(() => setOpenId(item.id), item.name)}>
+            <View style={styles.row} {...pressProps(() => show(item.id), item.name)}>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={item.status === 'CLEAN' ? styles.clean : styles.away}>{STATUS_LABEL[item.status]}</Text>
             </View>

@@ -201,3 +201,13 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   DRESS share one layer (an outfit never has both). Not taken: `Layers.order(Outfit, CombinationRule)` (the task
   names one argument, and a clash is drawn anyway); refusing an empty outfit (the avatar can stand undressed).
   Undo: `Layers.java`.
+- **WR-020, where a garment's edges fall** (`wardrobe.domain.avatar.Placement`). Questions the task left open:
+  ACCESSORY has no placement (throws; it is not drawn on a body line). SHOES go from the ankle to the floor and
+  ignore `length` (a shoe's chart length is the foot), as wide as the figure's hips. Width at an edge comes from the
+  body part at that height (above the waist line chest, above the hip line waist, else hips); a hem below the hips
+  keeps the hip width (flat draft). `Figure` holds half-widths, not girths, so without a garment girth the width is
+  body half-width + `Figure.halfWidthOfGirth(min ease)` — at most 1 mm off reading the eased girth (tested). Sleeve
+  end is shoulders + the size's sleeve, clamped to the floor (sets `clamped`); without a sleeve it stays unknown
+  (`OptionalInt.empty()`), because the figure has no arm length and invariant 5 forbids guessing. Mid-thigh is
+  `(crotch + knee) / 2`. Not taken: a sleeve default from the arm (would need `Measurements`, not in the task's
+  signature); adding girths to `Figure` (changes WR-017's record). Undo: `Placement.java`.

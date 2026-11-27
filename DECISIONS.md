@@ -291,3 +291,14 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
 - **WR-126, hash sync**: a screen is remounted only when the route's name changes (`key={route.name}`), so a chip tap
   does not reload the list; a `hashchange` whose route equals the current one is ignored (our own hash writes).
   Undo: `App.tsx`.
+- **WR-033, unknown item type**: an item whose `type` the contract does not know gets no garment drawing — its
+  `ItemThumb` card stays empty with the item's name as accessibility label (`garmentKind` returns null; nothing is
+  guessed). Options not taken: a default drawing (a guess), an error. Undo: `client/src/ui/garments.ts`.
+- **WR-033, colour values**: `ClothingDrawing` and `PaperDoll` take the item's `Colour` from the API and fill from the
+  `item` tokens; a value the tokens do not know draws as `UNKNOWN`. Only a `#RRGGBB` fill is ever put into the markup.
+  Undo: `itemFill` in `client/src/ui/garments.ts`.
+- **WR-033, PaperDoll scope**: draws the bare doll or the doll in shirt + trousers fills, exactly what
+  `garments.py --json` exports; placing garments by the server's landmarks (`POST /avatar/dress`) is left to the avatar
+  screen task. `DOLL_LANDMARKS` and `DOLL_BOX` are exported for it. Undo: `client/src/ui/PaperDoll.tsx`.
+- **WR-033, ItemThumb status**: the corner status uses the existing `StatusDot` without its word (no new look of the
+  dot). Undo: `client/src/ui/ItemThumb.tsx`.

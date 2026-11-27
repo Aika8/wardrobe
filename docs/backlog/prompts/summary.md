@@ -30,7 +30,7 @@ how many tasks are left `todo` and ready; CI failures on `main`, if any
 (`gh api "repos/Aika8/wardrobe/actions/runs?branch=main&per_page=20"`).
 
 Nothing waits for Aika («меня ничего не должно ждать»). For every open question — a parked PR or issue (any
-day, not only yesterday), a `blocked-paths` PR, a tech-debt note that asks something, a question in a PR comment, a
+day, not only yesterday), a `blocked-paths` PR, a tech-debt note that asks something, a question in a PR comment, an
 item intake did not take (`docs/backlog/intake-log.md`, «not taken»: a proposal, a tech-debt note or a
 `tech-debt` issue — re-propose it in the accepted format) —
 decide: the recommendation,

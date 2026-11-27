@@ -320,6 +320,43 @@ class NotesMayQuoteSkipMarkersTest(unittest.TestCase):
         self.assertTrue(any("skips or disables" in x for x in bad))
 
 
+class BinaryAndSummaryTest(unittest.TestCase):
+    """Decisions of 27 November: check-paths does not read binary files; a summary may add its proposals."""
+
+    def test_binary_file_has_no_text(self):
+        self.assertEqual(b.added_text(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\xff\xfe"), "")
+        self.assertEqual(b.added_text("@Disabled\nvoid t() {}".encode()), "@Disabled\nvoid t() {}")
+
+    def test_git_mode_survives_an_added_png(self):
+        import subprocess
+        root = Path(tempfile.mkdtemp())
+        try:
+            run = lambda *a: subprocess.run(["git", "-C", str(root), *a], check=True, capture_output=True)
+            run("init", "-q", "-b", "main")
+            run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "base")
+            run("checkout", "-q", "-b", "claude/wr-001")
+            (root / "shot.png").write_bytes(b"\x89PNG\r\n\x1a\n\x00\xff\xfe\x00")
+            (root / "T.java").write_text("@Disabled class T {}")
+            run("add", "-A")
+            run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "add")
+            ch = {c.path: c for c in b.changes_from_git("main", root)}
+            self.assertEqual(ch["shot.png"].added_text, "")
+            self.assertIn("@Disabled", ch["T.java"].added_text)
+        finally:
+            shutil.rmtree(root)
+
+    def test_summary_may_add_its_proposals_only(self):
+        tasks = b.parse_tasks(QUEUE)
+        ok = b.check_paths("claude/summary-2026-12-03", [
+            b.Change("added", "docs/backlog/summaries/2026-12-03.md"),
+            b.Change("added", "docs/backlog/proposals/2026-12-03-summary.md")], tasks)
+        self.assertEqual(ok, [])
+        self.assertTrue(b.check_paths("claude/summary-2026-12-03", [
+            b.Change("added", "docs/backlog/proposals/2026-12-03-analyst.md")], tasks))
+        self.assertTrue(b.check_paths("claude/summary-2026-12-03", [
+            b.Change("modified", "docs/backlog/proposals/2026-12-03-summary.md")], tasks))
+
+
 class WardrobeGateTest(unittest.TestCase):
     """Holes found by the independent review of the wardrobe skeleton (2026-11-25)."""
 

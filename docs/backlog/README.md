@@ -85,7 +85,7 @@ hour costs little.
 Labels: `agent`, `review:pass`, `needs-fix`, `needs-rebase`, `parked` (waits for Aika), `blocked-paths` (touched
 a forbidden path; waits for Aika), `hold` (Aika's: do not touch). GitHub creates a label the first time it is used.
 
-## Rule for every run: do not wait for Aika
+## Rule for every run: nothing waits for Aika
 
 Aika is away and answers nothing. When a run meets a question the task and the files do not answer:
 
@@ -100,7 +100,13 @@ Aika is away and answers nothing. When a run meets a question the task and the f
    costly-to-reverse decisions get an ADR first); deleting or renaming public things; an approved design; a model
    call or anything that would need a key. Then do not do it: comment the question with 2–3 options and a recommendation on
    the PR (or open an issue titled `[parked] <task id>: <question>` with the label `parked` when there is no PR),
-   and stop. The next run takes the next task.
+   and stop. The next run takes the next task. A parked question does not wait either: the next analyst or summary
+   run decides it (step 4).
+4. **Decide, do not wait** (Aika, 26 November: «меня ничего не должно ждать»). The analyst, user and summary runs
+   decide every open question — a parked PR, a tech-debt note, a contradiction — by its recommendation, or without
+   one by the option easiest to undo, and turn the decision into a proposal (`docs/backlog/PROPOSALS.md`); intake
+   makes it a task, and that task writes the `DECISIONS.md` bullet. The summary lists these under «Решено без тебя —
+   посмотри после отпуска». Only what needs money, keys, sign-ups or external accounts is left for after the holiday.
 
 Never: ask in the chat and wait (nobody answers), weaken or delete a test to get green, touch a protected path,
 spend money, sign up anywhere, use a real brand or real credentials, commit a photo or personal data.

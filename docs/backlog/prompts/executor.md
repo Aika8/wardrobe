@@ -115,6 +115,16 @@ after green CI and the independent review.
    (`scrub-attribution.yml`) removes it. Do not try to remove it yourself and do not report it.
    Then stop. You never merge, approve or label `review:pass` — the reviewer and the merge workflow do that.
 
+## 1a. Context is a budget too — the size guard
+
+A task big enough that your context is compacted or summarised mid-run **because the task itself is large** —
+many files, a long chain of edits — is past the size one run should carry: code written across such a compaction
+loses the thread and is unreliable, hard to fix or extend later. (Compaction caused only by verbose command output
+— long test logs, a big diff dump — is not that signal; keep going.) Judge the size up front, and watch for it as
+you work. When the task truly cannot be done and checked within one clean context, do not push it as done: park it
+(section 4), say it needs splitting, and record the smaller pieces the way you record an out-of-scope finding (a
+tech-debt file the intake turns into tasks). Two clean PRs beat one that spans a compaction.
+
 ## 2. FIX or CI-RED: one fix round on an open PR
 
 Stop rule first: if CI or a check fails **a second time with the same error**, or the failure has nothing to do with

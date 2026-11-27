@@ -232,3 +232,9 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   `TOP`/`BOTTOM` → «верх»/«низ»; `UNKNOWN` → «цвет не указан», «узор не указан», «ткань не указана» (says the
   field is unknown, guesses nothing). A value without a word is shown as the API sent it (`label()`). Undo: edit
   the tables in `client/src/labels.ts`.
+- **WR-023, chip words and the «Все» count**: the status chips read «Чистое», «В стирке», «В ремонте», «В поездке» —
+  `STATUS_LABEL` with a capital first letter (`filterChips` in `client/src/filter.ts`), so the words live in one
+  place; «Все» carries the total count, as in the mockup's «Где вещи сейчас». The chips wrap onto a second line
+  (`flexWrap`, like the mockup's `.chips`) rather than scroll sideways. Not taken: a second table of capitalised words
+  (two places for one word); «Все» without a count (the task's line omits it, the mockup has it). Undo:
+  `filterChips` and the `chips` style in `client/App.tsx`.

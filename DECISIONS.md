@@ -328,3 +328,9 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   mockup (168 cm; shoulders 38 cm added, the mockup has none) in the named items, else in the first top and bottom of
   the wardrobe, clean ones first. No sizes are sent (version 1 keeps none), so the notes say «замечаний нет (размер не
   указан)». Undo: `client/src/avatar/outfit.ts`.
+- **AUTO-20261126-4, stale loads on the item and avatar screens**: each load `useEffect` keeps `let live = true` and
+  its cleanup sets it false, so an answer (or failure) for an earlier `route.param` is dropped. No shared helper file:
+  the task's paths name only the two screens and the test, so the fix stays inline in each effect. The test
+  (`client/test/screens.test.mjs`) transpiles the real screen with TypeScript to CommonJS and runs its effect with a
+  tiny fake React and stubbed imports, instead of adding a renderer dependency (react-test-renderer, jsdom) or a
+  helper outside the paths. Undo: the `live` lines in `ItemScreen.tsx` and `Avatar.tsx`.

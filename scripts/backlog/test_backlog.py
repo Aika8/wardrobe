@@ -145,8 +145,15 @@ class DecideTest(unittest.TestCase):
                snap(2, "claude/summary-2026-12-03"), snap(4, "claude/wr-003", ["review:pass"])]
         move, detail = b.decide_reviewer(prs, self.tasks)
         self.assertEqual(move, "REVIEW")
-        self.assertTrue(detail.startswith("#3 claude/wr-002 WR-002 round=1"))
+        self.assertTrue(detail.startswith("#3 claude/wr-002 WR-002 dim=task round=1"))
         self.assertEqual(b.decide_reviewer([snap(1, "claude/wr-001", ["needs-fix"])], self.tasks)[0], "NOTHING")
+
+    def test_reviewer_routes_to_deep_after_task_stage(self):
+        move, detail = b.decide_reviewer([snap(5, "claude/wr-002", ["review:task"])], self.tasks)
+        self.assertEqual(move, "REVIEW")
+        self.assertIn(" dim=deep ", detail)
+        # both stages done (review:pass) -> left to automerge
+        self.assertEqual(b.decide_reviewer([snap(5, "claude/wr-002", ["review:pass"])], self.tasks)[0], "NOTHING")
 
 
 class PathsTest(unittest.TestCase):
@@ -566,10 +573,24 @@ class AutomergeTest(unittest.TestCase):
             ("GET", "repos/o/r/pulls/7/files"): self.files,
             ("GET", "repos/o/r/compare/main...abc1234"): {"behind_by": 0},
             ("GET", "repos/o/r/commits/abc1234/check-runs"): self.green(),
-            ("GET", "repos/o/r/issues/7/comments"): [{"body": "<!-- backlog-review round=1 verdict=pass sha=abc1234 -->"}],
+            ("GET", "repos/o/r/issues/7/comments"): [
+                {"body": "<!-- backlog-review dim=task round=1 verdict=pass sha=abc1234 -->"},
+                {"body": "<!-- backlog-review dim=deep round=1 verdict=pass sha=abc1234 -->"}],
         })
         self.assertTrue(merged)
         self.assertIn(("POST", "repos/o/r/actions/workflows/ci.yml/dispatches", {"ref": "main"}), calls)
+
+    def test_task_stage_alone_does_not_merge(self):
+        merged, calls = self.run_one({
+            ("GET", "repos/o/r/pulls/7/files"): self.files,
+            ("GET", "repos/o/r/compare/main...abc1234"): {"behind_by": 0},
+            ("GET", "repos/o/r/commits/abc1234/check-runs"): self.green(),
+            ("GET", "repos/o/r/issues/7/comments"): [
+                {"body": "<!-- backlog-review dim=task round=1 verdict=pass sha=abc1234 -->"}],
+        })
+        self.assertFalse(merged)
+        self.assertIn(("DELETE", "repos/o/r/issues/7/labels/review:pass", None), calls)
+        self.assertIn(("DELETE", "repos/o/r/issues/7/labels/review:task", None), calls)
 
     def test_label_without_matching_review_does_not_merge(self):
         merged, calls = self.run_one({

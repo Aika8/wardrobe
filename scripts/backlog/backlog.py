@@ -712,13 +712,13 @@ def add_label(repo: str, number: int, label: str):
     gh(f"repos/{repo}/issues/{number}/labels", method="POST", fields={"labels[]": label})
 
 
-REVIEW_RE = re.compile(r"<!-- backlog-review round=(\d+) verdict=(pass|fail) sha=([0-9a-f]{7,40}) -->")
+REVIEW_RE = re.compile(r"<!-- backlog-review (?:dim=(task|deep) )?round=(\d+) verdict=(pass|fail) sha=([0-9a-f]{7,40}) -->")
 
 
-def last_review(bodies: list[str]) -> tuple[str, str] | None:
-    """(verdict, sha) of the latest reviewer marker, or None."""
-    found = [m for b in bodies for m in REVIEW_RE.finditer(b)]
-    return (found[-1].group(2), found[-1].group(3)) if found else None
+def last_review(bodies: list[str], dim: str = "task") -> tuple[str, str] | None:
+    """(verdict, sha) of the latest reviewer marker of this dim, or None. A marker with no dim is 'task' (legacy)."""
+    found = [m for b in bodies for m in REVIEW_RE.finditer(b) if (m.group(1) or "task") == dim]
+    return (found[-1].group(3), found[-1].group(4)) if found else None
 
 
 def is_main_update(c: dict) -> bool:
@@ -728,10 +728,10 @@ def is_main_update(c: dict) -> bool:
             and c["commit"]["message"].startswith("Merge branch 'main' into"))
 
 
-def review_covers_head(repo: str, bodies: list[str], head: str, max_steps: int = 20) -> bool:
-    """The latest review passed, and from the head back to the reviewed commit (first parents) there are only
-    GitHub's own merges of main."""
-    r = last_review(bodies)
+def review_covers_head(repo: str, bodies: list[str], head: str, dim: str = "task", max_steps: int = 20) -> bool:
+    """The latest review of this dim passed, and from the head back to the reviewed commit (first parents) there
+    are only GitHub's own merges of main."""
+    r = last_review(bodies, dim)
     if not r or r[0] != "pass":
         return False
     sha = head
@@ -804,12 +804,14 @@ def automerge_one(repo: str, pr: dict, tasks: list[Task], dry_run: bool, say) ->
         say(f"CI {ci}"); return False
     if kind == "task":
         comments = gh(f"repos/{repo}/issues/{n}/comments?per_page=100", paginate=True) or []
+        bodies = [c.get("body", "") for c in comments]
         if "review:pass" not in labels:
             say("waits for the independent review"); return False
-        if not review_covers_head(repo, [c.get("body", "") for c in comments], sha):
-            say("the review does not cover this commit: asking for a new review")
+        if not (review_covers_head(repo, bodies, sha, "task") and review_covers_head(repo, bodies, sha, "deep")):
+            say("a review stage does not cover this commit: asking for a new review")
             if not dry_run:
-                gh(f"repos/{repo}/issues/{n}/labels/review:pass", method="DELETE")
+                for lab in ("review:pass", "review:task"):
+                    gh(f"repos/{repo}/issues/{n}/labels/{lab}", method="DELETE")
             return False
     say("all gates passed: merging")
     if dry_run:
@@ -897,8 +899,9 @@ def decide_reviewer(prs: list[dict], tasks: list[Task]) -> tuple[str, str]:
             continue
         if p["ci"] != "green":
             continue
-        return "REVIEW", (f"#{p['number']} {p['head']} {task.id} round={p['reviews'] + 1} fixes={p['fixes']} "
-                          f"sha={p['sha']}")
+        dim = "deep" if "review:task" in p["labels"] else "task"
+        return "REVIEW", (f"#{p['number']} {p['head']} {task.id} dim={dim} round={p['reviews'] + 1} "
+                          f"fixes={p['fixes']} sha={p['sha']}")
     return "NOTHING", "no green agent PR waits for a review"
 
 

@@ -13,12 +13,12 @@ public final class PatternRule implements CombinationRule {
     @Override
     public Verdict judge(Item a, Item b) {
         if (a.id().equals(b.id())) {
-            return Verdict.yes("an item goes with itself");
+            return Verdict.yes(ReasonCode.SAME_ITEM, "an item goes with itself");
         }
         if (a.pattern() == Pattern.PLAIN || b.pattern() == Pattern.PLAIN) {
-            return Verdict.yes("a plain item goes with any pattern");
+            return Verdict.yes(ReasonCode.ONE_PATTERN, "a plain item goes with any pattern");
         }
-        return Verdict.no("two patterns: " + describe(a) + " and " + describe(b));
+        return Verdict.no(ReasonCode.TWO_PATTERNS, "two patterns: " + describe(a) + " and " + describe(b));
     }
 
     private static String describe(Item item) {

@@ -6,7 +6,7 @@
 // Builds the web export into a temp folder (EXPO_PUBLIC_API_URL=http://localhost:<api port>, default 8091),
 // serves it on a free local port with Node's `http` module, starts this repo's server on the API port
 // (`make dev PORT=8091`) if nothing answers `GET /items` there and stops it at the end, opens the page at
-// 390 × 844 (device scale 2), waits for the item list and saves docs/backlog/reports/screens/<id>.png.
+// 390 × 844 (device scale 2), waits for the screen (`[data-testid="screen"]`) and saves docs/backlog/reports/screens/<id>.png.
 // Chrome comes from $CHROME_PATH (or a local Chrome); nothing is downloaded.
 //
 // CI does not run this script: there is no server and no browser there. CI only tests parseScreenshotArgs.
@@ -168,12 +168,12 @@ async function main() {
     browser = await chromium.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox'] });
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
     await page.goto(url);
-    // The list is there when a status label shows; the load error is a failure, not a screenshot.
+    // A screen is there when its root carries testID="screen" (react-native-web renders it as data-testid), which
+    // every screen sets once its data has loaded (WR-126); the load error is a failure, not a screenshot.
     const outcome = await page.waitForFunction(
       () => {
-        const text = document.body.innerText;
-        if (text.includes('Не удалось загрузить')) return 'error';
-        return ['чистое', 'в стирке', 'в ремонте', 'в поездке'].some((s) => text.includes(s)) ? 'list' : false;
+        if (document.body.innerText.includes('Не удалось загрузить')) return 'error';
+        return document.querySelector('[data-testid="screen"]') ? 'screen' : false;
       },
       null,
       { timeout: 30_000 },

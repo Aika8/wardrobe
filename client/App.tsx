@@ -1,107 +1,51 @@
-// The item list screen and, on a tap, the details of one item (draft — вид проверяет Aika).
-// Logic lives in src/items.ts, src/filter.ts and src/details.ts; no navigation library, just state here.
+// The app: a history of routes and the screen on top of it (WR-126; no navigation library, ADR-0002).
+// Screens are registered in src/screens/routes.tsx; the router's logic is src/nav.ts. On the web the route lives in
+// `location.hash`, so a link like '#/item/white-shirt' opens that screen and the browser's back button works.
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
-import { changeStatus } from './src/api.ts';
-import { API_URL } from './src/config.ts';
-import { filterByStatus, filterChips, type StatusFilter } from './src/filter.ts';
-import { type Item, type ItemStatus, parseItems, sortForList, STATUS_LABEL } from './src/items.ts';
-import { ItemDetails } from './src/screens/ItemDetails.tsx';
-import { Chip } from './src/ui/Chip.tsx';
-import { pressProps } from './src/ui/press.ts';
+import { useEffect, useMemo, useState } from 'react';
+import { back, current, type History, parseHash, push, reset, resolveRoute, type Route, sameRoute, toHash } from './src/nav.ts';
+import { DEFAULT_ROUTE, ROUTES } from './src/screens/routes.tsx';
 import { Screen } from './src/ui/Screen.tsx';
-import { tokens } from './src/ui/tokens.ts';
+
+const KNOWN = Object.keys(ROUTES);
+const web = typeof window !== 'undefined' && window.location ? window : null;
+const known = (r: Route | null): Route => resolveRoute(r, KNOWN, DEFAULT_ROUTE);
 
 export default function App() {
-  const [items, setItems] = useState<Item[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<StatusFilter>('ALL');
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [moving, setMoving] = useState(false);
-  const [moveError, setMoveError] = useState<string | null>(null);
+  const [history, setHistory] = useState<History>(() => [known(web ? parseHash(web.location.hash) : null)]);
+  const route = current(history);
 
+  // Every move writes the hash; the hashchange it causes finds the same route and does nothing.
   useEffect(() => {
-    fetch(`${API_URL}/items`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((body) => setItems(sortForList(parseItems(body))))
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)));
+    if (web && !sameRoute(parseHash(web.location.hash) ?? DEFAULT_ROUTE, route)) web.location.hash = toHash(route);
+  }, [route]);
+
+  // A hash changed from outside (browser back, a typed link): that route becomes the whole history.
+  useEffect(() => {
+    if (!web) return;
+    const onHash = () => {
+      const r = known(parseHash(web.location.hash));
+      setHistory((h) => (sameRoute(current(h), r) ? h : reset(h, r)));
+    };
+    web.addEventListener('hashchange', onHash);
+    return () => web.removeEventListener('hashchange', onHash);
   }, []);
 
-  const show = (id: string | null) => {
-    setOpenId(id);
-    setMoveError(null);
-  };
-
-  const move = (id: string, status: ItemStatus) => {
-    setMoving(true);
-    setMoveError(null);
-    changeStatus(API_URL, id, status)
-      .then((updated) => setItems((all) => all && sortForList(all.map((i) => (i.id === updated.id ? updated : i)))))
-      .catch((e: unknown) => setMoveError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setMoving(false));
-  };
-
-  const open = items?.find((i) => i.id === openId);
-  if (open) {
-    return (
-      <Screen>
-        <ItemDetails
-          item={open}
-          onBack={() => show(null)}
-          onMove={(status) => move(open.id, status)}
-          busy={moving}
-          error={moveError}
-        />
-        <StatusBar style="auto" />
-      </Screen>
-    );
-  }
+  const props = useMemo(
+    () => ({
+      route,
+      go: (r: Route) => setHistory((h) => push(h, r)),
+      back: () => setHistory((h) => back(h)),
+      reset: (r: Route) => setHistory((h) => reset(h, r)),
+    }),
+    [route],
+  );
+  const Shown = ROUTES[route.name] ?? ROUTES[DEFAULT_ROUTE.name]!;
 
   return (
     <Screen>
-      <Text style={styles.title}>Гардероб</Text>
-      {error && <Text style={styles.error}>Не удалось загрузить вещи: {error}</Text>}
-      {!error && !items && <ActivityIndicator />}
-      {items && (
-        <View style={styles.chips}>
-          {filterChips(items).map((c) => (
-            <Chip
-              key={c.key}
-              label={c.label}
-              count={c.count}
-              selected={c.key === filter}
-              onPress={() => setFilter(c.key)}
-            />
-          ))}
-        </View>
-      )}
-      {items && (
-        <FlatList
-          data={filterByStatus(items, filter)}
-          keyExtractor={(i) => i.id}
-          renderItem={({ item }) => (
-            <View style={styles.row} {...pressProps(() => show(item.id), item.name)}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={item.status === 'CLEAN' ? styles.clean : styles.away}>{STATUS_LABEL[item.status]}</Text>
-            </View>
-          )}
-        />
-      )}
+      <Shown key={route.name} {...props} />
       <StatusBar style="auto" />
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  title: { fontSize: 24, fontWeight: '600', marginBottom: 12 },
-  error: { color: '#b00020' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.space.sm, marginBottom: tokens.space.md },
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10 },
-  name: { fontSize: 16 },
-  clean: { fontSize: 14, color: '#2e7d32' },
-  away: { fontSize: 14, color: '#757575' },
-});

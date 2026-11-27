@@ -278,3 +278,16 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   not a list of known statuses is refused like any other broken field. Undo: `parseItem` in `client/src/items.ts`.
 - **WR-025, screenshot**: as WR-024, a throwaway copy of the screenshot script that taps the first item «в стирке»
   (not committed); the server was started first with `make dev PORT=8091`. Undo: nothing.
+- **WR-126, back mark**: the «‹» back mark of the mockups is a `Pressable` with a `Text` in `ink-soft`, size
+  `section`, calling `back()` — part of a screen header as drawn, not a new component. `ItemDetails` keeps its
+  «‹ Назад» quiet `Button` for now (changing its look was not part of WR-126). Undo: this bullet.
+- **WR-126, chip tap**: a status chip on the list is a `reset` to `list/<status>` (the list is the root of its place),
+  not a `push` — so back does not walk through filters. Option not taken: `push` (back would undo filters one by one).
+  An unknown filter param (`#/list/FOO`) shows «Все». Undo: `setFilter`/`filterOf` in `ItemList.tsx`.
+- **WR-126, item screen data**: there is no `GET /items/{id}`, so the `item` route loads `GET /items` and finds its id
+  (no contract change); an id not found shows «Такой вещи нет» with «‹ Назад». A status change updates only that
+  screen; the list loads again when it comes back. Options not taken: a new endpoint (contract change), a shared
+  item store in `App.tsx` (state the router was meant to remove). Undo: `ItemScreen.tsx`, `loadItems.ts`.
+- **WR-126, hash sync**: a screen is remounted only when the route's name changes (`key={route.name}`), so a chip tap
+  does not reload the list; a `hashchange` whose route equals the current one is ignored (our own hash writes).
+  Undo: `App.tsx`.

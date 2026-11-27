@@ -106,6 +106,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /avatar/dress:
+    post:
+      operationId: dressAvatar
+      summary: Dress the draft avatar of these measurements in these items
+      description: |
+        The figure's lines and, for every item, where it falls on the figure and how it fits, in drawing order
+        (bottom layer first). Layering, placement and fit are the server's (domain `Layers`, `Placement`, `Fit`); the
+        client draws the answer and never re-implements it. All numbers are integer millimetres; y grows down from the
+        top of the head, x half-widths are from the middle line. Version 1 keeps no sizes: each item's size travels in
+        the request. Items that are not clean, and pairs that clash, are still drawn; only an outfit that cannot be put
+        on a body (two of one kind, a dress with a top or a bottom) is refused with 409.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DressRequest'
+      responses:
+        '200':
+          description: The dressed figure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DressedAvatar'
+        '400':
+          description: The body is missing or not JSON, or a measurement or a size is absent, not an integer, or out of range; the message names the field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No item has one of the ids
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: The outfit cannot be put on a body; the message lists every problem
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Item:
@@ -167,10 +209,129 @@ components:
         doesNot:
           type: array
           items: { $ref: '#/components/schemas/Match' }
+    Measurements:
+      type: object
+      required: [height, shoulders, chest, waist, hips, arm, inseam]
+      description: |
+        A figure, integer mm. Shoulders is a width; chest, waist, hips are girths; arm is shoulder to wrist. Ranges
+        (inclusive): height 1300–2200, shoulders 300–600, chest 600–1600, waist 450–1500, hips 650–1700, arm 450–800,
+        inseam 600–1000.
+      properties:
+        height: { type: integer }
+        shoulders: { type: integer }
+        chest: { type: integer }
+        waist: { type: integer }
+        hips: { type: integer }
+        arm: { type: integer }
+        inseam: { type: integer }
+    GarmentSize:
+      type: object
+      description: A garment's size chart, integer mm, each field positive. An absent field is unknown and never guessed.
+      properties:
+        chest: { type: integer, minimum: 1 }
+        waist: { type: integer, minimum: 1 }
+        hips: { type: integer, minimum: 1 }
+        length: { type: integer, minimum: 1 }
+        sleeve: { type: integer, minimum: 1 }
+        inseam: { type: integer, minimum: 1 }
+    DressItem:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string, minLength: 1 }
+        size:
+          $ref: '#/components/schemas/GarmentSize'
+          description: Absent means every field unknown.
+    DressRequest:
+      type: object
+      required: [measurements, items]
+      properties:
+        measurements: { $ref: '#/components/schemas/Measurements' }
+        items:
+          type: array
+          description: The outfit in the order picked; may be empty (the avatar stands undressed).
+          items: { $ref: '#/components/schemas/DressItem' }
+    Figure:
+      type: object
+      additionalProperties: false
+      required: [landmarks, halfWidths]
+      properties:
+        landmarks:
+          type: object
+          additionalProperties: false
+          description: Heights of the body's lines, mm from the top of the head, top to bottom.
+          required: [head, neck, shoulders, chest, waist, hips, crotch, knee, ankle, floor]
+          properties:
+            head: { type: integer }
+            neck: { type: integer }
+            shoulders: { type: integer }
+            chest: { type: integer }
+            waist: { type: integer }
+            hips: { type: integer }
+            crotch: { type: integer }
+            knee: { type: integer }
+            ankle: { type: integer }
+            floor: { type: integer }
+        halfWidths:
+          type: object
+          additionalProperties: false
+          description: Half the front width of the body at its lines, mm from the middle line.
+          required: [shoulders, chest, waist, hips]
+          properties:
+            shoulders: { type: integer }
+            chest: { type: integer }
+            waist: { type: integer }
+            hips: { type: integer }
+    Shape:
+      type: object
+      additionalProperties: false
+      required: [top, bottom, topHalfWidth, bottomHalfWidth, clamped]
+      properties:
+        top: { type: integer }
+        bottom: { type: integer }
+        topHalfWidth: { type: integer }
+        bottomHalfWidth: { type: integer }
+        sleeveEnd:
+          type: integer
+          description: Where the sleeve ends; absent when the type has no sleeves or the size gives no sleeve.
+        clamped:
+          type: boolean
+          description: A hem or a sleeve end would fall below the floor and was put on the floor.
+    FitNote:
+      type: object
+      additionalProperties: false
+      required: [kind, part]
+      properties:
+        kind: { type: string, enum: [TOO_TIGHT, TOO_LOOSE, SLEEVE_SHORT, SLEEVE_LONG, LEG_SHORT, LEG_LONG] }
+        part: { type: string, enum: [CHEST, WAIST, HIPS, SLEEVE, INSEAM] }
+    Layer:
+      type: object
+      additionalProperties: false
+      required: [itemId, type, fit]
+      properties:
+        itemId: { type: string, minLength: 1 }
+        type: { type: string, enum: [TOP, BOTTOM, DRESS, OUTERWEAR, SHOES, ACCESSORY] }
+        shape:
+          $ref: '#/components/schemas/Shape'
+          description: Absent for an ACCESSORY, which has no place on the body's lines.
+        fit:
+          type: array
+          description: How the item does not fit, in part order; empty means it fits (or nothing was known to check).
+          items: { $ref: '#/components/schemas/FitNote' }
+    DressedAvatar:
+      type: object
+      additionalProperties: false
+      required: [figure, layers]
+      properties:
+        figure: { $ref: '#/components/schemas/Figure' }
+        layers:
+          type: array
+          description: One per item, bottom layer first (SHOES, BOTTOM, TOP or DRESS, OUTERWEAR, ACCESSORY; ties in request order).
+          items: { $ref: '#/components/schemas/Layer' }
     Error:
       type: object
       additionalProperties: false
       required: [code, message]
       properties:
-        code: { type: string, enum: [UNKNOWN_ITEM, ILLEGAL_STATUS_CHANGE, BAD_REQUEST] }
+        code: { type: string, enum: [UNKNOWN_ITEM, ILLEGAL_STATUS_CHANGE, IMPOSSIBLE_OUTFIT, BAD_REQUEST] }
         message: { type: string, minLength: 1, description: Plain English for a person; not for parsing. }

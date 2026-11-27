@@ -33,8 +33,9 @@ a small, checkable item into a proposal.
 1. **Contradictions between sentences that each read fine alone**: one rule turns X into Y, another forbids Y; a
    state with no rule; an invariant in an intent with no test (`grep` the tests for it).
 2. **Merged work that misses its own requirement**: the task's `expect` versus what the code does.
-3. **Decisions taken without Aika that look costly to undo**, parked PRs and issues (`label:parked`), tech-debt
-   notes (`docs/backlog/tech-debt/`) that ask a question — decide them (below), do not leave them open.
+3. **Decisions taken without Aika that look costly to undo** and tech-debt notes (`docs/backlog/tech-debt/`) that
+   ask a question — decide them (below), do not leave them open. (Parked PRs and issues are decided and un-parked
+   by the summary run.)
 4. **Missing checks** that a test, ArchUnit rule or script could make (CLAUDE.md: what a linter or test can
    check is checked there).
 
@@ -64,4 +65,4 @@ Use `gh api` only (`gh pr` does not work here). Stop.
 
 ## Final message
 
-Two lines: how many proposals, how many items for Aika, the PR number.
+Two lines: how many proposals, how many decisions taken without Aika, the PR number.

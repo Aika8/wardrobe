@@ -569,7 +569,7 @@ def intake(day: str, root: Path = ROOT) -> tuple[list[str], list[str]]:
         log = root / INTAKE_LOG
         prev = log.read_text(encoding="utf-8") if log.exists() else "# Intake log\n"
         entry = f"\n## {day}\n" + "".join(f"- accepted: {a}\n" for a in accepted) + \
-                "".join(f"- left for Aika: {r}\n" for r in rejected)
+                "".join(f"- left out (the summary re-proposes it; was «left for Aika»): {r}\n" for r in rejected)
         if f"\n## {day}\n" not in prev:
             log.write_text(prev.rstrip("\n") + "\n" + entry, encoding="utf-8")
     return accepted, rejected

@@ -56,7 +56,7 @@ of each scheduled task is one line — the file holds the rest, so changing a pr
 | Analyst | `prompts/analyst.md` | daily 16:40 | PR adding `proposals/<date>-analyst.md` |
 | User | `prompts/user.md` | daily 17:40 | PR adding `proposals/<date>-user.md` |
 | Intake | `.github/workflows/intake.yml` (code) | daily 21:55 | commit to `main`: QUEUE.md, intake-log.md |
-| Summary | `prompts/summary.md` | daily 01:35 | PR adding `summaries/<date>.md` |
+| Summary | `prompts/summary.md` | daily 01:35 | PR adding `summaries/<date>.md` (+ `proposals/<date>-summary.md`); un-parks what it decided |
 | Automerge | `.github/workflows/automerge.yml` (code) | after every CI run and every 3 hours at :43 | merges |
 
 Every two hours, not hourly: three projects (learning-exchange, signal-bot, wardrobe) share one subscription limit
@@ -82,7 +82,7 @@ hour costs little.
    `review:pass` plus a reviewer marker `verdict=pass sha=<that very head>` (only GitHub's own update-branch merges
    may follow the reviewed commit) → squash merge, then CI on `main`. A task is *done* when its PR is merged.
 
-Labels: `agent`, `review:pass`, `needs-fix`, `needs-rebase`, `parked` (waits for Aika), `blocked-paths` (touched
+Labels: `agent`, `review:pass`, `needs-fix`, `needs-rebase`, `parked` (the summary run decides and un-parks it), `blocked-paths` (touched
 a forbidden path; waits for Aika), `hold` (Aika's: do not touch). GitHub creates a label the first time it is used.
 
 ## Rule for every run: nothing waits for Aika

@@ -3420,6 +3420,7 @@ plain `Text`. Rebuild it from the components only: `ScreenTitle` («Мой шк�
 ограничений» — plural from WR-103 if merged, else a local helper in `itemListView.ts`), the chip row (WR-160),
 `PaperCard` rows with `ItemThumb` (WR-033), the name and a `StatusBadge`. No hex colour, no pixel number in
 `ItemList.tsx`: everything from `client/src/ui/tokens.ts`. Pure logic (row models, count line) in
-`client/src/screens/itemListView.ts`, tested. Keep the behaviour (load, error text, filter) unchanged — the
+`client/src/screens/itemListView.ts`, tested; the same test reads `client/src/screens/ItemList.tsx` as text and
+asserts it has no hex colour (`#[0-9a-fA-F]{3,8}`) and no bare pixel number in a style (`:\s*\d+[,}]`). Keep the behaviour (load, error text, filter) unchanged — the
 existing tests of `filter.ts` and `items.ts` stay green. Screenshot WR-161, compare with the wardrobe mockup, name it
 in the PR.

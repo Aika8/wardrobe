@@ -29,13 +29,22 @@ From these: tasks merged that day (PR title, number); PRs open and why they wait
 how many tasks are left `todo` and ready; CI failures on `main`, if any
 (`gh api "repos/Aika8/wardrobe/actions/runs?branch=main&per_page=20"`).
 
-Nothing waits for Aika («меня ничего не должно ждать»). For every open question of the day — a parked PR or issue,
-a `blocked-paths` PR, a tech-debt note that asks something, a question in a PR comment — decide: the recommendation,
+Nothing waits for Aika («меня ничего не должно ждать»). For every open question — a parked PR or issue (any
+day, not only yesterday), a `blocked-paths` PR, a tech-debt note that asks something, a question in a PR comment, a
+proposal intake left out (`docs/backlog/intake-log.md`, «left for Aika»: re-propose it in the accepted format) —
+decide: the recommendation,
 or without one the option easiest to undo. Write each decision as a proposal in
 `docs/backlog/proposals/$DAY-summary.md` (format `docs/backlog/PROPOSALS.md`: narrow `paths`, a `verify` command,
 `expect`; the description starts with `Decision (without Aika): <choice>; not taken: <options>; undo: <how>` and
 tells the executor to add that bullet to `DECISIONS.md`). Intake turns them into tasks. Only what needs money, keys,
 sign-ups or external accounts is not decided.
+
+Un-park what you decided, so the task moves again (a parked task otherwise stays parked forever):
+- a parked PR: comment `Decision (without Aika): …` on it (with `<!-- backlog-decision -->`), remove the label
+  `parked`, and close the PR (`gh api -X PATCH repos/Aika8/wardrobe/pulls/<n> -f state=closed`) — the task becomes
+  ready again and the next executor reads the decision there;
+- a `[parked] <id>` issue: comment the decision the same way and close the issue.
+Comment, label and close are the only GitHub writes you make besides your own PR.
 
 ## 2. Write `docs/backlog/summaries/$DAY.md`
 

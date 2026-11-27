@@ -11,9 +11,9 @@ public final class FormalityRule implements CombinationRule {
     public Verdict judge(Item a, Item b) {
         int steps = a.formality().stepsTo(b.formality());
         if (steps <= MAX_STEPS) {
-            return Verdict.yes("formality " + a.formality() + " and " + b.formality() + " are close enough");
+            return Verdict.yes(ReasonCode.CLOSE_ENOUGH, "formality " + a.formality() + " and " + b.formality() + " are close enough");
         }
-        return Verdict.no("formality " + a.formality() + " and " + b.formality() + " are " + steps
+        return Verdict.no(ReasonCode.STEPS_APART, "formality " + a.formality() + " and " + b.formality() + " are " + steps
                 + " steps apart (at most " + MAX_STEPS + ")");
     }
 }

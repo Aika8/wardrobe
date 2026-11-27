@@ -225,3 +225,10 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   sizes with the item (a storage format, needs its own task); `null` for absent fields (the contract would have to
   allow null everywhere). Undo: `AvatarController.java`, the `/avatar/dress` path and its schemas in
   `api/openapi.yaml`, `IMPOSSIBLE_OUTFIT` in `ErrorView`/`ApiErrors`, `"POST"` in `CorsConfig`.
+- **WR-022, debatable Russian labels** (`client/src/labels.ts`): `SMART_CASUAL` → «смарт-кэжуал» with the hint
+  «аккуратно, но не строго: между повседневным и деловым» (`FORMALITY_HINT`), not «умеренно-официальный» (not
+  plain); `FORMAL` → «торжественный» (not «официальный», too close to «деловой»); `BLUE` → «синий», `NAVY` →
+  «тёмно-синий» (not «голубой»: lighter than the colour friends assume); `DENIM` → «джинса» (not «деним»);
+  `TOP`/`BOTTOM` → «верх»/«низ»; `UNKNOWN` → «цвет не указан», «узор не указан», «ткань не указана» (says the
+  field is unknown, guesses nothing). A value without a word is shown as the API sent it (`label()`). Undo: edit
+  the tables in `client/src/labels.ts`.

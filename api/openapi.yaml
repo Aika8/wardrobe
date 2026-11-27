@@ -148,6 +148,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /outfits/check:
+    post:
+      operationId: checkOutfit
+      summary: Whether these items can be worn together, and why, rule by rule
+      description: |
+        One `why` line per rule (FORMALITY, COLOUR, PATTERN, SEASON, CLEAN, in this order; domain `Explain`) and every
+        problem of the outfit (domain `OutfitCheck`). `ok` is true exactly when there is no problem. The server decides;
+        the client shows the answer and never re-implements a rule. Items may be in any status: one that is not clean
+        is a problem, not an error. The same id twice is two of a kind (a problem), except for an ACCESSORY.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutfitCheckRequest'
+      responses:
+        '200':
+          description: The verdict, the explanation and the problems
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutfitVerdict'
+        '400':
+          description: The body is missing or not JSON, `items` is absent or empty, or an id is blank
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No item has one of the ids
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Item:
@@ -328,6 +362,60 @@ components:
           type: array
           description: One per item, bottom layer first (SHOES, BOTTOM, TOP or DRESS, OUTERWEAR, ACCESSORY; ties in request order).
           items: { $ref: '#/components/schemas/Layer' }
+    OutfitCheckRequest:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          description: Item ids, in the order they were picked.
+          items: { type: string, minLength: 1 }
+    WhyLine:
+      type: object
+      additionalProperties: false
+      required: [rule, goes, code, items, reason]
+      properties:
+        rule: { type: string, enum: [FORMALITY, COLOUR, PATTERN, SEASON, CLEAN] }
+        goes: { type: boolean, description: "true: the outfit passes this rule (✓); false: it does not (✗)." }
+        code:
+          type: string
+          enum: [SAME_ITEM, CLOSE_ENOUGH, STEPS_APART, NEUTRAL, SAME_COLOUR, FRIENDS, NOT_FRIENDS, UNKNOWN_COLOUR,
+                 ONE_PATTERN, TWO_PATTERNS, SHARED_SEASON, NO_SHARED_SEASON, ALL_CLEAN, NOT_CLEAN, NO_PAIRS, UNCODED]
+          description: The reason as a code the client puts in its own words.
+        items:
+          type: array
+          description: Ids of the items the line is about; a ✗ rule line names the first failing pair.
+          items: { type: string, minLength: 1 }
+        reason: { type: string, minLength: 1, description: Plain English for a person; not for parsing. }
+    OutfitProblem:
+      type: object
+      additionalProperties: false
+      required: [code, message, items]
+      properties:
+        code: { type: string, enum: [NOT_CLEAN, TWO_OF_A_KIND, DRESS_WITH_SEPARATES, CLASH] }
+        message: { type: string, minLength: 1, description: Plain English for a person; not for parsing. }
+        items:
+          type: array
+          minItems: 1
+          description: Ids of the items the problem is about.
+          items: { type: string, minLength: 1 }
+    OutfitVerdict:
+      type: object
+      additionalProperties: false
+      required: [ok, why, problems]
+      properties:
+        ok: { type: boolean, description: true exactly when `problems` is empty. }
+        why:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items: { $ref: '#/components/schemas/WhyLine' }
+        problems:
+          type: array
+          description: "In the domain's order: not clean, two of a kind, dress with separates, clash; inside each, in request order."
+          items: { $ref: '#/components/schemas/OutfitProblem' }
     Error:
       type: object
       additionalProperties: false

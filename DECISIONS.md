@@ -328,3 +328,13 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   mockup (168 cm; shoulders 38 cm added, the mockup has none) in the named items, else in the first top and bottom of
   the wardrobe, clean ones first. No sizes are sent (version 1 keeps none), so the notes say «замечаний нет (размер не
   указан)». Undo: `client/src/avatar/outfit.ts`.
+- **WR-030, `POST /outfits/check`** (`wardrobe.app.web.OutfitCheckController`). `ok` is "`OutfitCheck` found no
+  problem"; `why` is `Explain`'s five lines as they are (`rule`, `goes`, `code`, `items` as ids, `reason`). A problem
+  is `{code, message, items}`: `code` is the kind (`NOT_CLEAN`, `TWO_OF_A_KIND`, `DRESS_WITH_SEPARATES`, `CLASH`),
+  `message` the domain's own, `items` the ids it names (the item; both of a kind; the dress and the separate; the
+  pair). `EMPTY` is not in the enum: an empty list is a 400 before the domain is asked. Items may be in any status
+  (not clean is a problem, not an error); the same id twice is passed on (two of a kind, or fine for an ACCESSORY).
+  400 for a missing/null/empty `items`, a blank or null id, a body that is not JSON; the message names
+  `items[i]`. CORS: POST was already open (WR-021); only a preflight test is added. Not taken: `ok` from the `why`
+  lines (they do not see two of a kind or a dress with separates); a `reason` code per problem (the clash's codes are
+  already in `why`). Undo: `OutfitCheckController.java`, the `/outfits/check` path and its four schemas.

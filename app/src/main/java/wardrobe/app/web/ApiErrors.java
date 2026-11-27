@@ -14,8 +14,9 @@ import wardrobe.domain.UnknownItem;
  * Domain and request errors as the contract's {@code Error {code, message}}: unknown item → 404, a change the
  * status table refuses → 409, an unreadable body or a status (in the body or the query) that is not one of the four
  * → 400; on {@code POST /avatar/dress} a structurally impossible outfit → 409 {@code IMPOSSIBLE_OUTFIT} and a bad
- * measurement or size → 400 naming the field. The 409 messages are the domain's own ("item X cannot go from A to
- * B"; the outfit's problems), so the wording lives in one place.
+ * measurement or size → 400 naming the field; on {@code POST /outfits/check} an unreadable body → 400 with an
+ * example. The 409 messages are the domain's own ("item X cannot go from A to B"; the outfit's problems), so the
+ * wording lives in one place.
  */
 @RestControllerAdvice
 public class ApiErrors {
@@ -44,6 +45,10 @@ public class ApiErrors {
         if (request.getRequestURI().startsWith("/avatar/")) {
             return new ErrorView(ErrorView.BAD_REQUEST, "the body must be JSON like {\"measurements\": {\"height\": 1650,"
                     + " ...}, \"items\": [{\"id\": \"white-shirt\", \"size\": {\"chest\": 960}}]} with whole millimetres");
+        }
+        if (request.getRequestURI().startsWith("/outfits/")) {
+            return new ErrorView(ErrorView.BAD_REQUEST,
+                    "the body must be JSON like {\"items\": [\"white-shirt\", \"navy-trousers\"]}");
         }
         return new ErrorView(ErrorView.BAD_REQUEST,
                 "the body must be JSON like {\"status\": \"IN_WASH\"} with one of CLEAN, IN_WASH, IN_REPAIR, ON_TRIP");

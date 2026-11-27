@@ -3446,3 +3446,18 @@ address of the host machine) and `http://localhost:8080` for anything else. No R
 `node --test` can load it. `client/src/config.ts` keeps exporting `API_URL`, now
 `defaultApiUrl(Platform.OS, process.env.EXPO_PUBLIC_API_URL)` (`Platform` from `react-native`). Test the three cases
 and the empty-string case in `client/test/api-url.test.mjs`. The screenshot script (web) is not affected.
+
+### AUTO-20261126-2 — Show ItemThumb, ClothingDrawing and PaperDoll on the component sheet
+- status: todo
+- size: S
+- paths: `client/src/screens/Sheet.tsx`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
+- expect: green; `#/sheet` shows the three components under their names
+- source: docs/backlog/tech-debt/2026-11-27-WR-033-1.md#1
+- added: 2026-11-26
+
+Why: `client/src/screens/Sheet.tsx:17` — "a component task appends one entry to SHEET", but WR-033's paths did not include `Sheet.tsx`, so its three new components appear on no screen yet; found by WR-033, executor, 2026-11-27
+
+Append three entries to `SHEET`: `ItemThumb` (a few invented items of different types and statuses, one square),
+`ClothingDrawing` (every kind of `GARMENT_KINDS` in a different item colour, size 56) and `PaperDoll` (bare and
+dressed in WHITE / NAVY, height 260). The WR-033 PR's screenshot was taken with exactly these entries added locally.

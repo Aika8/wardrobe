@@ -6,3 +6,4 @@ Written by `scripts/backlog/backlog.py intake` (GitHub Actions, daily): which pr
 - accepted: AUTO-20261126-1 ← issue#41#1 «The client reaches the server from an Android emulator by default»
 - accepted: AUTO-20261126-2 ← docs/backlog/tech-debt/2026-11-27-WR-033-1.md#1 «Show ItemThumb, ClothingDrawing and PaperDoll on the component sheet»
 - accepted: AUTO-20261126-3 ← issue#51#1 «Read the server's error message in one place on the client»
+- accepted: AUTO-20261126-4 ← issue#54#1 «Ignore a late answer for an earlier route on the item and avatar screens»

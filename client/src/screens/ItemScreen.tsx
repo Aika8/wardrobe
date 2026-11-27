@@ -22,9 +22,18 @@ export function ItemScreen({ route, back }: ScreenProps) {
     setItem(undefined);
     setError(null);
     setMoveError(null);
+    // An answer for an earlier param that arrives after the param changed is dropped (AUTO-20261126-4).
+    let live = true;
     loadItems()
-      .then((all) => setItem(all.find((i) => i.id === route.param) ?? null))
-      .catch((e: unknown) => setError(messageOf(e)));
+      .then((all) => {
+        if (live) setItem(all.find((i) => i.id === route.param) ?? null);
+      })
+      .catch((e: unknown) => {
+        if (live) setError(messageOf(e));
+      });
+    return () => {
+      live = false;
+    };
   }, [route.param]);
 
   const move = (id: string, status: ItemStatus) => {

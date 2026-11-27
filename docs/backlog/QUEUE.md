@@ -3424,3 +3424,25 @@ plain `Text`. Rebuild it from the components only: `ScreenTitle` («Мой шк�
 asserts it has no hex colour (`#[0-9a-fA-F]{3,8}`) and no bare pixel number in a style (`:\s*\d+[,}]`). Keep the behaviour (load, error text, filter) unchanged — the
 existing tests of `filter.ts` and `items.ts` stay green. Screenshot WR-161, compare with the wardrobe mockup, name it
 in the PR.
+
+## Added by intake
+
+Appended by `scripts/backlog/backlog.py intake`: every proposal, tech-debt file or `tech-debt` issue that passes the filter (small, checked by a command, allowed paths).
+
+### AUTO-20261126-1 — The client reaches the server from an Android emulator by default
+- status: todo
+- size: S
+- paths: `client/src/apiUrl.ts`, `client/src/config.ts`, `client/test/api-url.test.mjs`
+- verify: `make client/node_modules/.ci-stamp && cd client && node --test test/api-url.test.mjs && npx tsc --noEmit`
+- expect: green; with no `EXPO_PUBLIC_API_URL`, Android gets `http://10.0.2.2:8080`, every other platform `http://localhost:8080`; a set `EXPO_PUBLIC_API_URL` always wins
+- source: issue#41#1
+- added: 2026-11-26
+
+Why: `client/src/config.ts:2` — the default `http://localhost:8080` points an Android emulator at itself, so the app cannot load items there; found by the independent review of the skeleton, 2026-11-25
+
+Add `client/src/apiUrl.ts` with a pure function `defaultApiUrl(os: string, envUrl: string | undefined): string`:
+`envUrl` when it is a non-empty string; otherwise `http://10.0.2.2:8080` for `os === 'android'` (the emulator's
+address of the host machine) and `http://localhost:8080` for anything else. No React Native import in this file, so
+`node --test` can load it. `client/src/config.ts` keeps exporting `API_URL`, now
+`defaultApiUrl(Platform.OS, process.env.EXPO_PUBLIC_API_URL)` (`Platform` from `react-native`). Test the three cases
+and the empty-string case in `client/test/api-url.test.mjs`. The screenshot script (web) is not affected.

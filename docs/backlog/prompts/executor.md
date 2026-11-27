@@ -73,7 +73,8 @@ after green CI and the independent review.
    reason is unclear, leave it and say so in the PR.
 5. Findings, classified (see `docs/backlog/TECH-DEBT.md`): a regression inside your own change → fix it here; the
    task itself is wrong or contradicts the intent/ADRs → park it with the reason; anything outside the task's
-   scope → add a file `docs/backlog/tech-debt/<date>-<id>-<n>.md` in this PR and do **not** fix it.
+   scope → add a file `docs/backlog/tech-debt/<date>-<id>-<n>.md` in this PR, in the format of
+   `docs/backlog/TECH-DEBT.md` (`kind: bug` for wrong behaviour — the intake then queues it first), and do **not** fix it.
    Never write a test that checks the wording of documentation (Markdown prose, README text): it turns CI red for
    every harmless edit. Tests check behaviour, data and code.
 6. A question the files do not answer: follow "nothing waits for Aika" in `docs/backlog/README.md` — cheap to undo →
@@ -126,7 +127,7 @@ the task's change (infrastructure, network, the runner, a service outside the re
    (`gh api repos/Aika8/wardrobe/actions/runs?branch=<branch>` → jobs → logs).
 2. Check out the branch, read the task (`python3 scripts/backlog/backlog.py show <id>`), fix what the questions or
    the log point at — within the task's paths, never by weakening or deleting a test.
-3. Add the tech-debt files the reviewer listed under "Out of scope (tech debt)", and your own experience note (1.9).
+3. Add your own experience note (1.9) (the reviewer files its tech-debt findings as issues itself).
    Run the three checks of 1.8, commit, push.
 4. Comment on the PR (the marker counts the fix rounds; after two, the PR is parked):
    ```bash

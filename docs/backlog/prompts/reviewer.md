@@ -86,8 +86,7 @@ Review round <k> of <task id>: **<pass|fail>**
 
 <for fail: what must change, per "no" answer, in one line each>
 
-Out of scope (tech debt): <problems outside this task: `where` — what — why it matters; or "none". Do not fail the
-review for them.>
+Out of scope (tech debt): <the [tech-debt] issues you opened, by number; or "none". Do not fail the review for them.>
 
 Experience: <2–3 lines: where this review stumbled and how it got past it>
 
@@ -98,11 +97,17 @@ gh api -X POST repos/Aika8/wardrobe/issues/<n>/comments -F body=@/tmp/review.md
 
 - pass → `gh api -X POST repos/Aika8/wardrobe/issues/<n>/labels -f "labels[]=review:pass"`
 - fail → label `needs-fix` instead. If `fixes` is 2 or more (two fix rounds already used), label `parked`
-  instead and write in the comment what Aika must decide.
+  instead and write in the comment the question with your recommendation (the summary run decides it).
 
 Classify findings like the executor (`docs/backlog/TECH-DEBT.md`): a regression inside the change → a "no" answer;
 the task itself wrong → fail and say "park: <reason>"; outside the task → "Out of scope", not a failure. A new test
 that checks the wording of documentation is a "no" on question 3. Never read `docs/backlog/experience/`.
+
+Each out-of-scope finding becomes one issue, so the intake turns it into a task (bugs first):
+`gh api -X POST repos/Aika8/wardrobe/issues -f title="[tech-debt] <one line>" -F body=@/tmp/debt.md -f "labels[]=tech-debt"`,
+where `/tmp/debt.md` is written in the format of `docs/backlog/TECH-DEBT.md` (`### title`, `kind: bug|debt`,
+`size: S`, narrow `paths`, a `verify` command, `expect`, `why`). Look first whether an open `tech-debt` issue or a
+queued task already covers it.
 
 Do not push commits, do not merge, do not edit the PR. Stop.
 

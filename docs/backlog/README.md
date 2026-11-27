@@ -14,7 +14,7 @@ free minutes.
 | The queue | `docs/backlog/QUEUE.md` | Aika by hand; the intake workflow appends |
 | The rules as code | `scripts/backlog/backlog.py` (+ tests, run by `make test`) | Aika |
 | Merge gate | `.github/workflows/automerge.yml` | Aika |
-| Proposals → queue, every one that passes the filter | `.github/workflows/intake.yml`, format in `PROPOSALS.md` | Aika |
+| Proposals and tech debt → queue (every item that passes the filter, bugs first) | `.github/workflows/intake.yml`, format in `PROPOSALS.md` | Aika |
 | Off switch | `docs/backlog/PAUSE` (create it to stop everything) | Aika, also from the GitHub phone app |
 | Guard against pushes that skip the gate | `.github/workflows/guard.yml`, active while `docs/backlog/UNATTENDED` exists | Aika |
 | Run prompts | `docs/backlog/prompts/*.md` | Aika |

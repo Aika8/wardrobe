@@ -79,6 +79,12 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
 - **27 November — tech debt into tasks**: the web padding bug first (WR-159); the chip's status dot (WR-160, the
   mockup's look) and the list screen from the components (WR-161) at the end.
 
+- **27 November — tech debt becomes tasks by itself** (ported from learning-exchange PR #112): intake reads the
+  day's proposals, every `docs/backlog/tech-debt/*.md` and open `tech-debt` issues (owner/collaborators) in the
+  proposal format; `kind: bug` → `priority: bug`, picked first; an issue is closed once all its proposals are tasks.
+  The automerge sweep runs it inline (kept instead of dispatching intake.yml). Maven 429: Gradle retries 8 times from
+  3 s (`gradle.properties`). Undo: `intake_candidates` / `--issues` in the workflows; delete `gradle.properties`.
+
 ### After the holiday (not in the queue: needs money, keys, accounts or Aika herself)
 - Optimistic versions against concurrent status changes (with storage). A weather service; a photo try-on avatar (paid model or GPU); adopting a background-removal option (after the
   WR-034 report); persistence (ADR); the shared backlog library for the three projects.

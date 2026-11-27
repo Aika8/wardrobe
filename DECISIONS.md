@@ -211,3 +211,10 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   (`OptionalInt.empty()`), because the figure has no arm length and invariant 5 forbids guessing. Mid-thigh is
   `(crotch + knee) / 2`. Not taken: a sleeve default from the arm (would need `Measurements`, not in the task's
   signature); adding girths to `Figure` (changes WR-017's record). Undo: `Placement.java`.
+- **WR-022, debatable Russian labels** (`client/src/labels.ts`): `SMART_CASUAL` → «смарт-кэжуал» with the hint
+  «аккуратно, но не строго: между повседневным и деловым» (`FORMALITY_HINT`), not «умеренно-официальный» (not
+  plain); `FORMAL` → «торжественный» (not «официальный», too close to «деловой»); `BLUE` → «синий», `NAVY` →
+  «тёмно-синий» (not «голубой»: lighter than the colour friends assume); `DENIM` → «джинса» (not «деним»);
+  `TOP`/`BOTTOM` → «верх»/«низ»; `UNKNOWN` → «цвет не указан», «узор не указан», «ткань не указана» (says the
+  field is unknown, guesses nothing). A value without a word is shown as the API sent it (`label()`). Undo: edit
+  the tables in `client/src/labels.ts`.

@@ -1,5 +1,6 @@
 package wardrobe.app.web;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,7 +13,9 @@ import wardrobe.domain.UnknownItem;
 /**
  * Domain and request errors as the contract's {@code Error {code, message}}: unknown item → 404, a change the
  * status table refuses → 409, an unreadable body or a status (in the body or the query) that is not one of the four
- * → 400. The 409 message is the domain's own ("item X cannot go from A to B"), so the wording lives in one place.
+ * → 400; on {@code POST /avatar/dress} a structurally impossible outfit → 409 {@code IMPOSSIBLE_OUTFIT} and a bad
+ * measurement or size → 400 naming the field. The 409 messages are the domain's own ("item X cannot go from A to
+ * B"; the outfit's problems), so the wording lives in one place.
  */
 @RestControllerAdvice
 public class ApiErrors {
@@ -29,9 +32,19 @@ public class ApiErrors {
         return new ErrorView(ErrorView.ILLEGAL_STATUS_CHANGE, e.getMessage());
     }
 
+    @ExceptionHandler(AvatarController.ImpossibleOutfit.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorView impossibleOutfit(AvatarController.ImpossibleOutfit e) {
+        return new ErrorView(ErrorView.IMPOSSIBLE_OUTFIT, e.getMessage());
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorView unreadable(HttpMessageNotReadableException e) {
+    public ErrorView unreadable(HttpMessageNotReadableException e, HttpServletRequest request) {
+        if (request.getRequestURI().startsWith("/avatar/")) {
+            return new ErrorView(ErrorView.BAD_REQUEST, "the body must be JSON like {\"measurements\": {\"height\": 1650,"
+                    + " ...}, \"items\": [{\"id\": \"white-shirt\", \"size\": {\"chest\": 960}}]} with whole millimetres");
+        }
         return new ErrorView(ErrorView.BAD_REQUEST,
                 "the body must be JSON like {\"status\": \"IN_WASH\"} with one of CLEAN, IN_WASH, IN_REPAIR, ON_TRIP");
     }

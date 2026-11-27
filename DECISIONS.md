@@ -211,3 +211,17 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   (`OptionalInt.empty()`), because the figure has no arm length and invariant 5 forbids guessing. Mid-thigh is
   `(crotch + knee) / 2`. Not taken: a sleeve default from the arm (would need `Measurements`, not in the task's
   signature); adding girths to `Figure` (changes WR-017's record). Undo: `Placement.java`.
+- **WR-021, `POST /avatar/dress`** (`wardrobe.app.web.AvatarController`). Sizes travel in the request
+  (`items[].size`), as the task says: version 1 stores no sizes, so nothing about storage is decided here; an
+  absent `size` is a size with every field unknown. Contract choices: the figure is `{landmarks: {head…floor},
+  halfWidths: {shoulders, chest, waist, hips}}`; a layer is `{itemId, type, shape, fit}`; `shape` is left out for an
+  ACCESSORY (`Placement` has none) and `sleeveEnd` is left out when unknown, rather than `null`. A new `Error` code
+  `IMPOSSIBLE_OUTFIT` for the 409 (the existing codes mean other things); its message is `Layers`' own list of
+  problems. 400s keep `BAD_REQUEST` and the message starts with the field's path (`measurements.waist`,
+  `items[1].size.inseam`) instead of adding a `field` property to `Error`. Numbers are read as JSON numbers and a
+  fraction or a value beyond `int` is a 400 (Jackson would otherwise cut 1650.5 to 1650). The same item twice is two
+  of a kind (409), from `Layers`. Validation order: measurements, then each item (id, size, known), then the outfit.
+  CORS now allows POST; request headers stay Spring's default (any), which covers `Content-Type`. Not taken: storing
+  sizes with the item (a storage format, needs its own task); `null` for absent fields (the contract would have to
+  allow null everywhere). Undo: `AvatarController.java`, the `/avatar/dress` path and its schemas in
+  `api/openapi.yaml`, `IMPOSSIBLE_OUTFIT` in `ErrorView`/`ApiErrors`, `"POST"` in `CorsConfig`.

@@ -3488,3 +3488,17 @@ Export the existing helper in `client/src/api.ts` that turns a refused response 
 Why: `client/src/screens/ItemScreen.tsx:21` and `client/src/screens/Avatar.tsx:28` — the `useEffect` that loads on `route.param` has no cleanup, so when the param changes while a request is in flight (e.g. `#/me/a` then `#/me/b`), whichever answer arrives last is shown, possibly the one for the old param. Found by WR-027, reviewer, 2026-11-27.
 
 In each of the two `useEffect`s keep a `let live = true`, return `() => { live = false }` as the cleanup, and only call `setState`/`setItem`/`setError` while `live`. If the screens have no test harness for effects, move the load into a small pure helper that takes an "is still current" check and test that helper with two fake promises resolving out of order.
+
+### AUTO-20261126-5 — Drop a late status-change answer for an earlier item on the item screen
+- status: todo
+- size: S
+- paths: `client/src/screens/ItemScreen.tsx`, `client/test/screens.test.mjs`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
+- expect: green; a new test where `changeStatus` for item `a` resolves after `route.param` changed to `b` leaves item `b` shown (and `moving` false for `b`); it failed before the fix
+- source: issue#57#1
+- added: 2026-11-26
+- priority: bug
+
+Why: `client/src/screens/ItemScreen.tsx:38-45` — `move` calls `changeStatus(...).then(setItem).catch(setMoveError).finally(() => setMoving(false))` with no check that the route is still the same item, so if the hash changes from `#/item/a` to `#/item/b` (the screen stays mounted) while the move is in flight, item `a` replaces item `b` on screen. Same class of bug AUTO-20261126-4 fixed for the load effect; found by AUTO-20261126-4, reviewer, 2026-11-27.
+
+Keep the current `route.param` in a ref (updated by the load effect) and in `move` capture the param at call time; only call `setItem`/`setMoveError`/`setMoving` when the ref still equals the captured param. Test it with the existing fake-hooks harness in `client/test/screens.test.mjs`: start a move on `a`, change to `b`, resolve the move, assert `b` is shown.

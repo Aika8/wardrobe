@@ -264,7 +264,7 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   `hint` under the value. Unknown season words follow the known ones as they came. Not taken: a status row too (the
   badge already says it); the mockup's attribute chips (the task asks for label/value rows). Undo: `describeItem`.
 - **WR-024, the way back and the background**: a quiet `Button` «‹ Назад» (DESIGN.md has no back control; the
-  mockup's bare «‹» is not a component), and the details screen sits on `paper` while the list keeps its old look
-  (tech debt WR-023-2). Opening is plain state in `App.tsx` (`openId`), no navigation library. Undo: `App.tsx`.
+  mockup's bare «‹» is not a component), and the details screen sits in the same `Screen` as the list (WR-159:
+  `paper`, 16 px margins). Opening is plain state in `App.tsx` (`openId`), no navigation library. Undo: `App.tsx`.
 - **WR-024, screenshot of the details**: `npm run screenshot` only shows the list and cannot tap, so the PNG was
   taken with a throwaway copy of the script that taps the last row of the list first (not committed). Undo: nothing.

@@ -1,11 +1,14 @@
-// The item list screen (draft — вид проверяет Aika). Logic lives in src/items.ts and src/filter.ts.
+// The item list screen and, on a tap, the details of one item (draft — вид проверяет Aika).
+// Logic lives in src/items.ts, src/filter.ts and src/details.ts; no navigation library, just state here.
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { API_URL } from './src/config.ts';
 import { filterByStatus, filterChips, type StatusFilter } from './src/filter.ts';
 import { type Item, parseItems, sortForList, STATUS_LABEL } from './src/items.ts';
+import { ItemDetails } from './src/screens/ItemDetails.tsx';
 import { Chip } from './src/ui/Chip.tsx';
+import { pressProps } from './src/ui/press.ts';
 import { Screen } from './src/ui/Screen.tsx';
 import { tokens } from './src/ui/tokens.ts';
 
@@ -13,6 +16,7 @@ export default function App() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<StatusFilter>('ALL');
+  const [openId, setOpenId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${API_URL}/items`)
@@ -23,6 +27,16 @@ export default function App() {
       .then((body) => setItems(sortForList(parseItems(body))))
       .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)));
   }, []);
+
+  const open = items?.find((i) => i.id === openId);
+  if (open) {
+    return (
+      <Screen>
+        <ItemDetails item={open} onBack={() => setOpenId(null)} />
+        <StatusBar style="auto" />
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
@@ -47,7 +61,7 @@ export default function App() {
           data={filterByStatus(items, filter)}
           keyExtractor={(i) => i.id}
           renderItem={({ item }) => (
-            <View style={styles.row}>
+            <View style={styles.row} {...pressProps(() => setOpenId(item.id), item.name)}>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={item.status === 'CLEAN' ? styles.clean : styles.away}>{STATUS_LABEL[item.status]}</Text>
             </View>

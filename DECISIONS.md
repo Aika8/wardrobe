@@ -257,3 +257,14 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   (`flexWrap`, like the mockup's `.chips`) rather than scroll sideways. Not taken: a second table of capitalised words
   (two places for one word); «Все» without a count (the task's line omits it, the mockup has it). Undo:
   `filterChips` and the `chips` style in `client/App.tsx`.
+- **WR-024, rows of the item details** (`describeItem` in `client/src/details.ts`): type, colour, pattern, fabric,
+  seasons, formality — in that order, labelled «Тип, Цвет, Узор, Ткань, Сезоны, Стиль». The name is the screen
+  title and the status the `StatusBadge` at the top (as in the mockup's item card), so neither is a row; `id` is not
+  shown. Formality is labelled «Стиль» (plainer than «Формальность») and carries `FORMALITY_HINT` as an optional
+  `hint` under the value. Unknown season words follow the known ones as they came. Not taken: a status row too (the
+  badge already says it); the mockup's attribute chips (the task asks for label/value rows). Undo: `describeItem`.
+- **WR-024, the way back and the background**: a quiet `Button` «‹ Назад» (DESIGN.md has no back control; the
+  mockup's bare «‹» is not a component), and the details screen sits in the same `Screen` as the list (WR-159:
+  `paper`, 16 px margins). Opening is plain state in `App.tsx` (`openId`), no navigation library. Undo: `App.tsx`.
+- **WR-024, screenshot of the details**: `npm run screenshot` only shows the list and cannot tap, so the PNG was
+  taken with a throwaway copy of the script that taps the last row of the list first (not committed). Undo: nothing.

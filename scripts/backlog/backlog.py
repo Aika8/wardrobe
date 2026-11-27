@@ -442,15 +442,25 @@ def check_paths(branch: str, changes: list[Change], tasks: list[Task], root: Pat
             if not (c.status == "added" and c.path == f"{PROPOSALS_DIR}/{day}-{role}.md"):
                 problems.append(f"{c.path}: a proposals PR adds only {PROPOSALS_DIR}/{day}-{role}.md")
         elif kind == "summary":
-            day = branch.rsplit("-", 3)[-3:]
-            want = f"docs/backlog/summaries/{'-'.join(day)}.md"
-            if c.path != want:
-                problems.append(f"{c.path}: a summary PR changes only {want}")
+            day = "-".join(branch.rsplit("-", 3)[-3:])
+            want = f"docs/backlog/summaries/{day}.md"
+            # Decisions the summary takes without Aika become proposals, so intake turns them into tasks.
+            also = f"{PROPOSALS_DIR}/{day}-summary.md"
+            if c.path != want and not (c.status == "added" and c.path == also):
+                problems.append(f"{c.path}: a summary PR changes only {want} (and may add {also})")
     return sorted(set(problems))
 
 
-def changes_from_git(base: str) -> list[Change]:
-    out = subprocess.run(["git", "-C", str(ROOT), "diff", "--name-status", "-M", f"{base}...HEAD"],
+def added_text(data: bytes) -> str:
+    """Text of an added file for the skip-marker check; a binary file (a screenshot PNG) has none (decision of
+    27 November: the check does not read binary files)."""
+    if b"\0" in data[:8192]:
+        return ""
+    return data.decode("utf-8", errors="replace")
+
+
+def changes_from_git(base: str, root: Path = ROOT) -> list[Change]:
+    out = subprocess.run(["git", "-C", str(root), "diff", "--name-status", "-M", f"{base}...HEAD"],
                          capture_output=True, text=True, check=True).stdout
     changes = []
     for line in out.splitlines():
@@ -462,8 +472,8 @@ def changes_from_git(base: str) -> list[Change]:
             status = {"A": "added", "D": "removed"}.get(code, "modified")
             text = ""
             if status == "added":
-                text = subprocess.run(["git", "-C", str(ROOT), "show", f"HEAD:{parts[1]}"],
-                                      capture_output=True, text=True).stdout
+                text = added_text(subprocess.run(["git", "-C", str(root), "show", f"HEAD:{parts[1]}"],
+                                                 capture_output=True).stdout)
             changes.append(Change(status, parts[1], None, text))
     return changes
 
@@ -559,7 +569,7 @@ def intake(day: str, root: Path = ROOT) -> tuple[list[str], list[str]]:
         log = root / INTAKE_LOG
         prev = log.read_text(encoding="utf-8") if log.exists() else "# Intake log\n"
         entry = f"\n## {day}\n" + "".join(f"- accepted: {a}\n" for a in accepted) + \
-                "".join(f"- left for Aika: {r}\n" for r in rejected)
+                "".join(f"- left out (the summary re-proposes it; was «left for Aika»): {r}\n" for r in rejected)
         if f"\n## {day}\n" not in prev:
             log.write_text(prev.rstrip("\n") + "\n" + entry, encoding="utf-8")
     return accepted, rejected

@@ -33,7 +33,9 @@ a small, checkable item into a proposal.
 1. **Contradictions between sentences that each read fine alone**: one rule turns X into Y, another forbids Y; a
    state with no rule; an invariant in an intent with no test (`grep` the tests for it).
 2. **Merged work that misses its own requirement**: the task's `expect` versus what the code does.
-3. **Decisions taken without Aika that look costly to undo** — these go to "For Aika", never into the queue.
+3. **Decisions taken without Aika that look costly to undo** and tech-debt notes (`docs/backlog/tech-debt/`) that
+   ask a question — decide them (below), do not leave them open. (Parked PRs and issues are decided and un-parked
+   by the summary run.)
 4. **Missing checks** that a test, ArchUnit rule or script could make (CLAUDE.md: what a linter or test can
    check is checked there).
 
@@ -41,8 +43,14 @@ a small, checkable item into a proposal.
 
 At most 8 proposals of `size: S`, most valuable first (the intake takes every proposal that passes its filter, in order), each in the
 format of `PROPOSALS.md` with narrow `paths`, a `verify` command, `expect`, and `why` pointing at file:line.
-Everything larger, every question for Aika and every contradiction you cannot turn into a small task goes under
-`## For Aika` as bullets: the finding, 2–3 options, your recommendation.
+Larger findings are split into size-S proposals.
+
+Nothing waits for Aika (her words, 26 November: «меня ничего не должно ждать»). A question with a recommendation
+is decided by the recommendation; without one, by the option easiest to undo. Every decision becomes a proposal
+(so intake turns it into a task) whose description starts with `Decision (without Aika): <choice>; not taken:
+<options>; undo: <how>` and tells the executor to add that bullet to `DECISIONS.md` under
+`## Backlog run (December 2026)`. Only what needs money, keys, sign-ups or external accounts is not decided: it goes
+to `## After the holiday` as a plain bullet. List your decisions also as plain bullets under `## Decided without Aika`.
 
 ```bash
 git checkout -b claude/proposals-analyst-$DAY
@@ -57,4 +65,4 @@ Use `gh api` only (`gh pr` does not work here). Stop.
 
 ## Final message
 
-Two lines: how many proposals, how many items for Aika, the PR number.
+Two lines: how many proposals, how many decisions taken without Aika, the PR number.

@@ -12,7 +12,7 @@ bash scripts/cloud/setup-env.sh && source /etc/profile.d/wr-toolchain.sh   # JDK
 python3 scripts/backlog/backlog.py plan
 ```
 
-Read, in this order: `CLAUDE.md`, `docs/backlog/README.md` (above all "Rule for every run: do not wait for Aika"),
+Read, in this order: `CLAUDE.md`, `docs/backlog/README.md` (above all "Rule for every run: nothing waits for Aika"),
 and later only what your task needs. `java -version` must say 25 and `node --version` v24; if not, write that in
 your final message and stop — the environment is broken, not the task.
 
@@ -43,7 +43,10 @@ after green CI and the independent review.
    and what is left. Never wait in a loop, never poll; a command that runs long runs in the foreground (see 8).
    You may refuse a task at the start: if its description is incomplete or contradicts the code, the intents or the
    ADRs, do not guess — park it (section 4) with "missing: …" or "contradicts: …".
-1. The task text printed by `plan` is your whole assignment: description, `paths`, `verify`, `expect`. Do not
+1. Decisions taken earlier for this task are part of it: read the comments of closed PRs of its branch
+   (`gh api "repos/Aika8/wardrobe/pulls?state=closed&head=Aika8:<branch>"`, then `…/issues/<n>/comments`) and of closed
+   `[parked] <id>` issues; a `Decision (without Aika): …` there is binding.
+   The task text printed by `plan` is your whole assignment: description, `paths`, `verify`, `expect`. Do not
    widen it. Do not start a second task.
 2. Claim the task at once, so the next run does not take it too:
    ```bash
@@ -73,7 +76,7 @@ after green CI and the independent review.
    scope → add a file `docs/backlog/tech-debt/<date>-<id>-<n>.md` in this PR and do **not** fix it.
    Never write a test that checks the wording of documentation (Markdown prose, README text): it turns CI red for
    every harmless edit. Tests check behaviour, data and code.
-6. A question the files do not answer: follow "do not wait for Aika" in `docs/backlog/README.md` — cheap to undo →
+6. A question the files do not answer: follow "nothing waits for Aika" in `docs/backlog/README.md` — cheap to undo →
    decide and write it in `DECISIONS.md` under `## Backlog run (December 2026)`; costly → park.
 7. If you start a server: `make dev PORT=8091` (never 8080), and stop it before you finish
    (`make stop PORT=8091`; `make ps` shows nothing of yours).

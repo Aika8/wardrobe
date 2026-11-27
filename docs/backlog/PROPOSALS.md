@@ -37,6 +37,13 @@ What to do, in plain words, self-contained: what to read first, what to change, 
 …
 ```
 
-Field order does not matter; a blank line ends the fields. Larger ideas (size M or L), questions for Aika and
-things that need a screen go in the same file under `## For Aika`, as plain bullets with no `###` heading, so the
-intake never picks them up.
+Field order does not matter; a blank line ends the fields.
+
+A question is never left for Aika («меня ничего не должно ждать»): decide it — the recommendation, or without one
+the option easiest to undo — and write the decision as a proposal whose description starts with
+`Decision (without Aika): <choice>; not taken: <options>; undo: <how>` and tells the executor to add that bullet to
+`DECISIONS.md`. Also list each decision as a plain bullet under `## Decided without Aika` (no `###` heading, so the
+intake does not take it twice). Larger ideas are split into size-S proposals. Only what needs money, keys, sign-ups
+or external accounts goes under `## After the holiday` as plain bullets.
+
+Files: `<date>-analyst.md`, `<date>-user.md`, and `<date>-summary.md` (the summary run's decisions).

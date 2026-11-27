@@ -27,6 +27,25 @@ Read first, every task: `intent/01-wardrobe.md` (invariants), `docs/adr/0002-sta
 named in the task. Test items are invented (`domain/src/test/java/wardrobe/domain/TestItems.java`; add your own
 helper in a new file when you need other fields — never edit an existing test file).
 
+## Bugs (taken first)
+
+### WR-159 — The item list's screen padding is lost in the web build
+- status: todo
+- depends: WR-035
+- size: S
+- paths: `client/App.tsx`, `client/src/screens/ItemList.tsx`, `client/src/ui/Screen.tsx`, `docs/backlog/reports/screens/WR-159.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test && npm run screenshot -- WR-159`
+- expect: green; in `docs/backlog/reports/screens/WR-159.png` the title, chips and rows keep a 16 px gap from the left and right edges of the 390 px page
+
+Tech debt `docs/backlog/tech-debt/2026-11-26-WR-035-1.md`: the list screen sets `padding: 16` on a `SafeAreaView`,
+and on the web export the content touches the page edges (see `docs/backlog/reports/screens/WR-035.png`). Fix it
+the way that works on every platform: keep `SafeAreaView` for the safe area only and put the padding on an inner
+`View` — as one small component `client/src/ui/Screen.tsx` (`SafeAreaView` + inner `View` with
+`padding: tokens.space.lg`, `flex: 1`, background `paper`), used by the list screen. If the router (WR-126) has
+already moved the list to `client/src/screens/ItemList.tsx`, fix it there; otherwise in `client/App.tsx`. Change
+nothing else on the screen (its look moves to the components in WR-161). Take the screenshot and look at it before
+pushing; name it in the PR («draft — вид проверяет Aika» stays true for the screen).
+
 ## Combination rules (intent 01, invariants 3 and 4)
 
 ### WR-001 — A colour knows whether it is neutral
@@ -3368,3 +3387,40 @@ Screenshot: `cd client && npm run screenshot -- WR-158 --route '/#/add'` writes
 `docs/backlog/reports/screens/WR-158.png`; read it, check it against DESIGN.md, commit the PNG and name it in the PR.
 The PR says «draft — вид проверяет Aika» and describes the look in words (the sentence appears only after an add:
 describe it from running the add by hand with an invented answer).
+
+## Tech debt of 27 November
+
+### WR-160 — The filter Chip shows a status dot, as on the wardrobe mockup (вид проверяет Aika)
+- status: todo
+- depends: WR-028, WR-035
+- size: S
+- paths: `client/src/ui/Chip.tsx`, `client/src/ui/chipStatus.ts`, `client/test/chip-status.test.mjs`, `client/src/filter.ts`, `client/App.tsx`, `client/src/screens/ItemList.tsx`, `docs/backlog/reports/screens/WR-160.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
+- expect: green; a status chip shows the status colour dot before its word, the «Все» chip has no dot; screenshot WR-160.png
+
+Tech debt `docs/backlog/tech-debt/2026-11-27-WR-023-1.md`. The approved mockup (`docs/design/mockups/mockups.html`,
+wardrobe screen, «Где вещи сейчас») shows each status chip with a small dot in the status colour before the word —
+the status is word **and** colour (DESIGN.md rule). Decision (without Aika, 27 November): this is the mockup's look,
+not a new one — add an optional `status` prop to `Chip` that draws `StatusDot` (reuse `client/src/ui/StatusDot.tsx`
+and the status → colour table of `client/src/ui/status.ts`; never a second table) before the label. Pure logic
+(which chips get which status) in `client/src/ui/chipStatus.ts`, tested in `chip-status.test.mjs`; pass the
+status from the list screen's chip row (`client/App.tsx`, or `client/src/screens/ItemList.tsx` after WR-126).
+Screenshot: `cd client && npm run screenshot -- WR-160`, compare with the mockup, name it in the PR.
+
+### WR-161 — The item list screen built from the «уютный блокнот» components (вид проверяет Aika)
+- status: todo
+- depends: WR-126, WR-159, WR-160, WR-033
+- size: S
+- paths: `client/src/screens/ItemList.tsx`, `client/src/screens/itemListView.ts`, `client/test/item-list-view.test.mjs`, `docs/backlog/reports/screens/WR-161.png`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
+- expect: green; the screen uses only DESIGN.md components and tokens (no hex colour or pixel size in `ItemList.tsx`); screenshot WR-161.png
+
+Tech debt `docs/backlog/tech-debt/2026-11-27-WR-023-2.md`: the list screen still has its own hex colours, sizes and
+plain `Text`. Rebuild it from the components only: `ScreenTitle` («Мой шкаф» and the count line «N вещей · без
+ограничений» — plural from WR-103 if merged, else a local helper in `itemListView.ts`), the chip row (WR-160),
+`PaperCard` rows with `ItemThumb` (WR-033), the name and a `StatusBadge`. No hex colour, no pixel number in
+`ItemList.tsx`: everything from `client/src/ui/tokens.ts`. Pure logic (row models, count line) in
+`client/src/screens/itemListView.ts`, tested; the same test reads `client/src/screens/ItemList.tsx` as text and
+asserts it has no hex colour (`#[0-9a-fA-F]{3,8}`) and no bare pixel number in a style (`:\s*\d+[,}]`). Keep the behaviour (load, error text, filter) unchanged — the
+existing tests of `filter.ts` and `items.ts` stay green. Screenshot WR-161, compare with the wardrobe mockup, name it
+in the PR.

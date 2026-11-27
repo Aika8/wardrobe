@@ -60,8 +60,8 @@ make stop PORT=8091; make ps   # nothing of yours may be left
 The same file shape as the analyst (`docs/backlog/PROPOSALS.md`): at most 8 proposals of `size: S` that fix what
 confused you — a clearer message, a plain Russian label, a missing check, a test that pins the fix — most valuable
 first, each with narrow `paths`, `verify`, `expect`, `why` (quote the confusing text and where it is). Never propose
-a change of an approved look or a new feature; those go under `## For Aika` with your experience as a user, 2–3
-options and a recommendation. No real brands anywhere, also not in proposals.
+a change of an approved look. A new feature or a question: Nothing waits for Aika (her words, 26 November: «меня ничего не должно ждать»). A question with a recommendation is decided by the recommendation; without one, by the option easiest to undo. Every decision becomes a proposal (so intake turns it into a task) whose description starts with `Decision (without Aika): <choice>; not taken: <options>; undo: <how>` and tells the executor to add that bullet to `DECISIONS.md` under `## Backlog run (December 2026)`. Only what needs money, keys, sign-ups or external accounts is not decided: it goes to `## After the holiday` as a plain bullet. List your decisions also as
+plain bullets under `## Decided without Aika`. No real brands anywhere, also not in proposals.
 
 ```bash
 git checkout -b claude/proposals-user-$DAY

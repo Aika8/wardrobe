@@ -66,8 +66,21 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   **«Сохранить»** in the builder logs the outfit as worn today. **The builder's tool row** is left out. **No name**
   in the greeting. The doll gets **CategoryTabs** to choose what to try on (WR-156).
 
+- **27 November — nothing waits for Aika, also later**: the analyst, user and summary runs decide every open
+  question (recommendation, else the option easiest to undo) and turn it into a proposal → task; the summary lists
+  them under «Решено без тебя — посмотри после отпуска» and may add `proposals/<date>-summary.md`. Undo: the prompts
+  and the summary rule in `check_paths`.
+- **27 November — `check-paths` does not read the text of binary files** (a screenshot PNG made git mode crash;
+  option б of the summary of 26 November). Not taken: decoding with `errors="replace"`; keeping the `--files`
+  workaround. Undo: `added_text` in `backlog.py`.
+- **27 November — the race of two status changes of the same item** (tech debt `2026-11-26-WR-007-1.md`): nothing
+  now; optimistic versions come with real storage and its ADR (the recommendation). Not taken: `replace(expected,
+  changed)` on the port now. Risk accepted: one user, data in memory.
+- **27 November — tech debt into tasks**: the web padding bug first (WR-159); the chip's status dot (WR-160, the
+  mockup's look) and the list screen from the components (WR-161) at the end.
+
 ### After the holiday (not in the queue: needs money, keys, accounts or Aika herself)
-- A weather service; a photo try-on avatar (paid model or GPU); adopting a background-removal option (after the
+- Optimistic versions against concurrent status changes (with storage). A weather service; a photo try-on avatar (paid model or GPU); adopting a background-removal option (after the
   WR-034 report); persistence (ADR); the shared backlog library for the three projects.
 
 ## Backlog run (December 2026)

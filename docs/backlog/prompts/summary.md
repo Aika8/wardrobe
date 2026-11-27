@@ -29,6 +29,23 @@ From these: tasks merged that day (PR title, number); PRs open and why they wait
 how many tasks are left `todo` and ready; CI failures on `main`, if any
 (`gh api "repos/Aika8/wardrobe/actions/runs?branch=main&per_page=20"`).
 
+Nothing waits for Aika («меня ничего не должно ждать»). For every open question — a parked PR or issue (any
+day, not only yesterday), a `blocked-paths` PR, a tech-debt note that asks something, a question in a PR comment, a
+proposal intake left out (`docs/backlog/intake-log.md`, «left for Aika»: re-propose it in the accepted format) —
+decide: the recommendation,
+or without one the option easiest to undo. Write each decision as a proposal in
+`docs/backlog/proposals/$DAY-summary.md` (format `docs/backlog/PROPOSALS.md`: narrow `paths`, a `verify` command,
+`expect`; the description starts with `Decision (without Aika): <choice>; not taken: <options>; undo: <how>` and
+tells the executor to add that bullet to `DECISIONS.md`). Intake turns them into tasks. Only what needs money, keys,
+sign-ups or external accounts is not decided.
+
+Un-park what you decided, so the task moves again (a parked task otherwise stays parked forever):
+- a parked PR: comment `Decision (without Aika): …` on it (with `<!-- backlog-decision -->`), remove the label
+  `parked`, and close the PR (`gh api -X PATCH repos/Aika8/wardrobe/pulls/<n> -f state=closed`) — the task becomes
+  ready again and the next executor reads the decision there;
+- a `[parked] <id>` issue: comment the decision the same way and close the issue.
+Comment, label and close are the only GitHub writes you make besides your own PR.
+
 ## 2. Write `docs/backlog/summaries/$DAY.md`
 
 ```markdown
@@ -39,17 +56,18 @@ how many tasks are left `todo` and ready; CI failures on `main`, if any
 ## Merged
 - WR-0xx <title> (#n) — <one line: what is now true>
 
-## Waiting for you (each: the question, 2–3 options, a recommendation)
-1. …
+## Решено без тебя — посмотри после отпуска
+- <the question> → <the choice> (не взято: <options>; отменить: <how>) — <task id, or the proposal in
+  `proposals/<DAY>-summary.md`>
 
-## Decisions taken without you (cheap to undo)
-- <task>: <choice> — <how to undo>
+## После отпуска (деньги, ключи, регистрации, внешние аккаунты)
+- <only these; everything else is decided above>
 
 ## Open / stuck
 - #n <branch>: <why>
 
 ## Numbers
-Queue: <done>/<total>, ready <n>, waiting for Aika <n>. Proposals: <in>/<out> (intake). CI on main: <green/red>.
+Queue: <done>/<total>, ready <n>. Proposals: <in>/<out> (intake). CI on main: <green/red>.
 ```
 
 Language: Russian, unless `docs/backlog/QUESTIONS-BEFORE-LEAVE.md` says otherwise (the headings above
@@ -58,7 +76,7 @@ No real brands, no personal data.
 
 ```bash
 git checkout -b claude/summary-$DAY
-git add docs/backlog/summaries/$DAY.md && git commit -m "backlog: summary $DAY" && git push -u origin HEAD
+git add docs/backlog/summaries/$DAY.md docs/backlog/proposals/$DAY-summary.md 2>/dev/null; git add docs/backlog/summaries/$DAY.md && git commit -m "backlog: summary $DAY" && git push -u origin HEAD
 gh api -X POST repos/Aika8/wardrobe/pulls -f title="Summary $DAY" -f head=claude/summary-$DAY -f base=main \
   -f body="Daily summary of the backlog run."
 ```

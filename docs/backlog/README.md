@@ -56,7 +56,7 @@ of each scheduled task is one line — the file holds the rest, so changing a pr
 | Analyst | `prompts/analyst.md` | daily 16:40 | PR adding `proposals/<date>-analyst.md` |
 | User | `prompts/user.md` | daily 17:40 | PR adding `proposals/<date>-user.md` |
 | Intake | `.github/workflows/intake.yml` (code) | daily 21:55 | commit to `main`: QUEUE.md, intake-log.md |
-| Summary | `prompts/summary.md` | daily 01:35 | PR adding `summaries/<date>.md` |
+| Summary | `prompts/summary.md` | daily 01:35 | PR adding `summaries/<date>.md` (+ `proposals/<date>-summary.md`); un-parks what it decided |
 | Automerge | `.github/workflows/automerge.yml` (code) | after every CI run and every 3 hours at :43 | merges |
 
 Every two hours, not hourly: three projects (learning-exchange, signal-bot, wardrobe) share one subscription limit
@@ -82,10 +82,10 @@ hour costs little.
    `review:pass` plus a reviewer marker `verdict=pass sha=<that very head>` (only GitHub's own update-branch merges
    may follow the reviewed commit) → squash merge, then CI on `main`. A task is *done* when its PR is merged.
 
-Labels: `agent`, `review:pass`, `needs-fix`, `needs-rebase`, `parked` (waits for Aika), `blocked-paths` (touched
+Labels: `agent`, `review:pass`, `needs-fix`, `needs-rebase`, `parked` (the summary run decides and un-parks it), `blocked-paths` (touched
 a forbidden path; waits for Aika), `hold` (Aika's: do not touch). GitHub creates a label the first time it is used.
 
-## Rule for every run: do not wait for Aika
+## Rule for every run: nothing waits for Aika
 
 Aika is away and answers nothing. When a run meets a question the task and the files do not answer:
 
@@ -100,7 +100,13 @@ Aika is away and answers nothing. When a run meets a question the task and the f
    costly-to-reverse decisions get an ADR first); deleting or renaming public things; an approved design; a model
    call or anything that would need a key. Then do not do it: comment the question with 2–3 options and a recommendation on
    the PR (or open an issue titled `[parked] <task id>: <question>` with the label `parked` when there is no PR),
-   and stop. The next run takes the next task.
+   and stop. The next run takes the next task. A parked question does not wait either: the next analyst or summary
+   run decides it (step 4).
+4. **Decide, do not wait** (Aika, 26 November: «меня ничего не должно ждать»). The analyst, user and summary runs
+   decide every open question — a parked PR, a tech-debt note, a contradiction — by its recommendation, or without
+   one by the option easiest to undo, and turn the decision into a proposal (`docs/backlog/PROPOSALS.md`); intake
+   makes it a task, and that task writes the `DECISIONS.md` bullet. The summary lists these under «Решено без тебя —
+   посмотри после отпуска». Only what needs money, keys, sign-ups or external accounts is left for after the holiday.
 
 Never: ask in the chat and wait (nobody answers), weaken or delete a test to get green, touch a protected path,
 spend money, sign up anywhere, use a real brand or real credentials, commit a photo or personal data.

@@ -66,18 +66,22 @@ jobs:
       # Aika, 26 November 2026: proposals become tasks at once, with no daily cap. A merged proposals PR is taken
       # into the queue in the same sweep (pushes made with GITHUB_TOKEN start no workflow, so intake.yml would
       # otherwise wait for its daily run). Same rules as intake.yml: scripts/backlog/backlog.py `intake`.
-      - name: Intake of merged proposals
+      - name: Intake of merged proposals, tech-debt notes and tech-debt issues
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git pull -q --ff-only origin main
           if python3 scripts/backlog/backlog.py paused >/dev/null; then echo "paused"; exit 0; fi
-          for d in "$(date -u -d yesterday +%F)" "$(date -u +%F)"; do python3 scripts/backlog/backlog.py intake --date "$d"; done
+          for d in "$(date -u -d yesterday +%F)" "$(date -u +%F)"; do python3 scripts/backlog/backlog.py intake --date "$d" --issues; done
           python3 scripts/backlog/backlog.py lint
           git add docs/backlog/QUEUE.md docs/backlog/intake-log.md 2>/dev/null || true
-          if git diff --cached --quiet; then echo "nothing to take in"; exit 0; fi
+          if git diff --cached --quiet; then
+            echo "nothing to take in"; python3 scripts/backlog/backlog.py close-issues || true; exit 0
+          fi
           git -c user.name="backlog-intake" -c user.email="backlog-intake@users.noreply.github.com" \
             commit -q -m "backlog: intake of proposals ($(date -u +%F))"
           for i in 1 2 3; do
-            git push -q origin HEAD:main && exit 0
+            git push -q origin HEAD:main && { python3 scripts/backlog/backlog.py close-issues || true; exit 0; }
             git pull -q --rebase origin main || exit 1
           done
           exit 1

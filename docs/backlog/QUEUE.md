@@ -3474,3 +3474,17 @@ dressed in WHITE / NAVY, height 260). The WR-033 PR's screenshot was taken with 
 Why: `client/src/avatar/api.ts:67-76` copies the private message-reading of `client/src/api.ts:7-11` (WR-027 could not touch `client/src/api.ts`); two copies drift apart when the `Error` contract changes. Found by WR-027, reviewer, 2026-11-27
 
 Export the existing helper in `client/src/api.ts` that turns a refused response into its `Error.message` (or `HTTP <status>`), and use it in `dress` in `client/src/avatar/api.ts` instead of the inline copy. No behaviour change.
+
+### AUTO-20261126-4 — Ignore a late answer for an earlier route on the item and avatar screens
+- status: todo
+- size: S
+- paths: `client/src/screens/ItemScreen.tsx`, `client/src/screens/Avatar.tsx`, `client/test/screens.test.mjs`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
+- expect: green; a new test where the answer for the first `route.param` resolves after the second one's leaves the second one shown; it failed before the fix
+- source: issue#54#1
+- added: 2026-11-26
+- priority: bug
+
+Why: `client/src/screens/ItemScreen.tsx:21` and `client/src/screens/Avatar.tsx:28` — the `useEffect` that loads on `route.param` has no cleanup, so when the param changes while a request is in flight (e.g. `#/me/a` then `#/me/b`), whichever answer arrives last is shown, possibly the one for the old param. Found by WR-027, reviewer, 2026-11-27.
+
+In each of the two `useEffect`s keep a `let live = true`, return `() => { live = false }` as the cleanup, and only call `setState`/`setItem`/`setError` while `live`. If the screens have no test harness for effects, move the load into a small pure helper that takes an "is still current" check and test that helper with two fake promises resolving out of order.

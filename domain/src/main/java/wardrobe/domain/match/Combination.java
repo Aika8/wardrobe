@@ -29,6 +29,11 @@ public final class Combination implements CombinationRule {
         return new Combination(List.of(new FormalityRule(), new ColourRule(), new PatternRule(), new SeasonRule()));
     }
 
+    /** The rules, in the order they are asked. */
+    public List<CombinationRule> rules() {
+        return rules;
+    }
+
     @Override
     public Verdict judge(Item a, Item b) {
         List<String> failures = new ArrayList<>();

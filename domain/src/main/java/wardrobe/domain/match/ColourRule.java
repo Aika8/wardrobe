@@ -24,22 +24,22 @@ public final class ColourRule implements CombinationRule {
     @Override
     public Verdict judge(Item a, Item b) {
         if (a.id().equals(b.id())) {
-            return Verdict.yes("an item goes with itself");
+            return Verdict.yes(ReasonCode.SAME_ITEM, "an item goes with itself");
         }
         if (a.colour() == Colour.UNKNOWN || b.colour() == Colour.UNKNOWN) {
-            return Verdict.no("colour of " + unknownIds(a, b) + " is unknown");
+            return Verdict.no(ReasonCode.UNKNOWN_COLOUR, "colour of " + unknownIds(a, b) + " is unknown");
         }
         if (a.colour().neutral() || b.colour().neutral()) {
             Colour neutral = a.colour().neutral() ? a.colour() : b.colour();
-            return Verdict.yes(neutral + " is neutral and goes with any colour");
+            return Verdict.yes(ReasonCode.NEUTRAL, neutral + " is neutral and goes with any colour");
         }
         if (a.colour() == b.colour()) {
-            return Verdict.yes("both are " + a.colour());
+            return Verdict.yes(ReasonCode.SAME_COLOUR, "both are " + a.colour());
         }
         if (FRIENDS.contains(EnumSet.of(a.colour(), b.colour()))) {
-            return Verdict.yes(a.colour() + " and " + b.colour() + " go together");
+            return Verdict.yes(ReasonCode.FRIENDS, a.colour() + " and " + b.colour() + " go together");
         }
-        return Verdict.no(a.colour() + " and " + b.colour() + " do not go together");
+        return Verdict.no(ReasonCode.NOT_FRIENDS, a.colour() + " and " + b.colour() + " do not go together");
     }
 
     private static String unknownIds(Item a, Item b) {

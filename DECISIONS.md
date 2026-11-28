@@ -351,3 +351,8 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   know show the server's English `reason` after «Пояснения по-русски нет»; an item missing from `itemsById` shows its
   id, a missing property «не известно». Not taken: the task's «на {n} шага проще» (needs the step count — the server
   would have to send it, a contract change); hiding UNCODED lines (loses the server's answer). Undo: `client/src/why.ts`.
+- **WR-037, fabric weight** (`Fabric.weight()`, `FabricWeight { LIGHT, MEDIUM, HEAVY, UNKNOWN }`). The table is
+  Aika's to tune: LIGHT — COTTON, LINEN, SILK; MEDIUM — DENIM, KNIT, SYNTHETIC; HEAVY — WOOL, LEATHER; UNKNOWN —
+  UNKNOWN (never guessed). Known coarseness: one weight per fabric, not per item — a thick cotton sweatshirt counts as
+  LIGHT, a thin merino top as HEAVY. Undo/tune: the constructor arguments in `Fabric.java` and the table in
+  `FabricWeightTest`.

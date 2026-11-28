@@ -351,3 +351,10 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   know show the server's English `reason` after «Пояснения по-русски нет»; an item missing from `itemsById` shows its
   id, a missing property «не известно». Not taken: the task's «на {n} шага проще» (needs the step count — the server
   would have to send it, a contract change); hiding UNCODED lines (loses the server's answer). Undo: `client/src/why.ts`.
+- **AUTO-20261126-5, how the item screen knows a move answer is late**: the current `route.param` sits in a mutable
+  holder kept in `useState` (`shown`, the last hook of `ItemScreen`), set by the load effect, which also resets
+  `moving` to false; `move` captures the param when called and sets item, error and `moving` only while `shown`
+  still holds it. Not taken: `useRef` (the fake React of `client/test/screens.test.mjs` has no `useRef`, so the
+  existing screen tests would crash, and that file is append-only); a per-effect `live` flag (the move's closure
+  cannot see the effect's cleanup). The test comes in the follow-up task (issue #58 decision). Undo:
+  `client/src/screens/ItemScreen.tsx`.

@@ -363,3 +363,9 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   UNKNOWN (never guessed). Known coarseness: one weight per fabric, not per item — a thick cotton sweatshirt counts as
   LIGHT, a thin merino top as HEAVY. Undo/tune: the constructor arguments in `Fabric.java` and the table in
   `FabricWeightTest`.
+- **WR-040, occasions** (`wardrobe.domain.occasion`). The table is Aika's to tune, both ends inclusive: OFFICE
+  SMART_CASUAL–BUSINESS, WEEKEND CASUAL–SMART_CASUAL, EVENING SMART_CASUAL–FORMAL, SPORT SPORT–CASUAL; read only
+  through `Occasion.allows`. `OccasionCheck.judge` counts every item (shoes, accessories); any item below → TOO_CASUAL
+  (wins over too formal), else any above → TOO_FORMAL; `items` lists every item outside the range, both sides, in
+  input order; the reason names each as `name (id) is FORMALITY`. Item status is not looked at (cleanliness is
+  `OutfitCheck`'s job). Undo/tune: the constructor arguments in `Occasion.java` and the table in `OccasionTest`.

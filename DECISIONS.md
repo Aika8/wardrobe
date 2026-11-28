@@ -380,3 +380,9 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   too), else the first TOP and first BOTTOM; FEW_ACCENTS lists the first item of each accent colour (as
   TOO_MANY_ACCENTS does) and FEW_ACCESSORIES lists all accessories (as TOO_MANY_ACCESSORIES does) — options not
   taken: empty item lists, which tell the client less. Undo: the constants and the `items` lines in the three rules.
+- **WR-040, occasions** (`wardrobe.domain.occasion`). The table is Aika's to tune, both ends inclusive: OFFICE
+  SMART_CASUAL–BUSINESS, WEEKEND CASUAL–SMART_CASUAL, EVENING SMART_CASUAL–FORMAL, SPORT SPORT–CASUAL; read only
+  through `Occasion.allows`. `OccasionCheck.judge` counts every item (shoes, accessories); any item below → TOO_CASUAL
+  (wins over too formal), else any above → TOO_FORMAL; `items` lists every item outside the range, both sides, in
+  input order; the reason names each as `name (id) is FORMALITY`. Item status is not looked at (cleanliness is
+  `OutfitCheck`'s job). Undo/tune: the constructor arguments in `Occasion.java` and the table in `OccasionTest`.

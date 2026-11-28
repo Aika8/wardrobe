@@ -358,6 +358,13 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   existing screen tests would crash, and that file is append-only); a per-effect `live` flag (the move's closure
   cannot see the effect's cleanup). The test comes in the follow-up task (issue #58 decision). Undo:
   `client/src/screens/ItemScreen.tsx`.
+- WR-038 (sample wardrobe): an item's capsule is its id prefix (`office-`, `weekend-`, `sport-`, `evening-`), so the
+  test can pin each capsule's counts without a field the domain does not have; within a type the list runs office →
+  weekend → sport → evening. Counts: 17 tops, 12 bottoms, 7 dresses, 7 outerwear, 9 shoes, 8 accessories; 50 clean.
+  The unknown fields sit on a cardigan in the wash (fabric), a thermal top in repair (colour) and a long dress on a
+  trip (pattern). Accent pairs: office blue/yellow, weekend green/pink and blue/orange, sport blue/orange, evening
+  red/pink and purple/yellow. "Friends" is checked through `ColourRule.judge`, not a copy of the table. Undo:
+  `app/src/main/java/wardrobe/app/catalog/SampleWardrobe.java`.
 - **WR-037, fabric weight** (`Fabric.weight()`, `FabricWeight { LIGHT, MEDIUM, HEAVY, UNKNOWN }`). The table is
   Aika's to tune: LIGHT — COTTON, LINEN, SILK; MEDIUM — DENIM, KNIT, SYNTHETIC; HEAVY — WOOL, LEATHER; UNKNOWN —
   UNKNOWN (never guessed). Known coarseness: one weight per fabric, not per item — a thick cotton sweatshirt counts as

@@ -344,3 +344,10 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   `items[i]`. CORS: POST was already open (WR-021); only a preflight test is added. Not taken: `ok` from the `why`
   lines (they do not see two of a kind or a dress with separates); a `reason` code per problem (the clash's codes are
   already in `why`). Undo: `OutfitCheckController.java`, the `/outfits/check` path and its four schemas.
+- WR-031, how `whyText` words a line without deciding anything. Choice: no number of steps in STEPS_APART («Пиджак —
+  деловой стиль, Худи — спортивный: слишком далеко по строгости») and no list of shared seasons, because counting steps
+  or intersecting seasons on the client would be a second copy of the rule; a ✓ line over 3+ items names the first
+  pair (its code is that pair's) and adds «Остальные пары тоже подходят»; `UNCODED` and a code the client does not
+  know show the server's English `reason` after «Пояснения по-русски нет»; an item missing from `itemsById` shows its
+  id, a missing property «не известно». Not taken: the task's «на {n} шага проще» (needs the step count — the server
+  would have to send it, a contract change); hiding UNCODED lines (loses the server's answer). Undo: `client/src/why.ts`.

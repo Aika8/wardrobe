@@ -3502,3 +3502,30 @@ In each of the two `useEffect`s keep a `let live = true`, return `() => { live =
 Why: `client/src/screens/ItemScreen.tsx:38-45` — `move` calls `changeStatus(...).then(setItem).catch(setMoveError).finally(() => setMoving(false))` with no check that the route is still the same item, so if the hash changes from `#/item/a` to `#/item/b` (the screen stays mounted) while the move is in flight, item `a` replaces item `b` on screen. Same class of bug AUTO-20261126-4 fixed for the load effect; found by AUTO-20261126-4, reviewer, 2026-11-27.
 
 Keep the current `route.param` in a ref (updated by the load effect) and in `move` capture the param at call time; only call `setItem`/`setMoveError`/`setMoving` when the ref still equals the captured param. Test it with the existing fake-hooks harness in `client/test/screens.test.mjs`: start a move on `a`, change to `b`, resolve the move, assert `b` is shown.
+
+### AUTO-20261127-1 — Test that a late status-change answer for an earlier item is dropped on the item screen
+- status: todo
+- size: S
+- paths: `client/test/screens-move.test.mjs`
+- verify: `make client/node_modules/.ci-stamp && cd client && npm test`
+- expect: green; the new test starts a move on item `a`, changes `route.param` to `b`, resolves the move, and `b` stays shown with `moving` false; with the AUTO-20261126-5 change of `ItemScreen.tsx` reverted locally the test fails
+- source: docs/backlog/proposals/2026-11-27-summary.md#1
+- added: 2026-11-27
+- priority: bug
+- depends: AUTO-20261126-5
+
+Why: issue #58 — AUTO-20261126-5 cannot add its test to `client/test/screens.test.mjs` (append-only since #55 merged); the fix then lands without a test unless a new test file follows
+
+Decision (without Aika): the test of AUTO-20261126-5 lives in a new file `client/test/screens-move.test.mjs`, and
+AUTO-20261126-5 itself changes only `client/src/screens/ItemScreen.tsx`; not taken: an append-only exception for
+existing test files (changes `scripts/backlog/`, Aika's), the fix with no test; undo: delete
+`client/test/screens-move.test.mjs`. Add this as one bullet to `DECISIONS.md` under `## Backlog run (December 2026)`.
+
+Read first: `client/src/screens/ItemScreen.tsx` (the `move` function and the ref holding the current `route.param`,
+added by AUTO-20261126-5) and `client/test/screens.test.mjs` (the fake-hooks harness: `deepStub`, `fakeReact`,
+`loadScreen`). Do not edit `screens.test.mjs`. Copy the harness you need into the new file (it exports nothing) and
+add `useRef` to the fake React if the screen uses it (`useRef(init)` returns a stable `{ current: init }` per slot).
+Drive it: render for `a`, start `move` with a pending `changeStatus` promise, re-render for `b` (run the load
+effect's cleanup and the new effect, load resolves with item `b`), then resolve the pending move with an item `a`.
+Assert the shown item is `b`, no move error is set and `moving` is false. Check locally that the test fails with
+the `ItemScreen.tsx` fix reverted, and say so in the PR.

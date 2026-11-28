@@ -8,3 +8,6 @@ Written by `scripts/backlog/backlog.py intake` (GitHub Actions, daily): which pr
 - accepted: AUTO-20261126-3 ← issue#51#1 «Read the server's error message in one place on the client»
 - accepted: AUTO-20261126-4 ← issue#54#1 «Ignore a late answer for an earlier route on the item and avatar screens»
 - accepted: AUTO-20261126-5 ← issue#57#1 «Drop a late status-change answer for an earlier item on the item screen»
+
+## 2026-11-27
+- accepted: AUTO-20261127-1 ← docs/backlog/proposals/2026-11-27-summary.md#1 «Test that a late status-change answer for an earlier item is dropped on the item screen»

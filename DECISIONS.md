@@ -358,3 +358,8 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   existing screen tests would crash, and that file is append-only); a per-effect `live` flag (the move's closure
   cannot see the effect's cleanup). The test comes in the follow-up task (issue #58 decision). Undo:
   `client/src/screens/ItemScreen.tsx`.
+- **WR-037, fabric weight** (`Fabric.weight()`, `FabricWeight { LIGHT, MEDIUM, HEAVY, UNKNOWN }`). The table is
+  Aika's to tune: LIGHT — COTTON, LINEN, SILK; MEDIUM — DENIM, KNIT, SYNTHETIC; HEAVY — WOOL, LEATHER; UNKNOWN —
+  UNKNOWN (never guessed). Known coarseness: one weight per fabric, not per item — a thick cotton sweatshirt counts as
+  LIGHT, a thin merino top as HEAVY. Undo/tune: the constructor arguments in `Fabric.java` and the table in
+  `FabricWeightTest`.

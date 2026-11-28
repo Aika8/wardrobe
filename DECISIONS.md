@@ -380,3 +380,8 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   too), else the first TOP and first BOTTOM; FEW_ACCENTS lists the first item of each accent colour (as
   TOO_MANY_ACCENTS does) and FEW_ACCESSORIES lists all accessories (as TOO_MANY_ACCESSORIES does) — options not
   taken: empty item lists, which tell the client less. Undo: the constants and the `items` lines in the three rules.
+- AUTO-20261127-1: where the test of AUTO-20261126-5 lives — in a new file `client/test/screens-move.test.mjs`
+  (with its own copy of the fake-hooks harness, plus `useRef` and a JSX runtime that returns plain objects so the
+  test can call `ItemDetails`' `onMove`); AUTO-20261126-5 itself changes only `client/src/screens/ItemScreen.tsx`.
+  Not taken: an append-only exception for existing test files (changes `scripts/backlog/`, Aika's), the fix with no
+  test. Undo: delete `client/test/screens-move.test.mjs`.

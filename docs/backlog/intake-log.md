@@ -11,3 +11,4 @@ Written by `scripts/backlog/backlog.py intake` (GitHub Actions, daily): which pr
 
 ## 2026-11-27
 - accepted: AUTO-20261127-1 ← docs/backlog/proposals/2026-11-27-summary.md#1 «Test that a late status-change answer for an earlier item is dropped on the item screen»
+- accepted: AUTO-20261127-2 ← issue#67#1 «Refuse the same accessory listed twice in an outfit»

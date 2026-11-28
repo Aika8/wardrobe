@@ -3529,3 +3529,17 @@ Drive it: render for `a`, start `move` with a pending `changeStatus` promise, re
 effect's cleanup and the new effect, load resolves with item `b`), then resolve the pending move with an item `a`.
 Assert the shown item is `b`, no move error is set and `moving` is false. Check locally that the test fails with
 the `ItemScreen.tsx` fix reverted, and say so in the PR.
+
+### AUTO-20261127-2 — Refuse the same accessory listed twice in an outfit
+- status: todo
+- size: S
+- paths: `domain/src/main/java/wardrobe/domain/outfit/OutfitCheck.java`, `domain/src/main/java/wardrobe/domain/outfit/OutfitProblem.java`, `domain/src/test/java/wardrobe/domain/outfit/OutfitCheckTest.java`
+- verify: `./gradlew :domain:test --tests 'wardrobe.domain.outfit.OutfitCheckTest'`
+- expect: green; a new test (an outfit with one ACCESSORY item listed twice gives a problem) failed before the fix
+- source: issue#67#1
+- added: 2026-11-27
+- priority: bug
+
+Why: `domain/src/main/java/wardrobe/domain/outfit/OutfitCheck.java:41` skips ACCESSORY in the two-of-a-kind loop, and `Outfit` accepts the same item id twice. So an outfit with one bag listed twice passes the check, and `AccessoryRule` (WR-039) counts that bag twice: 2 distinct accessories listed 4 times give TOO_MANY_ACCESSORIES. Found by the WR-039 reviewer (dim=deep), 2026-11-28.
+
+In `OutfitCheck.check`, report a problem when the same `ItemId` shows up more than once, for any type, accessories included. Either add a new `OutfitProblem` kind (and write it in DECISIONS.md) or reuse `TwoOfAKind`, whichever is easier to undo. Test: one accessory listed twice gives one problem; two different accessories give none.

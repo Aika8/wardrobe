@@ -19,14 +19,18 @@ export function ItemScreen({ route, back }: ScreenProps) {
   const [moveError, setMoveError] = useState<string | null>(null);
   // The param this screen shows now, read by a move answer that arrives late (AUTO-20261126-5). A mutable holder
   // kept in state, not useRef: the screen tests' fake React has hooks by call order and no useRef, so this stays
-  // the last hook (see DECISIONS.md).
-  const [shown] = useState<{ param: string | undefined }>({ param: route.param });
+  // the last hook (see DECISIONS.md). `inFlight` counts the moves still waiting for an answer, per param, so a
+  // return to an item whose move is pending shows it busy again.
+  const [shown] = useState<{ param: string | undefined; inFlight: Map<string | undefined, number> }>({
+    param: route.param,
+    inFlight: new Map(),
+  });
 
   useEffect(() => {
     shown.param = route.param;
     setItem(undefined);
     setError(null);
-    setMoving(false);
+    setMoving((shown.inFlight.get(route.param) ?? 0) > 0);
     setMoveError(null);
     // An answer for an earlier param that arrives after the param changed is dropped (AUTO-20261126-4).
     let live = true;
@@ -46,6 +50,7 @@ export function ItemScreen({ route, back }: ScreenProps) {
     // An answer for a move started on an earlier param is dropped: it must not replace the item shown now.
     const param = route.param;
     const current = () => shown.param === param;
+    shown.inFlight.set(param, (shown.inFlight.get(param) ?? 0) + 1);
     setMoving(true);
     setMoveError(null);
     changeStatus(API_URL, id, status)
@@ -56,7 +61,10 @@ export function ItemScreen({ route, back }: ScreenProps) {
         if (current()) setMoveError(messageOf(e));
       })
       .finally(() => {
-        if (current()) setMoving(false);
+        const left = (shown.inFlight.get(param) ?? 1) - 1;
+        if (left > 0) shown.inFlight.set(param, left);
+        else shown.inFlight.delete(param);
+        if (current() && left === 0) setMoving(false);
       });
   };
 

@@ -358,3 +358,8 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   trip (pattern). Accent pairs: office blue/yellow, weekend green/pink and blue/orange, sport blue/orange, evening
   red/pink and purple/yellow. "Friends" is checked through `ColourRule.judge`, not a copy of the table. Undo:
   `app/src/main/java/wardrobe/app/catalog/SampleWardrobe.java`.
+- **WR-037, fabric weight** (`Fabric.weight()`, `FabricWeight { LIGHT, MEDIUM, HEAVY, UNKNOWN }`). The table is
+  Aika's to tune: LIGHT — COTTON, LINEN, SILK; MEDIUM — DENIM, KNIT, SYNTHETIC; HEAVY — WOOL, LEATHER; UNKNOWN —
+  UNKNOWN (never guessed). Known coarseness: one weight per fabric, not per item — a thick cotton sweatshirt counts as
+  LIGHT, a thin merino top as HEAVY. Undo/tune: the constructor arguments in `Fabric.java` and the table in
+  `FabricWeightTest`.

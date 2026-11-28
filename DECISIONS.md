@@ -363,6 +363,14 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   UNKNOWN (never guessed). Known coarseness: one weight per fabric, not per item — a thick cotton sweatshirt counts as
   LIGHT, a thin merino top as HEAVY. Undo/tune: the constructor arguments in `Fabric.java` and the table in
   `FabricWeightTest`.
+- **WR-039, whole-outfit rules** (`wardrobe.domain.outfit.rule`). The limits are Aika's to tune:
+  `AccentRule.MAX_ACCENTS = 2` (distinct non-neutral colours; an UNKNOWN colour makes the answer "no") and
+  `AccessoryRule.MAX_ACCESSORIES = 3`. `CompleteRule` (a body — TOP and BOTTOM, or DRESS — plus SHOES) is for
+  suggestions and for a check the person asks for; it does **not** change `OutfitCheck`, where a missing bottom stays
+  not a problem (WR-006). Small choices: when a DRESS is there, the body is the first DRESS (even if a TOP is there
+  too), else the first TOP and first BOTTOM; FEW_ACCENTS lists the first item of each accent colour (as
+  TOO_MANY_ACCENTS does) and FEW_ACCESSORIES lists all accessories (as TOO_MANY_ACCESSORIES does) — options not
+  taken: empty item lists, which tell the client less. Undo: the constants and the `items` lines in the three rules.
 - **WR-040, occasions** (`wardrobe.domain.occasion`). The table is Aika's to tune, both ends inclusive: OFFICE
   SMART_CASUAL–BUSINESS, WEEKEND CASUAL–SMART_CASUAL, EVENING SMART_CASUAL–FORMAL, SPORT SPORT–CASUAL; read only
   through `Occasion.allows`. `OccasionCheck.judge` counts every item (shoes, accessories); any item below → TOO_CASUAL

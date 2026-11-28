@@ -351,6 +351,15 @@ one easiest to undo). Each line: the choice — what was not taken — how to un
   know show the server's English `reason` after «Пояснения по-русски нет»; an item missing from `itemsById` shows its
   id, a missing property «не известно». Not taken: the task's «на {n} шага проще» (needs the step count — the server
   would have to send it, a contract change); hiding UNCODED lines (loses the server's answer). Undo: `client/src/why.ts`.
+- **AUTO-20261126-5, how the item screen knows a move answer is late**: the current `route.param` sits in a mutable
+  holder kept in `useState` (`shown`, the last hook of `ItemScreen`), set by the load effect. The holder also counts
+  moves still in flight per param (`shown.inFlight`); the load effect sets `moving` to «this param has a move in
+  flight», so returning `a→b→a` while `a`'s move is pending keeps `a` busy (fix round 1, deep review D1). A count,
+  not one «moving for» param, so a move on `b` started meanwhile does not hide `a`'s. `move` captures the param when called and sets item, error and `moving` only while `shown`
+  still holds it. Not taken: `useRef` (the fake React of `client/test/screens.test.mjs` has no `useRef`, so the
+  existing screen tests would crash, and that file is append-only); a per-effect `live` flag (the move's closure
+  cannot see the effect's cleanup). The test comes in the follow-up task (issue #58 decision). Undo:
+  `client/src/screens/ItemScreen.tsx`.
 - WR-038 (sample wardrobe): an item's capsule is its id prefix (`office-`, `weekend-`, `sport-`, `evening-`), so the
   test can pin each capsule's counts without a field the domain does not have; within a type the list runs office →
   weekend → sport → evening. Counts: 17 tops, 12 bottoms, 7 dresses, 7 outerwear, 9 shoes, 8 accessories; 50 clean.
